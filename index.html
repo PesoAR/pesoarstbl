@@ -1,1070 +1,1039 @@
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>PESO AR STBL (STBL) - Token Argentino</title>
+<title>PESO AR STBL | Stablecoin Argentina</title>
+<meta name="description" content="PESO AR STBL - Ecosistema digital en Arbitrum One.">
 
-    <meta name="description" content="PESO AR STBL - Token digital en Arbitrum One.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
+<style>
+body { background:#020617; color:#f1f5f9; }
+.panel { background:#0f172a; border:1px solid #1e293b; border-radius:20px; }
+.field {
+width:100%; background:#020617; border:1px solid #334155;
+border-radius:12px; padding:13px; color:white; outline:none;
+}
+.field:focus { border-color:#f59e0b; }
+.gold { background:#f59e0b; color:#020617; font-weight:700; }
+.gold:hover { background:#fbbf24; }
+.action { background:#1e293b; border:1px solid #334155; }
+.action:hover { border-color:#f59e0b; }
+.tab.active { background:#f59e0b; color:#020617; font-weight:700; }
+#qr-code img { margin:auto; padding:8px; background:white; border-radius:8px; }
+</style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="font-sans antialiased">
 
-<!-- CONFIGURACIÓN -->
+<!-- CONFIGURACIÓN DEL TOKEN -->
 <script>
 const CONFIG = {
-    contract: "0xB46Ad28a11d2006058D22a16b16902F8213bDc30",
-    chainId: 42161,
-    chainHex: "0xa4b1",
-    chainName: "Arbitrum One",
-    rpc: "https://arb1.arbitrum.io/rpc",
-    explorer: "https://arbiscan.io",
-    uniswap: "https://app.uniswap.org/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum",
-    dex: "https://dexscreener.com/arbitrum/0xb46ad28a11d2006058d22a16b16902f8213bdc30"
+contract: "0xb46ad28a11d2006058d22a16b16902f8213bdc30",
+chainId: 42161,
+chainHex: "0xa4b1",
+chainName: "Arbitrum One",
+rpc: "https://arb1.arbitrum.io/rpc",
+explorer: "https://arbiscan.io",
+historyAPI: "https://arbitrum.blockscout.com/api/v2",
+uniswap: "https://app.uniswap.org/swap"
 };
 
 const ABI = [
-    "function balanceOf(address) view returns (uint256)",
-    "function decimals() view returns (uint8)",
-    "function symbol() view returns (string)",
-    "function name() view returns (string)",
-    "function transfer(address,uint256) returns (bool)"
+"function balanceOf(address) view returns (uint256)",
+"function transfer(address,uint256) returns (bool)",
+"function decimals() view returns (uint8)",
+"function symbol() view returns (string)",
+"function name() view returns (string)",
+"event Transfer(address indexed from,address indexed to,uint256 value)"
 ];
 
+let wallet = null;
 let provider = null;
 let signer = null;
-let tokenContract = null;
+let token = null;
 let userAddress = null;
-let tokenDecimals = 18;
-let tokenSymbol = "STBL";
+let decimals = 18;
+let symbol = "STBL";
+let currentTab = "dashboard";
+let busy = false;
 </script>
 
 <!-- HEADER -->
 <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-
-    <a href="#" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl">
-            <i class="fa-solid fa-coins"></i>
-        </div>
-
-        <div>
-            <span class="font-bold text-lg block text-white">PESO AR STBL</span>
-            <span class="text-xs text-amber-400 font-medium">ARBITRUM ONE TOKEN</span>
-        </div>
-    </a>
-
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-        <a href="#about" class="hover:text-amber-400">¿Qué es STBL?</a>
-        <a href="#calculator" class="hover:text-amber-400">Calculadora</a>
-        <a href="#features" class="hover:text-amber-400">Características</a>
-        <a href="#community" class="hover:text-amber-400">Comunidad</a>
-    </nav>
-
-    <div class="hidden sm:flex items-center gap-3">
-
-        <a href="https://app.uniswap.org/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum"
-        target="_blank" rel="noopener noreferrer"
-        class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-xl text-sm">
-            <i class="fa-solid fa-right-left"></i> Comprar STBL
-        </a>
-
-        <button id="connectWalletBtn"
-        onclick="connectWallet()"
-        class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm">
-            <i class="fa-solid fa-wallet"></i> Conectar Wallet
-        </button>
-
-    </div>
-
-    <button id="mobile-menu-btn" class="md:hidden text-2xl text-white">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
+<a href="#" class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl gold flex items-center justify-center text-xl">
+  <i class="fa-solid fa-coins"></i>
 </div>
+<div>
+  <div class="font-bold text-lg">PESO AR STBL</div>
+  <div class="text-xs text-amber-400">ARBITRUM ONE TOKEN</div>
+</div>
+</a>
 
-<!-- MENU CELULAR -->
-<div id="mobile-menu" class="hidden md:hidden bg-slate-950 border-t border-slate-800 px-5 py-5 space-y-4">
-
-    <a href="#about" class="block text-slate-300">¿Qué es STBL?</a>
-    <a href="#calculator" class="block text-slate-300">Calculadora</a>
-    <a href="#features" class="block text-slate-300">Características</a>
-    <a href="#community" class="block text-slate-300">Comunidad</a>
-
-    <a href="https://app.uniswap.org/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum"
-    target="_blank"
-    class="block text-center bg-slate-800 p-3 rounded-xl">
-        Comprar STBL
-    </a>
-
-    <button onclick="connectWallet()"
-    class="w-full bg-amber-500 text-slate-950 font-bold p-3 rounded-xl">
-        <i class="fa-solid fa-wallet"></i> Conectar Wallet
-    </button>
+<button id="connectBtn" onclick="connectWallet()" class="gold px-4 py-3 rounded-xl text-sm">
+<i class="fa-solid fa-wallet"></i> Conectar Wallet
+</button>
 
 </div>
 </header>
 
-
-<!-- HERO -->
-<section id="about" class="relative overflow-hidden py-20 lg:py-32">
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-<div class="grid lg:grid-cols-12 gap-12 items-center">
-
-<div class="lg:col-span-7 space-y-6">
-
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
-
-        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-
-        RED OPERATIVA EN ARBITRUM ONE
-
-    </div>
-
-    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-
-        PESO AR STBL <span class="text-amber-400">(STBL)</span><br>
-
-        El Token Argentino en Arbitrum
-
-    </h1>
-
-    <p class="text-lg text-slate-400 max-w-xl">
-
-        Estable, transparente y diseñado para transacciones digitales con comisiones competitivas. Una propuesta de paridad cripto pensada para la economía digital de Argentina.
-
-    </p>
-
-
-    <!-- CONTRATO -->
-
-    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 max-w-lg space-y-3">
-
-        <div class="flex justify-between items-center text-xs text-slate-400">
-
-            <span>
-                <i class="fa-solid fa-file-contract text-amber-400"></i>
-                Contrato del Token:
-            </span>
-
-            <span class="font-semibold text-slate-300">
-                Arbitrum One
-            </span>
-
-        </div>
-
-        <div class="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 gap-2">
-
-            <code id="contractAddress" class="text-xs text-amber-400 truncate select-all">
-                0xB46Ad28a11d2006058D22a16b16902F8213bDc30
-            </code>
-
-            <button onclick="copyContract()"
-            class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg shrink-0">
-
-                <i class="fa-regular fa-copy"></i> Copiar
-
-            </button>
-
-        </div>
-
-        <div class="text-xs text-slate-500">
-            Chain ID: 42161
-        </div>
-
-    </div>
-
-
-    <!-- BOTONES -->
-
-    <div class="flex flex-wrap gap-4 pt-4">
-
-        <a href="https://app.uniswap.org/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum"
-        target="_blank"
-        class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3.5 rounded-2xl">
-
-            <i class="fa-solid fa-right-left"></i>
-            Comprar en Uniswap
-
-        </a>
-
-        <a href="https://arbiscan.io/token/0xB46Ad28a11d2006058D22a16b16902F8213bDc30"
-        target="_blank"
-        class="bg-slate-900 hover:bg-slate-800 border border-slate-800 px-6 py-3.5 rounded-2xl">
-
-            <i class="fa-solid fa-magnifying-glass"></i>
-            Ver en Arbiscan
-
-        </a>
-
-        <a href="https://dexscreener.com/arbitrum/0xb46ad28a11d2006058d22a16b16902f8213bdc30"
-        target="_blank"
-        class="bg-slate-900 hover:bg-slate-800 border border-slate-800 px-6 py-3.5 rounded-2xl">
-
-            <i class="fa-solid fa-chart-line"></i>
-            DEXScreener
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<!-- TARJETA TOKEN -->
-
-<div class="lg:col-span-5 flex justify-center">
-
-<div class="w-full max-w-md p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl relative">
-
-    <div class="absolute -top-3 -right-3 bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-full">
-        STBL
-    </div>
-
-    <div class="text-center space-y-4 py-6">
-
-        <div class="w-20 h-20 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-3xl">
-
-            <i class="fa-solid fa-coins"></i>
-
-        </div>
-
-        <h2 class="text-xl font-bold text-white">
-            PESO AR STABLECOIN
-        </h2>
-
-        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800 text-left">
-
-            <div>
-                <span class="block text-xs text-slate-500">PARIDAD OBJETIVO</span>
-                <span class="font-semibold text-slate-200 text-sm">$1 ARS</span>
-            </div>
-
-            <div>
-                <span class="block text-xs text-slate-500">RED</span>
-                <span class="font-semibold text-amber-400 text-sm">ARBITRUM</span>
-            </div>
-
-        </div>
-
-        <!-- ESTADO WALLET -->
-
-        <div class="mt-6 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-left">
-
-            <div class="text-xs text-slate-500 mb-2">
-                ESTADO DE BILLETERA
-            </div>
-
-            <div id="walletStatus" class="text-sm text-amber-400 font-semibold">
-                Billetera desconectada
-            </div>
-
-            <div id="walletAddress" class="text-xs text-slate-400 mt-2 break-all">
-                Conectá MetaMask para comenzar.
-            </div>
-
-            <div class="border-t border-slate-800 mt-4 pt-4">
-
-                <div class="text-xs text-slate-500">
-                    TU SALDO STBL
-                </div>
-
-                <div id="tokenBalance" class="text-2xl text-white font-bold mt-1">
-                    -- STBL
-                </div>
-
-                <button onclick="refreshBalance()"
-                class="text-xs text-amber-400 mt-2 hover:text-amber-300">
-
-                    <i class="fa-solid fa-rotate"></i>
-                    Actualizar saldo
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-</div>
-</div>
-</section>
-
-
-<!-- CALCULADORA -->
-
-<section id="calculator" class="py-16 bg-slate-900/50 border-t border-slate-900">
-
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-
-    <div class="text-center space-y-3 mb-10">
-
-        <h2 class="text-3xl font-bold text-white">
-            Calculadora de Conversión
-        </h2>
-
-        <p class="text-slate-400 text-sm">
-            Calculá el equivalente estimado en STBL.
-        </p>
-
-    </div>
-
-    <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-6">
-
-        <div class="grid sm:grid-cols-2 gap-6">
-
-            <div class="space-y-2">
-
-                <label class="block text-xs text-slate-400">
-                    Monto a convertir
-                </label>
-
-                <input type="number"
-                id="calc-input"
-                value="1000"
-                min="0"
-                oninput="calculateSwap()"
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white">
-
-            </div>
-
-            <div class="space-y-2">
-
-                <label class="block text-xs text-slate-400">
-                    Moneda base
-                </label>
-
-                <select id="calc-currency"
-                onchange="calculateSwap()"
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white">
-
-                    <option value="ARS">ARS (Peso Argentino)</option>
-                    <option value="USDC">USDC (Dólar Digital)</option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-        <div class="p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
-
-            <div>
-
-                <span class="text-xs text-slate-500 block">
-                    Resultado estimado
-                </span>
-
-                <span id="calc-result" class="text-3xl font-extrabold text-amber-400">
-                    1,000.00
-                </span>
-
-                <span class="text-sm text-slate-300 ml-1">
-                    STBL
-                </span>
-
-            </div>
-
-            <div class="sm:border-l sm:border-slate-800 sm:pl-6">
-
-                <span class="text-xs text-slate-500 block">
-                    Tasa de referencia
-                </span>
-
-                <span id="calc-rate" class="text-sm text-slate-300">
-                    1 ARS = 1 STBL
-                </span>
-
-            </div>
-
-        </div>
-
-        <p class="text-xs text-slate-500">
-            La calculadora utiliza una tasa de referencia ilustrativa, no una cotización de mercado ni una garantía de conversión o rescate.
-        </p>
-
-    </div>
-
-</div>
-</section>
-
-
-<!-- CARACTERÍSTICAS -->
-
-<section id="features" class="py-20">
-
+<!-- PRESENTACIÓN -->
+<section class="py-12 lg:py-20">
 <div class="max-w-7xl mx-auto px-4">
 
-    <div class="text-center mb-12">
+<div class="grid lg:grid-cols-2 gap-10 items-center">
 
-        <h2 class="text-3xl font-bold text-white">
-            Características de PESO AR STBL
-        </h2>
+<div class="space-y-5">
 
-        <p class="text-slate-400 mt-3">
-            Tecnología blockchain para la economía digital.
-        </p>
+<div class="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full px-4 py-2 text-xs font-bold">
+<i class="fa-solid fa-circle text-xs"></i> RED ARBITRUM ONE
+</div>
 
-    </div>
+<h1 class="text-4xl lg:text-6xl font-black leading-tight">
+PESO AR STBL <span class="text-amber-400">(STBL)</span>
+</h1>
 
-    <div class="grid md:grid-cols-3 gap-6">
+<p class="text-slate-400 text-lg">
+Tu espacio para administrar, enviar, recibir y utilizar PESO AR STBL mediante tecnología blockchain.
+</p>
 
-        <div class="p-7 bg-slate-900 border border-slate-800 rounded-2xl">
+<div class="panel p-4 space-y-3">
+<div class="text-xs text-slate-400">CONTRATO DEL TOKEN</div>
+<div class="flex gap-2 items-center">
+  <code class="text-xs text-amber-400 break-all flex-1" id="contractText"></code>
+  <button onclick="copyText(CONFIG.contract)" class="action rounded-lg px-3 py-2">
+   <i class="fa-regular fa-copy"></i>
+  </button>
+</div>
+<div class="text-xs text-slate-500">Arbitrum One · Chain ID 42161</div>
+</div>
 
-            <i class="fa-solid fa-bolt text-amber-400 text-3xl"></i>
+<div class="flex flex-wrap gap-3">
+<a id="buyLink" target="_blank" rel="noopener noreferrer" class="gold rounded-xl px-5 py-3">
+  <i class="fa-solid fa-cart-shopping"></i> Comprar STBL
+</a>
+<a href="https://arbiscan.io" target="_blank" rel="noopener noreferrer" class="action rounded-xl px-5 py-3">
+  <i class="fa-solid fa-magnifying-glass"></i> Arbiscan
+</a>
+</div>
 
-            <h3 class="font-bold text-white mt-4">
-                Transacciones rápidas
-            </h3>
+</div>
 
-            <p class="text-sm text-slate-400 mt-2">
-                Operaciones sobre la red Arbitrum One.
-            </p>
+<div class="panel p-7 text-center">
+<div class="text-5xl text-amber-400 mb-4">
+  <i class="fa-solid fa-coins"></i>
+</div>
+<h2 class="text-xl font-bold">PESO AR STABLECOIN</h2>
+<p class="text-sm text-slate-400 mt-2">Tu ecosistema digital</p>
 
-        </div>
+<div class="grid grid-cols-2 gap-4 mt-8 border-t border-slate-800 pt-5">
+  <div>
+   <div class="text-xs text-slate-500">RED</div>
+   <div class="text-amber-400 font-bold">ARBITRUM</div>
+  </div>
+  <div>
+   <div class="text-xs text-slate-500">TOKEN</div>
+   <div class="font-bold">STBL</div>
+  </div>
+</div>
+</div>
 
-        <div class="p-7 bg-slate-900 border border-slate-800 rounded-2xl">
+</div>
+</div>
+</section>
 
-            <i class="fa-solid fa-shield-halved text-amber-400 text-3xl"></i>
+<!-- APLICACIÓN -->
+<section class="py-12 bg-slate-900/40 border-y border-slate-800">
+<div class="max-w-7xl mx-auto px-4">
 
-            <h3 class="font-bold text-white mt-4">
-                Transparencia
-            </h3>
+<div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+<div>
+  <h2 class="text-3xl font-bold">Mi billetera</h2>
+  <p class="text-slate-400 text-sm mt-1">Administrá tus operaciones STBL</p>
+</div>
+<div id="networkStatus" class="text-xs text-amber-400 bg-amber-500/10 rounded-full px-4 py-2">
+  <i class="fa-solid fa-circle"></i> Sin conexión
+</div>
+</div>
 
-            <p class="text-sm text-slate-400 mt-2">
-                Consulta pública de operaciones y datos del contrato en blockchain.
-            </p>
+<!-- ESTADO -->
+<div class="panel p-5 mb-6">
+<div class="text-xs text-slate-500 mb-2">DIRECCIÓN CONECTADA</div>
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <code id="userAddress" class="text-amber-400 text-sm break-all">Billetera desconectada</code>
+  <button onclick="copyUserAddress()" class="action px-3 py-2 rounded-lg text-xs">
+   <i class="fa-regular fa-copy"></i> Copiar
+  </button>
+</div>
+</div>
 
-        </div>
+<!-- SALDO -->
+<div class="panel p-6 mb-6">
+<div class="text-xs text-slate-400">SALDO DISPONIBLE</div>
+<div id="balance" class="text-4xl lg:text-5xl font-black text-amber-400 mt-2">
+  -- STBL
+</div>
+<div class="flex flex-wrap gap-3 mt-5">
+  <button onclick="refreshBalance()" class="action rounded-xl px-4 py-2 text-sm">
+   <i class="fa-solid fa-rotate"></i> Actualizar saldo
+  </button>
+  <a id="walletExplorer" target="_blank" rel="noopener noreferrer" class="action rounded-xl px-4 py-2 text-sm">
+   <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver billetera
+  </a>
+</div>
+</div>
 
-        <div class="p-7 bg-slate-900 border border-slate-800 rounded-2xl">
+<!-- PESTAÑAS -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-6">
 
-            <i class="fa-solid fa-globe text-amber-400 text-3xl"></i>
+<button class="tab active rounded-xl px-3 py-3 text-sm" data-tab="dashboard" onclick="showTab('dashboard')">
+<i class="fa-solid fa-house"></i> Inicio
+</button>
 
-            <h3 class="font-bold text-white mt-4">
-                Ecosistema digital
-            </h3>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="send" onclick="showTab('send')">
+<i class="fa-solid fa-paper-plane"></i> Enviar
+</button>
 
-            <p class="text-sm text-slate-400 mt-2">
-                Integración con billeteras y aplicaciones compatibles con Arbitrum.
-            </p>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="receive" onclick="showTab('receive')">
+<i class="fa-solid fa-qrcode"></i> Recibir
+</button>
 
-        </div>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="history" onclick="showTab('history')">
+<i class="fa-solid fa-clock-rotate-left"></i> Historial
+</button>
 
-    </div>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="swap" onclick="showTab('swap')">
+<i class="fa-solid fa-arrow-right-arrow-left"></i> Comprar/Vender
+</button>
+
+</div>
+
+<!-- INICIO -->
+<div id="tab-dashboard" class="tabContent panel p-6">
+
+<h3 class="text-xl font-bold mb-5">Panel de operaciones</h3>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+<button onclick="showTab('send')" class="action p-6 rounded-2xl text-left">
+<i class="fa-solid fa-paper-plane text-amber-400 text-2xl"></i>
+<h4 class="font-bold mt-3">Enviar STBL</h4>
+<p class="text-xs text-slate-400 mt-2">Transferí tokens a otra dirección.</p>
+</button>
+
+<button onclick="showTab('receive')" class="action p-6 rounded-2xl text-left">
+<i class="fa-solid fa-qrcode text-amber-400 text-2xl"></i>
+<h4 class="font-bold mt-3">Recibir STBL</h4>
+<p class="text-xs text-slate-400 mt-2">Compartí tu dirección y QR.</p>
+</button>
+
+<button onclick="showTab('history')" class="action p-6 rounded-2xl text-left">
+<i class="fa-solid fa-clock-rotate-left text-amber-400 text-2xl"></i>
+<h4 class="font-bold mt-3">Movimientos</h4>
+<p class="text-xs text-slate-400 mt-2">Consultá tus transferencias.</p>
+</button>
+
+<button onclick="showTab('swap')" class="action p-6 rounded-2xl text-left">
+<i class="fa-solid fa-arrow-right-arrow-left text-amber-400 text-2xl"></i>
+<h4 class="font-bold mt-3">Comprar y vender</h4>
+<p class="text-xs text-slate-400 mt-2">Accedé a Uniswap.</p>
+</button>
+
+<button onclick="showTab('payment')" class="action p-6 rounded-2xl text-left">
+<i class="fa-solid fa-money-bill-transfer text-amber-400 text-2xl"></i>
+<h4 class="font-bold mt-3">Pagos entre usuarios</h4>
+<p class="text-xs text-slate-400 mt-2">Realizá pagos en STBL.</p>
+</button>
+
+</div>
+</div>
+
+<!-- ENVIAR -->
+<div id="tab-send" class="tabContent panel p-6 hidden">
+
+<h3 class="text-xl font-bold mb-2">Enviar STBL</h3>
+<p class="text-sm text-slate-400 mb-6">Transferí tokens desde tu billetera.</p>
+
+<form onsubmit="sendTokens(event)" class="space-y-4">
+
+<div>
+<label class="text-xs text-slate-400">Dirección del destinatario</label>
+<input id="sendAddress" class="field mt-2" placeholder="0x..." required>
+</div>
+
+<div>
+<label class="text-xs text-slate-400">Cantidad de STBL</label>
+<input id="sendAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required>
+</div>
+
+<div class="text-xs text-slate-500">
+Verificá cuidadosamente la dirección antes de confirmar.
+</div>
+
+<button id="sendButton" class="gold w-full py-4 rounded-xl">
+<i class="fa-solid fa-paper-plane"></i> Confirmar transferencia
+</button>
+
+</form>
+</div>
+
+<!-- RECIBIR -->
+<div id="tab-receive" class="tabContent panel p-6 hidden">
+
+<h3 class="text-xl font-bold mb-2">Recibir STBL</h3>
+<p class="text-sm text-slate-400 mb-6">Compartí tu dirección para recibir tokens.</p>
+
+<div class="bg-slate-950 rounded-2xl p-5 text-center">
+
+<div id="qr-code" class="bg-white rounded-xl p-3 inline-block min-w-36 min-h-36"></div>
+
+<div id="qrMessage" class="text-xs text-slate-500 mt-3">Conectá tu billetera para generar el QR.</div>
+
+</div>
+
+<div class="mt-5">
+<label class="text-xs text-slate-400">Tu dirección pública</label>
+<div id="receiveAddress" class="field mt-2 break-all text-sm">Sin conexión</div>
+</div>
+
+<button onclick="copyUserAddress()" class="gold w-full rounded-xl py-3 mt-4">
+<i class="fa-regular fa-copy"></i> Copiar dirección
+</button>
+
+<p class="text-xs text-slate-500 mt-4">
+Solo compartí tu dirección pública. Nunca compartas tu frase de recuperación ni claves privadas.
+</p>
+
+</div>
+
+<!-- HISTORIAL -->
+<div id="tab-history" class="tabContent panel p-6 hidden">
+
+<div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+<div>
+  <h3 class="text-xl font-bold">Historial de transacciones</h3>
+  <p class="text-xs text-slate-400 mt-1">Movimientos registrados en blockchain.</p>
+</div>
+<button onclick="loadHistory()" class="action px-4 py-2 rounded-xl text-sm">
+  <i class="fa-solid fa-rotate"></i> Actualizar
+</button>
+</div>
+
+<div id="historyList" class="space-y-3">
+<p class="text-sm text-slate-500">Conectá tu billetera para consultar movimientos.</p>
+</div>
+
+<div class="mt-5">
+<a id="historyExplorer" target="_blank" rel="noopener noreferrer" class="text-sm text-amber-400">
+  Ver historial completo en Arbiscan <i class="fa-solid fa-arrow-up-right-from-square"></i>
+</a>
+</div>
+
+</div>
+
+<!-- COMPRAR Y VENDER -->
+<div id="tab-swap" class="tabContent panel p-6 hidden">
+
+<h3 class="text-xl font-bold mb-2">Comprar y vender STBL</h3>
+<p class="text-sm text-slate-400 mb-6">Operá mediante Uniswap en Arbitrum One.</p>
+
+<div class="grid sm:grid-cols-2 gap-4">
+
+<a id="buyButton" target="_blank" rel="noopener noreferrer" class="gold p-6 rounded-2xl text-center">
+<i class="fa-solid fa-cart-shopping text-2xl"></i>
+<h4 class="font-bold mt-3">Comprar STBL</h4>
+<p class="text-xs mt-2">Intercambiar ETH por STBL</p>
+</a>
+
+<a id="sellButton" target="_blank" rel="noopener noreferrer" class="action p-6 rounded-2xl text-center">
+<i class="fa-solid fa-money-bill-transfer text-2xl text-amber-400"></i>
+<h4 class="font-bold mt-3">Vender STBL</h4>
+<p class="text-xs text-slate-400 mt-2">Intercambiar STBL por ETH</p>
+</a>
+
+</div>
+
+<div class="mt-6 bg-slate-950 rounded-xl p-4 text-sm text-slate-400">
+<i class="fa-solid fa-circle-info text-amber-400"></i>
+Las operaciones dependen de la existencia de liquidez, pares de intercambio, cotización y condiciones de Uniswap. Se pueden aplicar comisiones y deslizamiento.
+</div>
+
+</div>
+
+<!-- PAGOS -->
+<div id="tab-payment" class="tabContent panel p-6 hidden">
+
+<h3 class="text-xl font-bold mb-2">Pagos entre usuarios</h3>
+<p class="text-sm text-slate-400 mb-6">Realizá un pago utilizando PESO AR STBL.</p>
+
+<form onsubmit="sendPayment(event)" class="space-y-4">
+
+<div>
+<label class="text-xs text-slate-400">Dirección del receptor</label>
+<input id="paymentAddress" class="field mt-2" placeholder="0x..." required>
+</div>
+
+<div>
+<label class="text-xs text-slate-400">Importe del pago (STBL)</label>
+<input id="paymentAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required>
+</div>
+
+<div>
+<label class="text-xs text-slate-400">Concepto del pago (opcional)</label>
+<input id="paymentNote" class="field mt-2" maxlength="100" placeholder="Ej. Pago de producto o servicio">
+</div>
+
+<button id="paymentButton" class="gold w-full py-4 rounded-xl">
+<i class="fa-solid fa-money-bill-transfer"></i> Realizar pago
+</button>
+
+</form>
+
+<div class="bg-slate-950 rounded-xl p-4 mt-5 text-xs text-slate-400">
+El pago es una transferencia directa de STBL. El concepto es solamente informativo y no queda grabado en la blockchain. El destinatario recibe los tokens directamente.
+</div>
+
+</div>
 
 </div>
 </section>
 
+<!-- CALCULADORA -->
+<section class="py-16">
+<div class="max-w-4xl mx-auto px-4">
 
-<!-- COMUNIDAD -->
+<div class="text-center mb-8">
+<h2 class="text-3xl font-bold">Calculadora STBL</h2>
+<p class="text-sm text-slate-400 mt-2">Estimación de conversión.</p>
+</div>
 
-<section id="community" class="py-16 bg-slate-900 border-t border-slate-800">
+<div class="panel p-6 space-y-4">
 
-<div class="max-w-4xl mx-auto px-4 text-center">
+<input id="calcAmount" type="number" min="0" value="1000" oninput="calculate()" class="field">
 
-    <h2 class="text-3xl font-bold text-white">
-        Comunidad PESO AR STBL
-    </h2>
+<select id="calcCurrency" onchange="calculate()" class="field">
+<option value="ARS">ARS</option>
+<option value="USDC">USDC</option>
+</select>
 
-    <p class="text-slate-400 mt-4">
-        Sumate al desarrollo del ecosistema PESO AR STBL.
-    </p>
+<div class="bg-slate-950 rounded-xl p-5">
+<div class="text-xs text-slate-400">Resultado estimado</div>
+<div id="calcResult" class="text-3xl font-bold text-amber-400 mt-2">1.000 STBL</div>
+<div class="text-xs text-slate-500 mt-2">Referencia ilustrativa: 1 USDC = 1.650 STBL.</div>
+</div>
 
-    <div class="flex justify-center flex-wrap gap-4 mt-8">
-
-        <a href="https://t.me/"
-        target="_blank"
-        class="bg-slate-800 hover:bg-slate-700 px-6 py-3 rounded-xl">
-
-            <i class="fa-brands fa-telegram"></i>
-            Telegram
-
-        </a>
-
-        <a href="https://x.com/"
-        target="_blank"
-        class="bg-slate-800 hover:bg-slate-700 px-6 py-3 rounded-xl">
-
-            <i class="fa-brands fa-x-twitter"></i>
-            X / Twitter
-
-        </a>
-
-    </div>
-
+</div>
 </div>
 </section>
-
-
-<!-- NOTIFICACIONES -->
-
-<div id="toast"
-class="fixed bottom-5 right-5 z-[100] translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-
-    <div class="bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
-
-        <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
-
-            <i class="fa-solid fa-check"></i>
-
-        </div>
-
-        <div>
-
-            <h4 id="toast-title" class="text-sm font-bold text-white"></h4>
-
-            <p id="toast-msg" class="text-xs text-slate-400"></p>
-
-        </div>
-
-    </div>
-
-</div>
-
 
 <!-- FOOTER -->
-
-<footer class="border-t border-slate-900 py-10 bg-slate-950">
-
-    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
-
-        <p>© 2026 PESO AR STBL. Todos los derechos reservados.</p>
-
-        <p>Red Arbitrum One | Chain ID 42161</p>
-
-    </div>
-
+<footer class="border-t border-slate-800 py-10 text-center text-xs text-slate-500">
+<p>© 2026 PESO AR STBL. Todos los derechos reservados.</p>
+<p class="mt-2">Arbitrum One · Ecosistema digital</p>
 </footer>
 
-
-<!-- FUNCIONES GENERALES -->
+<!-- NOTIFICACIONES -->
+<div id="toast" class="fixed bottom-5 right-5 z-[200] hidden max-w-sm">
+<div class="bg-slate-900 border border-slate-700 shadow-xl rounded-xl p-4">
+  <div id="toastTitle" class="font-bold text-amber-400"></div>
+  <div id="toastMessage" class="text-sm text-slate-300 mt-1 break-words"></div>
+</div>
+</div>
 
 <script>
 
-function showToast(title, message) {
+// UTILIDADES
 
-    const toast = document.getElementById("toast");
+function notify(title,message) {
+const el=document.getElementById("toast");
+document.getElementById("toastTitle").textContent=title;
+document.getElementById("toastMessage").textContent=message;
+el.classList.remove("hidden");
+clearTimeout(window.toastTimeout);
+window.toastTimeout=setTimeout(()=>el.classList.add("hidden"),5000);
+}
 
-    document.getElementById("toast-title").innerText = title;
-    document.getElementById("toast-msg").innerText = message;
+async function copyText(text) {
+try {
+  await navigator.clipboard.writeText(text);
+  notify("Copiado","Texto copiado al portapapeles.");
+} catch(e) {
+  notify("Error","No se pudo copiar el texto.");
+}
+}
 
-    toast.classList.remove("translate-y-20", "opacity-0");
-    toast.classList.add("translate-y-0", "opacity-100");
+function copyUserAddress() {
+if(!userAddress) {
+  notify("Sin conexión","Primero conectá tu billetera.");
+  return;
+}
+copyText(userAddress);
+}
 
-    clearTimeout(window.toastTimer);
+function getWallet() {
+if(!window.ethereum) return null;
+if(window.ethereum.providers?.length) {
+  return window.ethereum.providers.find(p=>p.isMetaMask) || window.ethereum.providers[0];
+}
+return window.ethereum;
+}
 
-    window.toastTimer = setTimeout(() => {
+function requireWallet() {
+if(!userAddress || !provider || !token) {
+  throw new Error("Primero conectá tu billetera.");
+}
+}
 
-        toast.classList.add("translate-y-20", "opacity-0");
-        toast.classList.remove("translate-y-0", "opacity-100");
-
-    }, 3000);
+async function checkNetwork() {
+if(!provider) return false;
+const net=await provider.getNetwork();
+return net.chainId===BigInt(CONFIG.chainId);
 }
 
 
-// COPIAR CONTRATO
+// CAMBIAR RED
 
-async function copyContract() {
+async function switchNetwork() {
+const w=getWallet();
+if(!w) throw new Error("No se detectó una billetera compatible.");
 
-    try {
-
-        await navigator.clipboard.writeText(CONFIG.contract);
-
-        showToast("¡Copiado!", "Contrato copiado correctamente.");
-
-    } catch (error) {
-
-        const input = document.createElement("textarea");
-
-        input.value = CONFIG.contract;
-
-        document.body.appendChild(input);
-
-        input.select();
-
-        document.execCommand("copy");
-
-        input.remove();
-
-        showToast("¡Copiado!", "Dirección del contrato copiada.");
-
-    }
-
+try {
+  await w.request({
+   method:"wallet_switchEthereumChain",
+   params:[{chainId:CONFIG.chainHex}]
+  });
+} catch(e) {
+  if(e.code!==4902) throw e;
+  await w.request({
+   method:"wallet_addEthereumChain",
+   params:[{
+    chainId:CONFIG.chainHex,
+    chainName:CONFIG.chainName,
+    nativeCurrency:{name:"Ether",symbol:"ETH",decimals:18},
+    rpcUrls:[CONFIG.rpc],
+    blockExplorerUrls:[CONFIG.explorer]
+   }]
+  });
+}
 }
 
 
-// MENU CELULAR
+// CONECTAR
 
-document.getElementById("mobile-menu-btn").addEventListener("click", () => {
+async function connectWallet() {
+const w=getWallet();
 
-    document.getElementById("mobile-menu").classList.toggle("hidden");
+if(!w) {
+  notify("MetaMask no detectada","Abrí la página desde MetaMask o instalá una billetera compatible.");
+  return;
+}
 
+if(busy) return;
+
+try {
+  const accounts=await w.request({method:"eth_requestAccounts"});
+  if(!accounts.length) throw new Error("No se seleccionó una cuenta.");
+
+  await switchNetwork();
+
+  wallet=w;
+  provider=new ethers.BrowserProvider(w);
+  signer=await provider.getSigner();
+  userAddress=await signer.getAddress();
+
+  token=new ethers.Contract(CONFIG.contract,ABI,signer);
+
+  try {
+   decimals=Number(await token.decimals());
+   if(!Number.isInteger(decimals) || decimals<0 || decimals>36) throw new Error("Decimales inválidos");
+  } catch(e) {
+   throw new Error("No se pudo verificar la configuración ERC-20 del contrato.");
+  }
+
+  symbol=await token.symbol();
+
+  updateInterface();
+  await refreshBalance();
+
+  notify("Conexión exitosa","Tu billetera está conectada a Arbitrum One.");
+
+} catch(e) {
+  console.error(e);
+  notify("Error de conexión",e.shortMessage || e.message || "No se pudo conectar.");
+}
+}
+
+
+// INTERFAZ
+
+function updateInterface() {
+const short=userAddress ? userAddress.slice(0,6)+"..."+userAddress.slice(-4) : null;
+
+document.getElementById("connectBtn").innerHTML=short
+  ? '<i class="fa-solid fa-wallet"></i> '+short
+  : '<i class="fa-solid fa-wallet"></i> Conectar Wallet';
+
+document.getElementById("userAddress").textContent=userAddress || "Billetera desconectada";
+document.getElementById("receiveAddress").textContent=userAddress || "Sin conexión";
+
+document.getElementById("networkStatus").innerHTML=userAddress
+  ? '<i class="fa-solid fa-circle text-green-400"></i> Arbitrum One conectado'
+  : '<i class="fa-solid fa-circle"></i> Sin conexión';
+
+document.getElementById("walletExplorer").href=userAddress
+  ? CONFIG.explorer+"/address/"+userAddress
+  : CONFIG.explorer;
+
+document.getElementById("historyExplorer").href=userAddress
+  ? CONFIG.explorer+"/address/"+userAddress+"#tokentxns"
+  : CONFIG.explorer;
+
+document.getElementById("buyButton").href=
+  CONFIG.uniswap+"?chain=arbitrum&inputCurrency=ETH&outputCurrency="+CONFIG.contract;
+
+document.getElementById("sellButton").href=
+  CONFIG.uniswap+"?chain=arbitrum&inputCurrency="+CONFIG.contract+"&outputCurrency=ETH";
+
+document.getElementById("buyLink").href=
+  CONFIG.uniswap+"?chain=arbitrum&inputCurrency=ETH&outputCurrency="+CONFIG.contract;
+
+renderQR();
+}
+
+
+// SALDO
+
+async function refreshBalance() {
+try {
+  requireWallet();
+
+  if(!await checkNetwork()) {
+   notify("Red incorrecta","Conectá Arbitrum One.");
+   return;
+  }
+
+  const result=await token.balanceOf(userAddress);
+  const formatted=ethers.formatUnits(result,decimals);
+
+  document.getElementById("balance").textContent=
+   Number(formatted).toLocaleString("es-AR",{maximumFractionDigits:6})+" "+symbol;
+
+} catch(e) {
+  console.error(e);
+  notify("Saldo no disponible",e.message);
+}
+}
+
+
+// VALIDAR IMPORTE
+
+function parseAmount(value) {
+if(!value || !Number.isFinite(Number(value)) || Number(value)<=0) {
+  throw new Error("Ingresá un importe válido.");
+}
+try {
+  const amount=ethers.parseUnits(value,decimals);
+  if(amount<=0n) throw new Error();
+  return amount;
+} catch(e) {
+  throw new Error("El importe tiene demasiados decimales o no es válido.");
+}
+}
+
+
+// TRANSFERENCIA
+
+async function executeTransfer(address,amount) {
+requireWallet();
+
+if(!await checkNetwork()) {
+  await switchNetwork();
+  provider=new ethers.BrowserProvider(wallet);
+  signer=await provider.getSigner();
+  token=new ethers.Contract(CONFIG.contract,ABI,signer);
+}
+
+if(!ethers.isAddress(address)) {
+  throw new Error("La dirección de destino no es válida.");
+}
+
+const destination=ethers.getAddress(address);
+if(destination.toLowerCase()===userAddress.toLowerCase()) {
+  throw new Error("No podés enviarte tokens a tu propia dirección.");
+}
+
+const parsed=parseAmount(amount);
+const balance=await token.balanceOf(userAddress);
+
+if(balance<parsed) {
+  throw new Error("No tenés saldo STBL suficiente.");
+}
+
+// La billetera solicitará la confirmación.
+const tx=await token.transfer(destination,parsed);
+
+notify("Transacción enviada","Esperando confirmación en Arbitrum.");
+
+const receipt=await tx.wait();
+
+if(receipt.status!==1) {
+  throw new Error("La transacción no se confirmó correctamente.");
+}
+
+await refreshBalance();
+
+return tx.hash;
+}
+
+
+// ENVIAR STBL
+
+async function sendTokens(event) {
+event.preventDefault();
+if(busy) return;
+
+const button=document.getElementById("sendButton");
+busy=true;
+button.disabled=true;
+button.textContent="Procesando...";
+
+try {
+  const hash=await executeTransfer(
+   document.getElementById("sendAddress").value.trim(),
+   document.getElementById("sendAmount").value
+  );
+
+  notify("Transferencia confirmada","Hash: "+hash);
+
+  document.getElementById("sendAddress").value="";
+  document.getElementById("sendAmount").value="";
+
+  await loadHistory();
+
+} catch(e) {
+  console.error(e);
+  notify("Transferencia no completada",e.shortMessage || e.message);
+} finally {
+  busy=false;
+  button.disabled=false;
+  button.innerHTML='<i class="fa-solid fa-paper-plane"></i> Confirmar transferencia';
+}
+}
+
+
+// PAGOS
+
+async function sendPayment(event) {
+event.preventDefault();
+if(busy) return;
+
+const button=document.getElementById("paymentButton");
+busy=true;
+button.disabled=true;
+button.textContent="Procesando pago...";
+
+try {
+  const address=document.getElementById("paymentAddress").value.trim();
+  const amount=document.getElementById("paymentAmount").value;
+  const note=document.getElementById("paymentNote").value.trim();
+
+  const hash=await executeTransfer(address,amount);
+
+  notify("Pago confirmado",note ? "Concepto: "+note : "Transferencia confirmada.");
+
+  document.getElementById("paymentAddress").value="";
+  document.getElementById("paymentAmount").value="";
+  document.getElementById("paymentNote").value="";
+
+  await loadHistory();
+
+  // El concepto no se guarda on-chain.
+  console.log("Referencia local del pago:",note,"Transacción:",hash);
+
+} catch(e) {
+  console.error(e);
+  notify("Pago no completado",e.shortMessage || e.message);
+} finally {
+  busy=false;
+  button.disabled=false;
+  button.innerHTML='<i class="fa-solid fa-money-bill-transfer"></i> Realizar pago';
+}
+}
+
+
+// QR
+
+function renderQR() {
+const box=document.getElementById("qr-code");
+box.innerHTML="";
+
+if(!userAddress || !window.QRCode) {
+  document.getElementById("qrMessage").textContent=
+   "Conectá tu billetera para generar el QR.";
+  return;
+}
+
+new QRCode(box,{
+  text:userAddress,
+  width:180,
+  height:180,
+  correctLevel:QRCode.CorrectLevel.M
 });
 
-document.querySelectorAll("#mobile-menu a").forEach(link => {
+document.getElementById("qrMessage").textContent=
+  "QR de tu dirección pública en Arbitrum One.";
+}
 
-    link.addEventListener("click", () => {
-        document.getElementById("mobile-menu").classList.add("hidden");
-    });
 
+// HISTORIAL
+
+async function loadHistory() {
+const container=document.getElementById("historyList");
+
+if(!userAddress) {
+  container.innerHTML='<p class="text-slate-400">Conectá tu billetera primero.</p>';
+  return;
+}
+
+container.innerHTML='<p class="text-amber-400">Consultando blockchain...</p>';
+
+try {
+  const url=CONFIG.historyAPI+
+   "/addresses/"+userAddress+
+   "/token-transfers?type=ERC-20";
+
+  const response=await fetch(url);
+
+  if(!response.ok) throw new Error("El explorador no respondió.");
+
+  const data=await response.json();
+
+  const transfers=(data.items || []).filter(item=>
+   item.token &&
+   item.token.address &&
+   item.token.address.toLowerCase()===CONFIG.contract.toLowerCase()
+  );
+
+  if(!transfers.length) {
+   container.innerHTML='<p class="text-slate-400 text-sm">No se encontraron movimientos STBL en el historial disponible.</p>';
+   return;
+  }
+
+  container.innerHTML="";
+
+  transfers.slice(0,30).forEach(item=> {
+   const from=item.from?.hash || "";
+   const to=item.to?.hash || "";
+   const outgoing=from.toLowerCase()===userAddress.toLowerCase();
+
+   const value=item.total?.value || "0";
+   const tokenDecimals=Number(item.token?.decimals ?? decimals);
+   const amount=ethers.formatUnits(value,tokenDecimals);
+   const hash=item.tx_hash || "";
+
+   const date=item.timestamp
+    ? new Date(item.timestamp).toLocaleString("es-AR")
+    : "Fecha no disponible";
+
+   const row=document.createElement("div");
+   row.className="action rounded-xl p-4 flex flex-wrap justify-between gap-3";
+
+   const left=document.createElement("div");
+   const title=document.createElement("div");
+   title.className="font-bold text-sm";
+   title.textContent=outgoing ? "Envío de STBL" : "Recepción de STBL";
+
+   const details=document.createElement("div");
+   details.className="text-xs text-slate-400 mt-2";
+   details.textContent=(outgoing ? "Para: " : "De: ")+
+    ((outgoing ? to : from).slice(0,8)+"..."+
+    (outgoing ? to : from).slice(-6));
+
+   const time=document.createElement("div");
+   time.className="text-xs text-slate-500 mt-1";
+   time.textContent=date;
+
+   left.append(title,details,time);
+
+   const right=document.createElement("div");
+   right.className="text-right";
+
+   const quantity=document.createElement("div");
+   quantity.className="font-bold "+(outgoing?"text-red-400":"text-green-400");
+   quantity.textContent=(outgoing?"-":"+")+
+    Number(amount).toLocaleString("es-AR",{maximumFractionDigits:6})+
+    " STBL";
+
+   const link=document.createElement("a");
+   link.href=CONFIG.explorer+"/tx/"+hash;
+   link.target="_blank";
+   link.rel="noopener noreferrer";
+   link.className="text-xs text-amber-400";
+   link.textContent="Ver transacción";
+
+   right.append(quantity,link);
+   row.append(left,right);
+   container.appendChild(row);
+  });
+
+} catch(e) {
+  console.error(e);
+  container.innerHTML=
+   '<p class="text-sm text-amber-400">No se pudo consultar el historial automático. Podés ver los movimientos directamente en <a class="underline" target="_blank" rel="noopener noreferrer" href="'+
+   CONFIG.explorer+'/address/'+userAddress+'#tokentxns">Arbiscan</a>.</p>';
+}
+}
+
+
+// PESTAÑAS
+
+function showTab(name) {
+currentTab=name;
+
+document.querySelectorAll(".tabContent").forEach(el=>el.classList.add("hidden"));
+document.querySelectorAll(".tab").forEach(el=> {
+  el.classList.remove("active");
 });
+
+document.getElementById("tab-"+name).classList.remove("hidden");
+
+const button=document.querySelector('[data-tab="'+name+'"]');
+if(button) button.classList.add("active");
+
+if(name==="history" && userAddress) loadHistory();
+if(name==="receive") renderQR();
+}
 
 
 // CALCULADORA
 
-function calculateSwap() {
+function calculate() {
+const amount=Number(document.getElementById("calcAmount").value)||0;
+const currency=document.getElementById("calcCurrency").value;
 
-    const amount = parseFloat(document.getElementById("calc-input").value) || 0;
+const result=currency==="USDC" ? amount*1650 : amount;
 
-    const currency = document.getElementById("calc-currency").value;
-
-    const USDC_RATE = 1650;
-
-    let result = 0;
-
-    if (currency === "ARS") {
-
-        result = amount;
-
-        document.getElementById("calc-rate").innerText =
-            "1 ARS = 1 STBL";
-
-    } else {
-
-        result = amount * USDC_RATE;
-
-        document.getElementById("calc-rate").innerText =
-            "1 USDC = " + USDC_RATE.toLocaleString("es-AR") + " STBL";
-
-    }
-
-    document.getElementById("calc-result").innerText =
-        result.toLocaleString("es-AR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-
-}
-
-</script>
-
-
-<!-- META MASK Y ARBITRUM ONE -->
-
-<script>
-
-// DETECTAR BILLETERA
-
-function getWallet() {
-
-    if (!window.ethereum) return null;
-
-    if (window.ethereum.providers?.length) {
-
-        return window.ethereum.providers.find(p => p.isMetaMask)
-            || window.ethereum.providers[0];
-
-    }
-
-    return window.ethereum;
-
+document.getElementById("calcResult").textContent=
+  result.toLocaleString("es-AR",{maximumFractionDigits:2})+" STBL";
 }
 
 
-// CAMBIAR RED A ARBITRUM
-
-async function switchToArbitrum(wallet) {
-
-    const currentChain = await wallet.request({
-        method: "eth_chainId"
-    });
-
-    if (currentChain.toLowerCase() === CONFIG.chainHex) {
-        return true;
-    }
-
-    try {
-
-        await wallet.request({
-
-            method: "wallet_switchEthereumChain",
-
-            params: [{
-                chainId: CONFIG.chainHex
-            }]
-
-        });
-
-    } catch (error) {
-
-        if (error.code === 4902) {
-
-            await wallet.request({
-
-                method: "wallet_addEthereumChain",
-
-                params: [{
-
-                    chainId: CONFIG.chainHex,
-
-                    chainName: CONFIG.chainName,
-
-                    nativeCurrency: {
-                        name: "Ether",
-                        symbol: "ETH",
-                        decimals: 18
-                    },
-
-                    rpcUrls: [CONFIG.rpc],
-
-                    blockExplorerUrls: [CONFIG.explorer]
-
-                }]
-
-            });
-
-        } else {
-
-            throw error;
-
-        }
-
-    }
-
-    const verifiedChain = await wallet.request({
-        method: "eth_chainId"
-    });
-
-    if (verifiedChain.toLowerCase() !== CONFIG.chainHex) {
-        throw new Error("No se pudo seleccionar Arbitrum One.");
-    }
-
-    return true;
-
-}
-
-
-// CONECTAR WALLET
-
-async function connectWallet() {
-
-    const wallet = getWallet();
-
-    if (!wallet) {
-
-        showToast(
-            "Wallet no detectada",
-            "Abrí esta página desde MetaMask o instalá una billetera compatible."
-        );
-
-        return;
-
-    }
-
-    const buttons = document.querySelectorAll("#connectWalletBtn, #mobile-menu button[onclick='connectWallet()']");
-
-    buttons.forEach(button => {
-        button.disabled = true;
-        button.innerText = "Conectando...";
-    });
-
-    try {
-
-        // Solicitar permiso al usuario
-
-        await wallet.request({
-            method: "eth_requestAccounts"
-        });
-
-        // Seleccionar Arbitrum
-
-        await switchToArbitrum(wallet);
-
-        // Crear proveedor Ethers
-
-        provider = new ethers.BrowserProvider(wallet);
-
-        signer = await provider.getSigner();
-
-        userAddress = await signer.getAddress();
-
-        // Contrato
-
-        tokenContract = new ethers.Contract(
-            CONFIG.contract,
-            ABI,
-            provider
-        );
-
-        // Obtener decimales y símbolo reales
-
-        try {
-
-            tokenDecimals = Number(await tokenContract.decimals());
-
-        } catch (error) {
-
-            tokenDecimals = 18;
-
-        }
-
-        try {
-
-            tokenSymbol = await tokenContract.symbol();
-
-        } catch (error) {
-
-            tokenSymbol = "STBL";
-
-        }
-
-        // Actualizar interfaz
-
-        updateWalletInterface();
-
-        // Consultar saldo
-
-        await refreshBalance();
-
-        showToast(
-            "¡Billetera conectada!",
-            "MetaMask conectada a Arbitrum One."
-        );
-
-    } catch (error) {
-
-        console.error("Error de conexión:", error);
-
-        if (error.code === 4001) {
-
-            showToast("Conexión cancelada", "No autorizaste la conexión.");
-
-        } else {
-
-            showToast("Error", error.shortMessage || error.message || "No se pudo conectar.");
-
-        }
-
-    } finally {
-
-        buttons.forEach(button => {
-            button.disabled = false;
-        });
-
-        updateWalletInterface();
-
-    }
-
-}
-
-
-// ACTUALIZAR INTERFAZ
-
-function updateWalletInterface() {
-
-    const connectButtons = document.querySelectorAll(
-        "#connectWalletBtn, #mobile-menu button[onclick='connectWallet()']"
-    );
-
-    const status = document.getElementById("walletStatus");
-    const address = document.getElementById("walletAddress");
-
-    if (userAddress) {
-
-        const shortAddress =
-            userAddress.substring(0, 6) +
-            "..." +
-            userAddress.substring(userAddress.length - 4);
-
-        connectButtons.forEach(button => {
-
-            button.innerHTML =
-                '<i class="fa-solid fa-wallet"></i> ' + shortAddress;
-
-        });
-
-        status.innerText = "Billetera conectada";
-        status.className = "text-sm text-green-400 font-semibold";
-
-        address.innerText = userAddress;
-
-    } else {
-
-        connectButtons.forEach(button => {
-
-            button.innerHTML =
-                '<i class="fa-solid fa-wallet"></i> Conectar Wallet';
-
-        });
-
-        status.innerText = "Billetera desconectada";
-        status.className = "text-sm text-amber-400 font-semibold";
-
-        address.innerText = "Conectá MetaMask para comenzar.";
-
-        document.getElementById("tokenBalance").innerText = "-- STBL";
-
-    }
-
-}
-
-
-// CONSULTAR SALDO REAL
-
-async function refreshBalance() {
-
-    if (!userAddress || !tokenContract) {
-
-        showToast("Sin conexión", "Primero conectá tu billetera.");
-
-        return;
-
-    }
-
-    try {
-
-        const currentChain = await provider.getNetwork();
-
-        if (currentChain.chainId !== BigInt(CONFIG.chainId)) {
-
-            showToast("Red incorrecta", "Conectá Arbitrum One nuevamente.");
-
-            return;
-
-        }
-
-        const balance = await tokenContract.balanceOf(userAddress);
-
-        const formattedBalance = ethers.formatUnits(
-            balance,
-            tokenDecimals
-        );
-
-        document.getElementById("tokenBalance").innerText =
-            Number(formattedBalance).toLocaleString("es-AR", {
-                maximumFractionDigits: 6
-            }) + " " + tokenSymbol;
-
-    } catch (error) {
-
-        console.error("Error consultando saldo:", error);
-
-        document.getElementById("tokenBalance").innerText =
-            "No disponible";
-
-        showToast("Error", "No se pudo consultar el saldo del token.");
-
-    }
-
-}
-
-
-// CAMBIO DE CUENTA O RED
-
-function listenWalletEvents() {
-
-    const wallet = getWallet();
-
-    if (!wallet) return;
-
-    wallet.on("accountsChanged", async accounts => {
-
-        if (!accounts.length) {
-
-            userAddress = null;
-            signer = null;
-            tokenContract = null;
-            provider = null;
-
-            updateWalletInterface();
-
-            showToast("Billetera desconectada", "La cuenta fue desconectada.");
-
-            return;
-
-        }
-
-        userAddress = accounts[0];
-
-        provider = new ethers.BrowserProvider(wallet);
-
-        signer = await provider.getSigner();
-
-        tokenContract = new ethers.Contract(
-            CONFIG.contract,
-            ABI,
-            provider
-        );
-
-        updateWalletInterface();
-
-        await refreshBalance();
-
-    });
-
-
-    wallet.on("chainChanged", async chainId => {
-
-        if (chainId.toLowerCase() !== CONFIG.chainHex) {
-
-            document.getElementById("walletStatus").innerText =
-                "Red incorrecta - Cambiar a Arbitrum One";
-
-            document.getElementById("walletStatus").className =
-                "text-sm text-red-400 font-semibold";
-
-            document.getElementById("tokenBalance").innerText = "-- STBL";
-
-            showToast("Red incorrecta", "La aplicación necesita Arbitrum One.");
-
-        } else if (userAddress) {
-
-            provider = new ethers.BrowserProvider(wallet);
-
-            tokenContract = new ethers.Contract(
-                CONFIG.contract,
-                ABI,
-                provider
-            );
-
-            updateWalletInterface();
-
-            await refreshBalance();
-
-        }
-
-    });
-
-}
-
-
-// INICIAR
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    calculateSwap();
-
-    listenWalletEvents();
-
+// EVENTOS DE META MASK
+
+function setupWalletEvents() {
+const w=getWallet();
+if(!w) return;
+
+w.on("accountsChanged",async accounts=> {
+  if(!accounts.length) {
+   userAddress=null;
+   provider=null;
+   signer=null;
+   token=null;
+   updateInterface();
+   document.getElementById("balance").textContent="-- STBL";
+   document.getElementById("historyList").textContent="Billetera desconectada.";
+   return;
+  }
+
+  try {
+   provider=new ethers.BrowserProvider(w);
+   const net=await provider.getNetwork();
+
+   if(net.chainId!==BigInt(CONFIG.chainId)) {
+    notify("Red incorrecta","Conectá Arbitrum One.");
+    return;
+   }
+
+   signer=await provider.getSigner();
+   userAddress=await signer.getAddress();
+   token=new ethers.Contract(CONFIG.contract,ABI,signer);
+
+   decimals=Number(await token.decimals());
+   symbol=await token.symbol();
+
+   updateInterface();
+   await refreshBalance();
+
+   if(currentTab==="history") await loadHistory();
+
+  } catch(e) {
+   console.error(e);
+   notify("Error","No se pudo actualizar la cuenta.");
+  }
 });
+
+w.on("chainChanged",async chainId=> {
+  if(chainId.toLowerCase()!==CONFIG.chainHex) {
+   document.getElementById("networkStatus").textContent="Red incorrecta";
+   document.getElementById("balance").textContent="-- STBL";
+   notify("Red incorrecta","La aplicación necesita Arbitrum One.");
+   return;
+  }
+
+  if(userAddress) {
+   try {
+    provider=new ethers.BrowserProvider(w);
+    signer=await provider.getSigner();
+    token=new ethers.Contract(CONFIG.contract,ABI,signer);
+    updateInterface();
+    await refreshBalance();
+   } catch(e) {
+    console.error(e);
+   }
+  }
+});
+}
+
+
+// INICIALIZACIÓN
+
+document.getElementById("contractText").textContent=CONFIG.contract;
+
+calculate();
+
+document.getElementById("buyLink").href=
+CONFIG.uniswap+"?chain=arbitrum&inputCurrency=ETH&outputCurrency="+CONFIG.contract;
+
+setupWalletEvents();
+
+// Recuperar una conexión previamente autorizada sin pedir permiso automáticamente.
+(async()=>{
+const w=getWallet();
+if(!w) return;
+
+try {
+  const accounts=await w.request({method:"eth_accounts"});
+
+  if(accounts.length) {
+   const chain=await w.request({method:"eth_chainId"});
+
+   if(chain.toLowerCase()===CONFIG.chainHex) {
+    provider=new ethers.BrowserProvider(w);
+    signer=await provider.getSigner();
+    userAddress=await signer.getAddress();
+    token=new ethers.Contract(CONFIG.contract,ABI,signer);
+    decimals=Number(await token.decimals());
+    symbol=await token.symbol();
+
+    updateInterface();
+    await refreshBalance();
+   }
+  }
+} catch(e) {
+  console.error("Restauración de conexión:",e);
+}
+})();
 
 </script>
 
 </body>
-</html>
+</html> 
