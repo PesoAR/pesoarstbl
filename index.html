@@ -638,6 +638,33 @@
         "function decimals() view returns (uint8)",
         "function symbol() view returns (string)"
     ];
+     let provider, signer, userAddress, tokenContract;
+
+        document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+            if (window.ethereum) {
+                try {
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    const shortAddr = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
+                    document.getElementById("connectWalletBtn").innerHTML = `<i class="fa-solid fa-wallet"></i> ${shortAddr}`;
+                    
+                    tokenContract = new ethers.Contract(contractAddress, contractABI, signer);
+                    alert("¡Billetera conectada con éxito!");
+                } catch (error) {
+                    console.error("Error al conectar billetera:", error);
+                    alert("Se canceló la conexión.");
+                }
+            } else {
+                alert("Por favor instalá MetaMask para interactuar con la dApp.");
+            }
+        });
+    </script>
+</body>
+</html>
+
 
     let provider, signer, userAddress, tokenContract;
 
