@@ -135,6 +135,10 @@
                     <i class="fa-solid fa-right-left"></i>
                     Comprar STBL
                 </a>
+                            <button id="connectWalletBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all shadow-lg flex items-center gap-2">
+    <span>Conectar Wallet</span>
+</button>
+
             </div>
 
             <!-- Mobile menu button -->
@@ -620,6 +624,50 @@
         window.onload = function() {
             calculateSwap();
         }
+        <!-- Librería Ethers.js v6 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+
+<script>
+    // Dirección oficial de tu contrato en Arbitrum One
+    const contractAddress = "0x846Ad28a11d206058D2Za16b16902F8213b0C30";
+    
+    // ABI estándar ERC-20 para leer saldos y transferir
+    const contractABI = [
+        "function balanceOf(address account) view returns (uint256)",
+        "function transfer(address recipient, uint256 amount) returns (bool)",
+        "function decimals() view returns (uint8)",
+        "function symbol() view returns (string)"
+    ];
+
+    let provider, signer, userAddress, tokenContract;
+
+    // Evento al hacer clic en el botón de Conectar Wallet
+    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+        if (window.ethereum) {
+            try {
+                // Conectar con MetaMask
+                provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                // Cambiar texto del botón con los primeros y últimos dígitos de la wallet
+                const shortAddr = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
+                document.getElementById("connectWalletBtn").innerHTML = `<i class="fa-solid fa-wallet"></i> ${shortAddr}`;
+                
+                // Instanciar el contrato inteligente
+                tokenContract = new ethers.Contract(contractAddress, contractABI, signer);
+                
+                alert("¡Billetera conectada con éxito!");
+            } catch (error) {
+                console.error("Error al conectar billetera:", error);
+                alert("Se canceló la conexión.");
+            }
+        } else {
+            alert("Por favor instalá MetaMask para interactuar con la dApp.");
+        }
+    });
+
     </script>
 </body>
 </html>
