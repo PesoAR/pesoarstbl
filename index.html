@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
@@ -166,7 +165,7 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
-                
+               
                 <!-- Left Content -->
                 <div class="lg:col-span-7 text-center lg:text-left space-y-6">
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-celeste-500/10 border border-celeste-400/30 text-celeste-400 text-xs font-semibold tracking-wide uppercase">
@@ -223,17 +222,17 @@
                     <!-- Medal Emblem Display -->
                     <div class="relative group cursor-pointer">
                         <div class="absolute -inset-1 bg-gradient-to-r from-gold-500 to-celeste-500 rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                        
+                       
                         <!-- Visual Coin Badge -->
                         <div class="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-b from-gold-400 via-gold-500 to-gold-600 p-2 shadow-2xl flex items-center justify-center">
                             <div class="w-full h-full rounded-full bg-navy-900 border-4 border-gold-400/50 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
                                 <!-- Background Rays -->
                                 <div class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gold-400 via-transparent to-transparent"></div>
-                                
+                               
                                 <i class="fa-solid fa-sun text-gold-400 text-5xl sm:text-6xl mb-3 animate-spin" style="animation-duration: 25s;"></i>
                                 <span class="font-black text-2xl sm:text-3xl tracking-widest gold-gradient-text">PESO AR</span>
                                 <span class="text-xs font-bold tracking-widest text-celeste-400 uppercase mt-1">STABLECOIN</span>
-                                
+                               
                                 <div class="mt-4 pt-3 border-t border-navy-700 w-3/4 flex justify-between items-center text-[11px] text-gray-400 font-mono">
                                     <span>PARIDAD</span>
                                     <span class="text-gold-400 font-bold">$1.00 ARS</span>
@@ -563,7 +562,7 @@
         // Contract Copy Function
         function copyContract() {
             const contractAddr = document.getElementById('contract-address').innerText;
-            
+           
             // Legacy copy support for iFrame compatibility
             const tempInput = document.createElement("input");
             tempInput.value = contractAddr;
@@ -630,7 +629,7 @@
 <script>
     // Dirección oficial de tu contrato en Arbitrum One
     const contractAddress = "0x846Ad28a11d206058D2Za16b16902F8213b0C30";
-    
+   
     // ABI estándar ERC-20 para leer saldos y transferir
     const contractABI = [
         "function balanceOf(address account) view returns (uint256)",
@@ -647,10 +646,10 @@
                     await provider.send("eth_requestAccounts", []);
                     signer = await provider.getSigner();
                     userAddress = await signer.getAddress();
-                    
+                   
                     const shortAddr = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
                     document.getElementById("connectWalletBtn").innerHTML = `<i class="fa-solid fa-wallet"></i> ${shortAddr}`;
-                    
+                   
                     tokenContract = new ethers.Contract(contractAddress, contractABI, signer);
                     alert("¡Billetera conectada con éxito!");
                 } catch (error) {
@@ -677,14 +676,14 @@
                 await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
-                
+               
                 // Cambiar texto del botón con los primeros y últimos dígitos de la wallet
                 const shortAddr = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
                 document.getElementById("connectWalletBtn").innerHTML = `<i class="fa-solid fa-wallet"></i> ${shortAddr}`;
-                
+               
                 // Instanciar el contrato inteligente
                 tokenContract = new ethers.Contract(contractAddress, contractABI, signer);
-                
+               
                 alert("¡Billetera conectada con éxito!");
             } catch (error) {
                 console.error("Error al conectar billetera:", error);
