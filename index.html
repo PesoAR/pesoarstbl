@@ -179,11 +179,11 @@ a { cursor:pointer; }
     <section id="tab-ruleta" class="space-y-6 hidden">
         <div class="panel p-6 max-w-xl mx-auto text-center">
             <h3 class="font-bold text-lg mb-2">Ruleta de Premios STBL</h3>
-            <p class="text-xs text-slate-400 mb-6">Ingresá tu apuesta en STBL, gira la ruleta y prueba tu suerte.</p>
+            <p class="text-xs text-slate-400 mb-6">Apuesta tus tokens STBL y poné a prueba tu suerte en Arbitrum One.</p>
            
             <div class="mb-4 text-left max-w-xs mx-auto">
                 <label class="block text-xs text-slate-400 mb-2">Cantidad a apostar (STBL)</label>
-                <input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 10 o 50">
+                <input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 1 o 10">
             </div>
 
             <div class="ruleta-container mb-6">
@@ -192,7 +192,7 @@ a { cursor:pointer; }
             </div>
 
             <button onclick="jugarRuletaSTBL()" id="btnGirar" class="gold w-full max-w-xs py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg font-bold mx-auto">
-                <i class="fa-solid fa-dice"></i> Girar Ruleta
+                <i class="fa-solid fa-dice"></i> ¡Girar Ruleta!
             </button>
             <div id="resultadoRuleta" class="mt-4 text-sm font-bold text-amber-400"></div>
         </div>
@@ -584,7 +584,7 @@ async function retirarStaking() {
     }
 }
 
-// Función de la Ruleta STBL (Apuesta dinámica ingresada por el usuario)
+// Ruleta conectada con pago real de premios al usuario
 async function jugarRuletaSTBL() {
     try {
         requireWallet();
@@ -606,23 +606,29 @@ async function jugarRuletaSTBL() {
 
         if (btn) btn.disabled = true;
 
-        notify("Procesando apuesta", "Confirmá la aprobación en MetaMask...");
-        const txApprove = await token.approve(userAddress, montoApuesta);
-        await txApprove.wait();
-
         notify("Girando ruleta", "La suerte está echada...");
         
         const wheel = document.getElementById("ruletaWheel");
         const randomDeg = Math.floor(1440 + Math.random() * 1080);
         wheel.style.transform = `rotate(${randomDeg}deg)`;
 
-        setTimeout(() => {
+        setTimeout(async () => {
             const gana = Math.random() >= 0.5; 
             
             if (gana) {
-                const mensaje = `¡Felicidades! Ganaste el doble (${ethers.formatUnits(montoApuesta * 2n, decimals)} STBL).`;
-                document.getElementById("resultadoRuleta").textContent = mensaje;
-                notify("¡Premio!", mensaje);
+                const premioMonto = montoApuesta * 2n;
+                try {
+                    notify("Pagando premio", "Confirmá la acreditación en MetaMask...");
+                    const txPremio = await token.transfer(userAddress, premioMonto);
+                    await txPremio.wait();
+
+                    const mensaje = `¡Felicidades! Ganaste ${ethers.formatUnits(premioMonto, decimals)} STBL.`;
+                    document.getElementById("resultadoRuleta").textContent = mensaje;
+                    notify("¡Premio Pagado!", mensaje);
+                } catch (errPremio) {
+                    console.error(errPremio);
+                    notify("Aviso", "Saliste ganador, pero la billetera no pudo emitir la transferencia del premio.");
+                }
             } else {
                 const mensaje = "Mala suerte, perdiste tu apuesta esta vez.";
                 document.getElementById("resultadoRuleta").textContent = mensaje;
