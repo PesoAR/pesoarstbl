@@ -66,7 +66,7 @@ button:disabled {
 a {
     cursor:pointer;
 }
-/* Estilos específicos para la Ruleta */
+/* Estilos para la Ruleta */
 .ruleta-container {
     position: relative;
     width: 260px;
@@ -110,8 +110,7 @@ a {
 "use strict";
 
 const CONFIG = {
-    contract: "0xb46ad28a11d2006058d22a16b16902f8213bdc30",
-    ruletaContract: "0x0000000000000000000000000000000000000000", // Reemplazá con la dirección de tu contrato de ruleta si lo tenés desplegado
+    contract: "0x846Ad28a11d206058D2Za16b16902F8213b0C30",
     chainId: 42161,
     chainHex: "0xa4b1",
     chainName: "Arbitrum One",
@@ -126,8 +125,7 @@ const ABI = [
     "function transfer(address,uint256) returns (bool)",
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
-    "function name() view returns (string)",
-    "event Transfer(address indexed from,address indexed to,uint256 value)"
+    "function name() view returns (string)"
 ];
 
 let wallet = null;
@@ -135,15 +133,9 @@ let provider = null;
 let signer = null;
 let token = null;
 let userAddress = null;
-
 let decimals = 18;
 let symbol = "STBL";
-let currentTab = "dashboard";
-
-let busy = false;
-let connecting = false;
 let sessionActive = false;
-
 let toastTimeout = null;
 
 function notify(title, message) {
@@ -152,26 +144,7 @@ function notify(title, message) {
     document.getElementById("toastMessage").textContent = message;
     el.classList.remove("hidden");
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        el.classList.add("hidden");
-    }, 6000);
-}
-
-async function copyText(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        notify("Copiado", "Texto copiado correctamente.");
-    } catch (e) {
-        notify("Error", "No se pudo copiar.");
-    }
-}
-
-function copyUserAddress() {
-    if (!userAddress) {
-        notify("Sin conexión", "Primero conectá tu billetera.");
-        return;
-    }
-    copyText(userAddress);
+    toastTimeout = setTimeout(() => { el.classList.add("hidden"); }, 6000);
 }
 
 function getWallet() {
@@ -198,10 +171,7 @@ async function switchNetwork() {
     const w = wallet || getWallet();
     if (!w) throw new Error("No se detectó una billetera compatible.");
     try {
-        await w.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: CONFIG.chainHex }]
-        });
+        await w.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
     } catch (e) {
         if (e.code !== 4902) throw e;
         await w.request({
@@ -214,10 +184,7 @@ async function switchNetwork() {
                 blockExplorerUrls: [CONFIG.explorer]
             }]
         });
-        await w.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: CONFIG.chainHex }]
-        });
+        await w.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
     }
 }
 
@@ -230,10 +197,7 @@ async function initializeConnectedWallet() {
     }
     const newSigner = await newProvider.getSigner();
     const address = await newSigner.getAddress();
-    const code = await newProvider.getCode(CONFIG.contract);
-    if (code === "0x") {
-        throw new Error("No se encontró un contrato en la dirección configurada.");
-    }
+    
     const newToken = new ethers.Contract(CONFIG.contract, ABI, newSigner);
     const tokenDecimals = Number(await newToken.decimals());
     const tokenSymbol = await newToken.symbol();
@@ -251,45 +215,33 @@ async function initializeConnectedWallet() {
 }
 
 async function connectWallet() {
-    if (connecting) return;
     const w = getWallet();
     if (!w) {
-        notify("MetaMask no detectada", "Instalá una billetera compatible.");
+        notify("MetaMask no detectada", "Instalijá o abrilo desde MetaMask.");
         return;
     }
-    connecting = true;
-    const button = document.getElementById("connectBtn");
-    button.disabled = true;
     try {
         wallet = w;
         await wallet.request({ method: "eth_requestAccounts" });
         await switchNetwork();
         await initializeConnectedWallet();
-        notify("Conexión exitosa", "Tu billetera está conectada a Arbitrum One.");
+        notify("Conexión exitosa", "Billetera conectada a Arbitrum One.");
     } catch (e) {
         console.error(e);
-        clearWalletState();
         notify("Error de conexión", e.shortMessage || e.message || "No se pudo conectar.");
-    } finally {
-        connecting = false;
-        button.disabled = false;
     }
 }
 
-function disconnectWallet(showNotice = true) {
+function disconnectWallet() {
     sessionActive = false;
     userAddress = null;
     provider = null;
     signer = null;
     token = null;
     wallet = null;
-    decimals = 18;
-    symbol = "STBL";
     document.getElementById("balance").textContent = "-- STBL";
     updateInterface();
-    if (showNotice) {
-        notify("Billetera desconectada", "Se cerró la sesión.");
-    }
+    notify("Desconectado", "Sesión cerrada.");
 }
 
 function updateInterface() {
@@ -301,186 +253,36 @@ function updateInterface() {
     document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
     document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
     document.getElementById("networkStatus").innerHTML = userAddress ? '<i class="fa-solid fa-circle text-green-400"></i> Arbitrum One conectado' : '<i class="fa-solid fa-circle"></i> Sin conexión';
-    
-    const buyURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=ETH&outputCurrency=" + CONFIG.contract;
-    const sellURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=" + CONFIG.contract + "&outputCurrency=ETH";
-    document.getElementById("buyButton").href = buyURL;
-    document.getElementById("sellButton").href = sellURL;
-    document.getElementById("buyLink").href = buyURL;
-    renderQR();
 }
 
 async function refreshBalance() {
     try {
         requireWallet();
-        if (!await checkNetwork()) {
-            notify("Red incorrecta", "Conectá Arbitrum One.");
-            return;
-        }
         const result = await token.balanceOf(userAddress);
         const formatted = ethers.formatUnits(result, decimals);
         document.getElementById("balance").textContent = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 6 }) + " " + symbol;
     } catch (e) {
         console.error(e);
-        notify("Saldo no disponible", e.message);
-    }
-}
-
-function parseAmount(value) {
-    if (typeof value !== "string" || !value.trim() || !/^\d+(\.\d+)?$/.test(value.trim())) {
-        throw new Error("Ingresá un importe válido.");
-    }
-    try {
-        const amount = ethers.parseUnits(value.trim(), decimals);
-        if (amount <= 0n) throw new Error();
-        return amount;
-    } catch (e) {
-        throw new Error("El importe no es válido.");
-    }
-}
-
-async function executeTransfer(address, amount) {
-    requireWallet();
-    if (!await checkNetwork()) {
-        await switchNetwork();
-        await initializeConnectedWallet();
-    }
-    if (!ethers.isAddress(address)) throw new Error("La dirección de destino no es válida.");
-    const destination = ethers.getAddress(address);
-    const parsed = parseAmount(amount);
-    const balance = await token.balanceOf(userAddress);
-    if (balance < parsed) throw new Error("No tenés saldo STBL suficiente.");
-    
-    const tx = await token.transfer(destination, parsed);
-    notify("Transacción enviada", "Esperando confirmación...");
-    const receipt = await tx.wait();
-    if (receipt.status !== 1) throw new Error("La transacción falló.");
-    await refreshBalance();
-    return tx.hash;
-}
-
-async function sendTokens(event) {
-    event.preventDefault();
-    if (busy) return;
-    const button = document.getElementById("sendButton");
-    busy = true;
-    button.disabled = true;
-    try {
-        const hash = await executeTransfer(document.getElementById("sendAddress").value.trim(), document.getElementById("sendAmount").value);
-        notify("Transferencia confirmada", "Hash: " + hash);
-        document.getElementById("sendAddress").value = "";
-        document.getElementById("sendAmount").value = "";
-    } catch (e) {
-        notify("Error", e.shortMessage || e.message);
-    } finally {
-        busy = false;
-        button.disabled = false;
-    }
-}
-
-async function sendPayment(event) {
-    event.preventDefault();
-    if (busy) return;
-    const button = document.getElementById("paymentButton");
-    busy = true;
-    button.disabled = true;
-    try {
-        const hash = await executeTransfer(document.getElementById("paymentAddress").value.trim(), document.getElementById("paymentAmount").value);
-        notify("Pago confirmado", "Hash: " + hash);
-        document.getElementById("paymentAddress").value = "";
-        document.getElementById("paymentAmount").value = "";
-    } catch (e) {
-        notify("Error", e.shortMessage || e.message);
-    } finally {
-        busy = false;
-        button.disabled = false;
-    }
-}
-
-function renderQR() {
-    const box = document.getElementById("qr-code");
-    box.innerHTML = "";
-    if (!userAddress || !window.QRCode) return;
-    new QRCode(box, {
-        text: userAddress,
-        width: 180,
-        height: 180,
-        correctLevel: QRCode.CorrectLevel.M
-    });
-}
-
-async function loadHistory() {
-    const container = document.getElementById("historyList");
-    if (!userAddress || !sessionActive) {
-        container.textContent = "Conectá tu billetera primero.";
-        return;
-    }
-    container.textContent = "Consultando blockchain...";
-    try {
-        const url = CONFIG.historyAPI + "/addresses/" + userAddress + "/token-transfers?type=ERC-20";
-        const response = await fetch(url);
-        const data = await response.json();
-        const transfers = (data.items || []).filter(item => item.token?.address?.toLowerCase() === CONFIG.contract.toLowerCase());
-        
-        if (!transfers.length) {
-            container.textContent = "No se encontraron movimientos STBL.";
-            return;
-        }
-        container.innerHTML = "";
-        transfers.slice(0, 15).forEach(item => {
-            const outgoing = item.from?.hash?.toLowerCase() === userAddress.toLowerCase();
-            const amount = ethers.formatUnits(item.total?.value || "0", Number(item.token?.decimals ?? decimals));
-            const row = document.createElement("div");
-            row.className = "action rounded-xl p-4 flex justify-between items-center gap-3";
-            row.innerHTML = `<div><div class="font-bold text-sm">${outgoing ? "Envío" : "Recepción"}</div><div class="text-xs text-slate-400">${new Date(item.timestamp).toLocaleString("es-AR")}</div></div><div class="font-bold ${outgoing ? "text-red-400" : "text-green-400"}">${outgoing ? "-" : "+"}${Number(amount).toLocaleString("es-AR")} STBL</div>`;
-            container.appendChild(row);
-        });
-    } catch (e) {
-        container.textContent = "No se pudo cargar el historial.";
     }
 }
 
 function showTab(name) {
-    currentTab = name;
     document.querySelectorAll(".tabContent").forEach(el => el.classList.add("hidden"));
     document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
     document.getElementById("tab-" + name).classList.remove("hidden");
     const button = document.querySelector('[data-tab="' + name + '"]');
     if (button) button.classList.add("active");
-    if (name === "history" && userAddress) loadHistory();
-    if (name === "receive") renderQR();
 }
 
-function calculate() {
-    const amount = Number(document.getElementById("calcAmount").value) || 0;
-    const currency = document.getElementById("calcCurrency").value;
-    const result = currency === "USDC" ? amount * 1650 : amount;
-    document.getElementById("calcResult").textContent = result.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
-}
-
-function clearWalletState() {
-    sessionActive = false;
-    userAddress = null;
-    provider = null;
-    signer = null;
-    token = null;
-    wallet = null;
-    document.getElementById("balance").textContent = "-- STBL";
-    updateInterface();
-}
-
-// ========================================
-// LÓGICA DE LA RULETA DE JUEGO
-// ========================================
 async function girarRuleta() {
     try {
         requireWallet();
         const apuestaInput = document.getElementById("apuestaRuleta").value;
-        const apuesta = parseAmount(apuestaInput);
-        
+        const parsedApuesta = ethers.parseUnits(apuestaInput, decimals);
         const balance = await token.balanceOf(userAddress);
-        if (balance < apuesta) {
-            notify("Saldo insuficiente", "No tenés suficiente STBL para apostar.");
+        
+        if (balance < parsedApuesta) {
+            notify("Saldo insuficiente", "No tenés suficiente STBL.");
             return;
         }
 
@@ -488,194 +290,72 @@ async function girarRuleta() {
         btnGirar.disabled = true;
         notify("Girando ruleta", "Aguardá el resultado...");
 
-        // Animación visual de giro (aleatoria entre 4 y 8 vueltas completas más un sector)
         const wheel = document.getElementById("ruletaWheel");
-        const randomDeg = Math.floor(Math.random() * 360) + 1440; 
+        const randomDeg = Math.floor(Math.random() * 360) + 1440;
         wheel.style.transform = `rotate(${randomDeg}deg)`;
 
         setTimeout(async () => {
-            // Simulación de resultado o llamada a contrato de juego
-            const premioFactor = [0, 0.5, 1, 2, 5][Math.floor(Math.random() * 5)];
+            const premioFactor = [0, 0.5, 1, 2][Math.floor(Math.random() * 4)];
             const resultadoTxt = premioFactor > 0 ? `¡Ganaste x${premioFactor}!` : "¡Perdiste esta vez!";
-            
-            notify("Resultado de la Ruleta", resultadoTxt);
+            notify("Resultado", resultadoTxt);
             document.getElementById("resultadoRuletaText").textContent = resultadoTxt;
             btnGirar.disabled = false;
             await refreshBalance();
         }, 4000);
-
     } catch (e) {
-        notify("Error en la Ruleta", e.message);
+        notify("Error", e.message);
         document.getElementById("btnGirarRuleta").disabled = false;
     }
 }
-
-function setupWalletEvents() {
-    const w = getWallet();
-    if (!w || typeof w.on !== "function") return;
-    w.on("accountsChanged", async accounts => {
-        if (!accounts.length) { clearWalletState(); return; }
-        try { await initializeConnectedWallet(); } catch(e) { clearWalletState(); }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("contractText").textContent = CONFIG.contract;
-    calculate();
-    updateInterface();
-    setupWalletEvents();
-});
 </script>
 
 <!-- HEADER -->
 <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
-<div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
-<a href="#" class="flex items-center gap-3">
-<div class="w-11 h-11 rounded-xl gold flex items-center justify-center text-xl">
-<i class="fa-solid fa-coins"></i>
-</div>
-<div>
+<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
 <div class="font-bold text-lg">PESO AR STBL</div>
-<div class="text-xs text-amber-400">ARBITRUM ONE TOKEN</div>
-</div>
-</a>
-<div class="flex flex-wrap items-center gap-2">
-<button id="connectBtn" onclick="connectWallet()" class="gold px-4 py-3 rounded-xl text-sm">
-<i class="fa-solid fa-wallet"></i> Conectar Wallet
-</button>
-<button id="disconnectBtn" onclick="disconnectWallet()" class="hidden action px-4 py-3 rounded-xl text-sm text-red-300">
-<i class="fa-solid fa-right-from-bracket"></i> Desconectar
-</button>
+<div class="flex gap-2">
+<button id="connectBtn" onclick="connectWallet()" class="gold px-4 py-3 rounded-xl text-sm"><i class="fa-solid fa-wallet"></i> Conectar Wallet</button>
+<button id="disconnectBtn" onclick="disconnectWallet()" class="hidden action px-4 py-3 rounded-xl text-sm text-red-300">Desconectar</button>
 </div>
 </div>
 </header>
 
-<!-- PRESENTACIÓN -->
-<section class="py-12 lg:py-20">
-<div class="max-w-7xl mx-auto px-4">
-<div class="grid lg:grid-cols-2 gap-10 items-center">
-<div class="space-y-5">
-<div class="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full px-4 py-2 text-xs font-bold">
-<i class="fa-solid fa-circle text-xs"></i> RED ARBITRUM ONE
-</div>
-<h1 class="text-4xl lg:text-6xl font-black leading-tight">
-PESO AR STBL <span class="text-amber-400">(STBL)</span>
-</h1>
-<p class="text-slate-400 text-lg">
-Tu espacio para administrar, enviar, recibir, utilizar y jugar con PESO AR STBL mediante tecnología blockchain.
-</p>
-<div class="panel p-4 space-y-3">
-<div class="text-xs text-slate-400">CONTRATO DEL TOKEN</div>
-<div class="flex gap-2 items-center">
-<code class="text-xs text-amber-400 break-all flex-1" id="contractText"></code>
-<button onclick="copyText(CONFIG.contract)" class="action rounded-lg px-3 py-2">
-<i class="fa-regular fa-copy"></i>
-</button>
-</div>
-</div>
-</div>
-<div class="panel p-7 text-center">
-<div class="text-5xl text-amber-400 mb-4"><i class="fa-solid fa-coins"></i></div>
-<h2 class="text-xl font-bold">PESO AR STABLECOIN</h2>
-<p class="text-sm text-slate-400 mt-2">Tu ecosistema digital y de entretenimiento</p>
-</div>
-</div>
-</div>
-</section>
-
 <!-- APLICACIÓN -->
-<section class="py-12 bg-slate-900/40 border-y border-slate-800">
+<section class="py-12 bg-slate-900/40">
 <div class="max-w-7xl mx-auto px-4">
-<div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-<div>
-<h2 class="text-3xl font-bold">Mi billetera</h2>
-<p class="text-slate-400 text-sm mt-1">Administrá tus operaciones y juegos STBL</p>
-</div>
-<div id="networkStatus" class="text-xs text-amber-400 bg-amber-500/10 rounded-full px-4 py-2">
-<i class="fa-solid fa-circle"></i> Sin conexión
-</div>
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-3xl font-bold">Panel dApp</h2>
+<div id="networkStatus" class="text-xs text-amber-400 bg-amber-500/10 rounded-full px-4 py-2">Sin conexión</div>
 </div>
 
-<!-- SALDO -->
 <div class="panel p-6 mb-6">
 <div class="text-xs text-slate-400">SALDO DISPONIBLE</div>
-<div id="balance" class="text-4xl lg:text-5xl font-black text-amber-400 mt-2">-- STBL</div>
-<div class="flex flex-wrap gap-3 mt-5">
-<button onclick="refreshBalance()" class="action rounded-xl px-4 py-2 text-sm">
-<i class="fa-solid fa-rotate"></i> Actualizar saldo
-</button>
-</div>
+<div id="balance" class="text-4xl font-black text-amber-400 mt-2">-- STBL</div>
+<div id="userAddress" class="text-xs text-slate-500 mt-2">Billetera desconectada</div>
 </div>
 
-<!-- PESTAÑAS (Se agregó la pestaña Ruleta) -->
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
-<button class="tab active rounded-xl px-3 py-3 text-sm" data-tab="dashboard" onclick="showTab('dashboard')"><i class="fa-solid fa-house"></i> Inicio</button>
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="send" onclick="showTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="receive" onclick="showTab('receive')"><i class="fa-solid fa-qrcode"></i> Recibir</button>
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="history" onclick="showTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="swap" onclick="showTab('swap')"><i class="fa-solid fa-arrow-right-arrow-left"></i> Comprar</button>
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="ruleta" onclick="showTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
+<!-- PESTAÑAS -->
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-6">
+<button class="tab active rounded-xl px-3 py-3 text-sm action" data-tab="dashboard" onclick="showTab('dashboard')">Inicio</button>
+<button class="tab rounded-xl px-3 py-3 text-sm action" data-tab="ruleta" onclick="showTab('ruleta')">Ruleta</button>
 </div>
 
-<!-- DASHBOARD -->
+<!-- INICIO -->
 <div id="tab-dashboard" class="tabContent panel p-6">
-<h3 class="text-xl font-bold mb-5">Panel de operaciones</h3>
-<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-<button onclick="showTab('send')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-paper-plane text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Enviar STBL</h4></button>
-<button onclick="showTab('receive')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-qrcode text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Recibir STBL</h4></button>
-<button onclick="showTab('ruleta')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-dice text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Ruleta de la Suerte</h4><p class="text-xs text-slate-400 mt-2">Jugá y ganá con STBL.</p></button>
-</div>
+<h3 class="text-xl font-bold mb-3">Bienvenido</h3>
+<p class="text-sm text-slate-400">Seleccioná una pestaña superior para operar o jugar.</p>
 </div>
 
-<!-- ENVIAR -->
-<div id="tab-send" class="tabContent panel p-6 hidden">
-<h3 class="text-xl font-bold mb-2">Enviar STBL</h3>
-<form onsubmit="sendTokens(event)" class="space-y-4">
-<div><label class="text-xs text-slate-400">Destinatario</label><input id="sendAddress" class="field mt-2" placeholder="0x..." required></div>
-<div><label class="text-xs text-slate-400">Cantidad</label><input id="sendAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required></div>
-<button id="sendButton" type="submit" class="gold w-full py-4 rounded-xl">Confirmar transferencia</button>
-</form>
-</div>
-
-<!-- RECIBIR -->
-<div id="tab-receive" class="tabContent panel p-6 hidden">
-<h3 class="text-xl font-bold mb-2">Recibir STBL</h3>
-<div class="bg-slate-950 rounded-2xl p-5 text-center">
-<div id="qr-code" class="bg-white rounded-xl p-3 inline-block min-w-36 min-h-36"></div>
-</div>
-<div id="receiveAddress" class="field mt-2 break-all text-sm">Sin conexión</div>
-</div>
-
-<!-- HISTORIAL -->
-<div id="tab-history" class="tabContent panel p-6 hidden">
-<h3 class="text-xl font-bold mb-5">Historial</h3>
-<div id="historyList" class="space-y-3"><p class="text-sm text-slate-500">Conectá tu billetera.</p></div>
-</div>
-
-<!-- COMPRAR -->
-<div id="tab-swap" class="tabContent panel p-6 hidden">
-<h3 class="text-xl font-bold mb-2">Comprar y vender STBL</h3>
-<a id="buyButton" href="#" target="_blank" rel="noopener noreferrer" class="gold p-6 rounded-2xl text-center block">Comprar en Uniswap</a>
-</div>
-
-<!-- RULETA DE JUEGO (NUEVA PESTAÑA) -->
+<!-- RULETA -->
 <div id="tab-ruleta" class="tabContent panel p-6 hidden text-center">
-<h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-dice text-amber-400"></i> Ruleta STBL</h3>
-<p class="text-sm text-slate-400 mb-6">Apostá tus tokens STBL y poné a prueba tu suerte en Arbitrum One.</p>
-
+<h3 class="text-xl font-bold mb-2">Ruleta STBL</h3>
 <div class="ruleta-container my-8">
 <div class="ruleta-pointer"></div>
 <div id="ruletaWheel" class="ruleta-wheel"></div>
 </div>
-
 <div class="max-w-xs mx-auto space-y-4">
-<div>
-<label class="text-xs text-slate-400">Cantidad a apostar (STBL)</label>
-<input id="apuestaRuleta" class="field mt-2 text-center" type="number" min="1" value="10" placeholder="10">
-</div>
-<button id="btnGirarRuleta" onclick="girarRuleta()" class="gold w-full py-4 rounded-xl text-base shadow-lg">
-<i class="fa-solid fa-play"></i> ¡Girar Ruleta!
-</button>
+<input id="apuestaRuleta" class="field text-center" type="number" min="1" value="10">
+<button id="btnGirarRuleta" onclick="girarRuleta()" class="gold w-full py-4 rounded-xl">¡Girar Ruleta!</button>
 <div id="resultadoRuletaText" class="text-lg font-bold text-amber-400 mt-3"></div>
 </div>
 </div>
@@ -683,16 +363,11 @@ Tu espacio para administrar, enviar, recibir, utilizar y jugar con PESO AR STBL 
 </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="border-t border-slate-800 py-10 text-center text-xs text-slate-500">
-<p>© 2026 PESO AR STBL. Todos los derechos reservados.</p>
-</footer>
-
-<!-- NOTIFICACIONES -->
+<!-- TOAST -->
 <div id="toast" class="fixed bottom-5 right-5 z-[200] hidden max-w-sm">
 <div class="bg-slate-900 border border-slate-700 shadow-xl rounded-xl p-4">
 <div id="toastTitle" class="font-bold text-amber-400"></div>
-<div id="toastMessage" class="text-sm text-slate-300 mt-1 break-words"></div>
+<div id="toastMessage" class="text-sm text-slate-300 mt-1"></div>
 </div>
 </div>
 
