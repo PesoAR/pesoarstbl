@@ -66,6 +66,41 @@ button:disabled {
 a {
     cursor:pointer;
 }
+/* Estilos específicos para la Ruleta */
+.ruleta-container {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin: 0 auto;
+}
+.ruleta-wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid #f59e0b;
+    position: relative;
+    transition: transform 4s cubic-bezier(0.15, 0.9, 0.2, 1);
+    background: conic-gradient(
+        #3b82f6 0deg 60deg,
+        #10b981 60deg 120deg,
+        #f59e0b 120deg 180deg,
+        #ef4444 180deg 240deg,
+        #8b5cf6 240deg 300deg,
+        #ec4899 300deg 360deg
+    );
+}
+.ruleta-pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid #f59e0b;
+    z-index: 10;
+}
 </style>
 </head>
 
@@ -76,6 +111,7 @@ a {
 
 const CONFIG = {
     contract: "0xb46ad28a11d2006058d22a16b16902f8213bdc30",
+    ruletaContract: "0x0000000000000000000000000000000000000000", // Reemplazá con la dirección de tu contrato de ruleta si lo tenés desplegado
     chainId: 42161,
     chainHex: "0xa4b1",
     chainName: "Arbitrum One",
@@ -110,35 +146,23 @@ let sessionActive = false;
 
 let toastTimeout = null;
 
-// ========================================
-// NOTIFICACIONES
-// ========================================
-
 function notify(title, message) {
     const el = document.getElementById("toast");
-
     document.getElementById("toastTitle").textContent = title;
     document.getElementById("toastMessage").textContent = message;
-
     el.classList.remove("hidden");
-
     clearTimeout(toastTimeout);
-
     toastTimeout = setTimeout(() => {
         el.classList.add("hidden");
     }, 6000);
 }
-
-// ========================================
-// COPIAR
-// ========================================
 
 async function copyText(text) {
     try {
         await navigator.clipboard.writeText(text);
         notify("Copiado", "Texto copiado correctamente.");
     } catch (e) {
-        notify("Error", "No se pudo copiar. Mantené presionado el texto.");
+        notify("Error", "No se pudo copiar.");
     }
 }
 
@@ -147,22 +171,14 @@ function copyUserAddress() {
         notify("Sin conexión", "Primero conectá tu billetera.");
         return;
     }
-
     copyText(userAddress);
 }
 
-// ========================================
-// DETECTAR BILLETERA
-// ========================================
-
 function getWallet() {
     if (!window.ethereum) return null;
-
     if (window.ethereum.providers?.length) {
-        return window.ethereum.providers.find(p => p.isMetaMask)
-            || window.ethereum.providers[0];
+        return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
     }
-
     return window.ethereum;
 }
 
@@ -172,50 +188,32 @@ function requireWallet() {
     }
 }
 
-// ========================================
-// RED ARBITRUM
-// ========================================
-
 async function checkNetwork() {
     if (!provider) return false;
-
     const network = await provider.getNetwork();
-
     return network.chainId === BigInt(CONFIG.chainId);
 }
 
 async function switchNetwork() {
     const w = wallet || getWallet();
-
-    if (!w) {
-        throw new Error("No se detectó una billetera compatible.");
-    }
-
+    if (!w) throw new Error("No se detectó una billetera compatible.");
     try {
         await w.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: CONFIG.chainHex }]
         });
-
     } catch (e) {
-
         if (e.code !== 4902) throw e;
-
         await w.request({
             method: "wallet_addEthereumChain",
             params: [{
                 chainId: CONFIG.chainHex,
                 chainName: CONFIG.chainName,
-                nativeCurrency: {
-                    name: "Ether",
-                    symbol: "ETH",
-                    decimals: 18
-                },
+                nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
                 rpcUrls: [CONFIG.rpc],
                 blockExplorerUrls: [CONFIG.explorer]
             }]
         });
-
         await w.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: CONFIG.chainHex }]
@@ -223,1454 +221,478 @@ async function switchNetwork() {
     }
 }
 
-// ========================================
-// INICIALIZAR BILLETERA
-// ========================================
-
 async function initializeConnectedWallet() {
-
-    if (!wallet) {
-        throw new Error("Billetera no disponible.");
-    }
-
+    if (!wallet) throw new Error("Billetera no disponible.");
     const newProvider = new ethers.BrowserProvider(wallet);
-
     const network = await newProvider.getNetwork();
-
     if (network.chainId !== BigInt(CONFIG.chainId)) {
         throw new Error("La billetera debe estar en Arbitrum One.");
     }
-
     const newSigner = await newProvider.getSigner();
     const address = await newSigner.getAddress();
-
     const code = await newProvider.getCode(CONFIG.contract);
-
     if (code === "0x") {
-        throw new Error("No se encontró un contrato en la dirección configurada sobre Arbitrum One.");
+        throw new Error("No se encontró un contrato en la dirección configurada.");
     }
-
-    const newToken = new ethers.Contract(
-        CONFIG.contract,
-        ABI,
-        newSigner
-    );
-
+    const newToken = new ethers.Contract(CONFIG.contract, ABI, newSigner);
     const tokenDecimals = Number(await newToken.decimals());
     const tokenSymbol = await newToken.symbol();
-
-    if (!Number.isInteger(tokenDecimals) ||
-        tokenDecimals < 0 ||
-        tokenDecimals > 36) {
-        throw new Error("Decimales del token inválidos.");
-    }
 
     provider = newProvider;
     signer = newSigner;
     userAddress = address;
     token = newToken;
-
     decimals = tokenDecimals;
     symbol = tokenSymbol;
-
     sessionActive = true;
 
     updateInterface();
-
     await refreshBalance();
 }
 
-// ========================================
-// CONECTAR METAMASK
-// ========================================
-
 async function connectWallet() {
-
     if (connecting) return;
-
     const w = getWallet();
-
     if (!w) {
-        notify(
-            "MetaMask no detectada",
-            "Abrí esta página desde el navegador de MetaMask o instalá una billetera compatible."
-        );
+        notify("MetaMask no detectada", "Instalá una billetera compatible.");
         return;
     }
-
     connecting = true;
-
     const button = document.getElementById("connectBtn");
-
     button.disabled = true;
-
     try {
         wallet = w;
-
-        await wallet.request({
-            method: "eth_requestAccounts"
-        });
-
+        await wallet.request({ method: "eth_requestAccounts" });
         await switchNetwork();
-
         await initializeConnectedWallet();
-
-        notify(
-            "Conexión exitosa",
-            "Tu billetera está conectada a Arbitrum One."
-        );
-
+        notify("Conexión exitosa", "Tu billetera está conectada a Arbitrum One.");
     } catch (e) {
         console.error(e);
-
         clearWalletState();
-
-        notify(
-            "Error de conexión",
-            e.shortMessage || e.message || "No se pudo conectar."
-        );
-
+        notify("Error de conexión", e.shortMessage || e.message || "No se pudo conectar.");
     } finally {
         connecting = false;
         button.disabled = false;
     }
 }
 
-// ========================================
-// DESCONECTAR
-// ========================================
-
 function disconnectWallet(showNotice = true) {
-
     sessionActive = false;
-
     userAddress = null;
     provider = null;
     signer = null;
     token = null;
     wallet = null;
-
     decimals = 18;
     symbol = "STBL";
-
-    document.getElementById("sendAddress").value = "";
-    document.getElementById("sendAmount").value = "";
-
-    document.getElementById("paymentAddress").value = "";
-    document.getElementById("paymentAmount").value = "";
-    document.getElementById("paymentNote").value = "";
-
-    document.getElementById("historyList").textContent =
-        "Billetera desconectada.";
-
     document.getElementById("balance").textContent = "-- STBL";
-
     updateInterface();
-
     if (showNotice) {
-        notify(
-            "Billetera desconectada",
-            "Se cerró la sesión de esta página. Para revocar permisos, hacelo desde MetaMask."
-        );
+        notify("Billetera desconectada", "Se cerró la sesión.");
     }
 }
 
-// ========================================
-// INTERFAZ
-// ========================================
-
 function updateInterface() {
-
-    const short = userAddress
-        ? userAddress.slice(0, 6) + "..." + userAddress.slice(-4)
-        : null;
-
+    const short = userAddress ? userAddress.slice(0, 6) + "..." + userAddress.slice(-4) : null;
     const connectButton = document.getElementById("connectBtn");
-
-    connectButton.innerHTML = short
-        ? '<i class="fa-solid fa-wallet"></i> ' + short
-        : '<i class="fa-solid fa-wallet"></i> Conectar Wallet';
-
+    connectButton.innerHTML = short ? '<i class="fa-solid fa-wallet"></i> ' + short : '<i class="fa-solid fa-wallet"></i> Conectar Wallet';
     connectButton.classList.toggle("hidden", !!userAddress);
-
-    document.getElementById("disconnectBtn")
-        .classList.toggle("hidden", !userAddress);
-
-    document.getElementById("userAddress").textContent =
-        userAddress || "Billetera desconectada";
-
-    document.getElementById("receiveAddress").textContent =
-        userAddress || "Sin conexión";
-
-    document.getElementById("networkStatus").innerHTML = userAddress
-        ? '<i class="fa-solid fa-circle text-green-400"></i> Arbitrum One conectado'
-        : '<i class="fa-solid fa-circle"></i> Sin conexión';
-
-    document.getElementById("walletExplorer").href = userAddress
-        ? CONFIG.explorer + "/address/" + userAddress
-        : CONFIG.explorer;
-
-    document.getElementById("historyExplorer").href = userAddress
-        ? CONFIG.explorer + "/address/" + userAddress + "#tokentxns"
-        : CONFIG.explorer;
-
-    const buyURL = CONFIG.uniswap +
-        "?chain=arbitrum&inputCurrency=ETH&outputCurrency=" +
-        CONFIG.contract;
-
-    const sellURL = CONFIG.uniswap +
-        "?chain=arbitrum&inputCurrency=" +
-        CONFIG.contract + "&outputCurrency=ETH";
-
+    document.getElementById("disconnectBtn").classList.toggle("hidden", !userAddress);
+    document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
+    document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
+    document.getElementById("networkStatus").innerHTML = userAddress ? '<i class="fa-solid fa-circle text-green-400"></i> Arbitrum One conectado' : '<i class="fa-solid fa-circle"></i> Sin conexión';
+    
+    const buyURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=ETH&outputCurrency=" + CONFIG.contract;
+    const sellURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=" + CONFIG.contract + "&outputCurrency=ETH";
     document.getElementById("buyButton").href = buyURL;
     document.getElementById("sellButton").href = sellURL;
     document.getElementById("buyLink").href = buyURL;
-
     renderQR();
 }
 
-// ========================================
-// SALDO
-// ========================================
-
 async function refreshBalance() {
-
     try {
         requireWallet();
-
         if (!await checkNetwork()) {
             notify("Red incorrecta", "Conectá Arbitrum One.");
             return;
         }
-
         const result = await token.balanceOf(userAddress);
-
         const formatted = ethers.formatUnits(result, decimals);
-
-        document.getElementById("balance").textContent =
-            Number(formatted).toLocaleString("es-AR", {
-                maximumFractionDigits: 6
-            }) + " " + symbol;
-
+        document.getElementById("balance").textContent = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 6 }) + " " + symbol;
     } catch (e) {
         console.error(e);
         notify("Saldo no disponible", e.message);
     }
 }
 
-// ========================================
-// VALIDAR IMPORTE
-// ========================================
-
 function parseAmount(value) {
-
-    if (
-        typeof value !== "string" ||
-        !value.trim() ||
-        !/^\d+(\.\d+)?$/.test(value.trim())
-    ) {
+    if (typeof value !== "string" || !value.trim() || !/^\d+(\.\d+)?$/.test(value.trim())) {
         throw new Error("Ingresá un importe válido.");
     }
-
     try {
         const amount = ethers.parseUnits(value.trim(), decimals);
-
-        if (amount <= 0n) {
-            throw new Error();
-        }
-
+        if (amount <= 0n) throw new Error();
         return amount;
-
     } catch (e) {
-        throw new Error(
-            "El importe tiene demasiados decimales o no es válido."
-        );
+        throw new Error("El importe no es válido.");
     }
 }
 
-// ========================================
-// TRANSFERIR STBL
-// ========================================
-
 async function executeTransfer(address, amount) {
-
     requireWallet();
-
     if (!await checkNetwork()) {
         await switchNetwork();
         await initializeConnectedWallet();
     }
-
-    if (!ethers.isAddress(address)) {
-        throw new Error("La dirección de destino no es válida.");
-    }
-
+    if (!ethers.isAddress(address)) throw new Error("La dirección de destino no es válida.");
     const destination = ethers.getAddress(address);
-
-    if (destination.toLowerCase() === userAddress.toLowerCase()) {
-        throw new Error("No podés enviarte tokens a tu propia dirección.");
-    }
-
     const parsed = parseAmount(amount);
-
     const balance = await token.balanceOf(userAddress);
-
-    if (balance < parsed) {
-        throw new Error("No tenés saldo STBL suficiente.");
-    }
-
+    if (balance < parsed) throw new Error("No tenés saldo STBL suficiente.");
+    
     const tx = await token.transfer(destination, parsed);
-
-    notify(
-        "Transacción enviada",
-        "Esperando confirmación en Arbitrum One."
-    );
-
+    notify("Transacción enviada", "Esperando confirmación...");
     const receipt = await tx.wait();
-
-    if (receipt.status !== 1) {
-        throw new Error("La transacción no se confirmó correctamente.");
-    }
-
+    if (receipt.status !== 1) throw new Error("La transacción falló.");
     await refreshBalance();
-
     return tx.hash;
 }
 
-// ========================================
-// ENVIAR STBL
-// ========================================
-
 async function sendTokens(event) {
-
     event.preventDefault();
-
     if (busy) return;
-
     const button = document.getElementById("sendButton");
-
     busy = true;
     button.disabled = true;
-    button.textContent = "Procesando...";
-
     try {
-
-        const hash = await executeTransfer(
-            document.getElementById("sendAddress").value.trim(),
-            document.getElementById("sendAmount").value
-        );
-
-        notify(
-            "Transferencia confirmada",
-            "Hash: " + hash
-        );
-
+        const hash = await executeTransfer(document.getElementById("sendAddress").value.trim(), document.getElementById("sendAmount").value);
+        notify("Transferencia confirmada", "Hash: " + hash);
         document.getElementById("sendAddress").value = "";
         document.getElementById("sendAmount").value = "";
-
-        await loadHistory();
-
     } catch (e) {
-
-        console.error(e);
-
-        notify(
-            "Transferencia no completada",
-            e.shortMessage || e.message
-        );
-
+        notify("Error", e.shortMessage || e.message);
     } finally {
-
         busy = false;
         button.disabled = false;
-
-        button.innerHTML =
-            '<i class="fa-solid fa-paper-plane"></i> Confirmar transferencia';
     }
 }
-
-// ========================================
-// PAGOS ENTRE USUARIOS
-// ========================================
 
 async function sendPayment(event) {
-
     event.preventDefault();
-
     if (busy) return;
-
     const button = document.getElementById("paymentButton");
-
     busy = true;
     button.disabled = true;
-    button.textContent = "Procesando pago...";
-
     try {
-
-        const address = document.getElementById("paymentAddress").value.trim();
-        const amount = document.getElementById("paymentAmount").value;
-        const note = document.getElementById("paymentNote").value.trim();
-
-        const hash = await executeTransfer(address, amount);
-
-        notify(
-            "Pago confirmado",
-            (note ? "Concepto: " + note + ". " : "") +
-            "Hash: " + hash
-        );
-
+        const hash = await executeTransfer(document.getElementById("paymentAddress").value.trim(), document.getElementById("paymentAmount").value);
+        notify("Pago confirmado", "Hash: " + hash);
         document.getElementById("paymentAddress").value = "";
         document.getElementById("paymentAmount").value = "";
-        document.getElementById("paymentNote").value = "";
-
-        await loadHistory();
-
-        console.log("Referencia del pago:", note, hash);
-
     } catch (e) {
-
-        console.error(e);
-
-        notify(
-            "Pago no completado",
-            e.shortMessage || e.message
-        );
-
+        notify("Error", e.shortMessage || e.message);
     } finally {
-
         busy = false;
         button.disabled = false;
-
-        button.innerHTML =
-            '<i class="fa-solid fa-money-bill-transfer"></i> Realizar pago';
     }
 }
 
-// ========================================
-// GENERAR QR
-// ========================================
-
 function renderQR() {
-
     const box = document.getElementById("qr-code");
-
     box.innerHTML = "";
-
-    if (!userAddress || !window.QRCode) {
-
-        document.getElementById("qrMessage").textContent =
-            "Conectá tu billetera para generar el QR.";
-
-        return;
-    }
-
+    if (!userAddress || !window.QRCode) return;
     new QRCode(box, {
         text: userAddress,
         width: 180,
         height: 180,
         correctLevel: QRCode.CorrectLevel.M
     });
-
-    document.getElementById("qrMessage").textContent =
-        "QR de tu dirección pública en Arbitrum One.";
 }
 
-// ========================================
-// HISTORIAL DE TRANSACCIONES
-// ========================================
-
 async function loadHistory() {
-
     const container = document.getElementById("historyList");
-
     if (!userAddress || !sessionActive) {
         container.textContent = "Conectá tu billetera primero.";
         return;
     }
-
     container.textContent = "Consultando blockchain...";
-
     try {
-
-        const url = CONFIG.historyAPI +
-            "/addresses/" + userAddress +
-            "/token-transfers?type=ERC-20";
-
+        const url = CONFIG.historyAPI + "/addresses/" + userAddress + "/token-transfers?type=ERC-20";
         const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error("El explorador no respondió.");
-        }
-
         const data = await response.json();
-
-        const transfers = (data.items || []).filter(item => {
-
-            return item.token &&
-                item.token.address &&
-                item.token.address.toLowerCase() ===
-                CONFIG.contract.toLowerCase();
-        });
-
+        const transfers = (data.items || []).filter(item => item.token?.address?.toLowerCase() === CONFIG.contract.toLowerCase());
+        
         if (!transfers.length) {
-
-            container.textContent =
-                "No se encontraron movimientos STBL en el historial disponible.";
-
+            container.textContent = "No se encontraron movimientos STBL.";
             return;
         }
-
         container.innerHTML = "";
-
-        transfers.slice(0, 30).forEach(item => {
-
-            const from = item.from?.hash || "";
-            const to = item.to?.hash || "";
-
-            const outgoing =
-                from.toLowerCase() === userAddress.toLowerCase();
-
-            const value = item.total?.value || "0";
-
-            const tokenDecimals = Number(
-                item.token?.decimals ?? decimals
-            );
-
-            const amount = ethers.formatUnits(
-                value,
-                tokenDecimals
-            );
-
-            const hash =
-                item.tx_hash ||
-                item.transaction_hash ||
-                "";
-
-            const date = item.timestamp
-                ? new Date(item.timestamp).toLocaleString("es-AR")
-                : "Fecha no disponible";
-
-            const peer = outgoing ? to : from;
-
+        transfers.slice(0, 15).forEach(item => {
+            const outgoing = item.from?.hash?.toLowerCase() === userAddress.toLowerCase();
+            const amount = ethers.formatUnits(item.total?.value || "0", Number(item.token?.decimals ?? decimals));
             const row = document.createElement("div");
-
-            row.className =
-                "action rounded-xl p-4 flex flex-wrap justify-between gap-3";
-
-            const left = document.createElement("div");
-
-            const title = document.createElement("div");
-
-            title.className = "font-bold text-sm";
-
-            title.textContent = outgoing
-                ? "Envío de STBL"
-                : "Recepción de STBL";
-
-            const details = document.createElement("div");
-
-            details.className = "text-xs text-slate-400 mt-2";
-
-            details.textContent =
-                (outgoing ? "Para: " : "De: ") +
-                (peer
-                    ? peer.slice(0, 8) + "..." + peer.slice(-6)
-                    : "No disponible");
-
-            const time = document.createElement("div");
-
-            time.className = "text-xs text-slate-500 mt-1";
-            time.textContent = date;
-
-            left.append(title, details, time);
-
-            const right = document.createElement("div");
-
-            right.className = "text-right";
-
-            const quantity = document.createElement("div");
-
-            quantity.className = "font-bold " +
-                (outgoing ? "text-red-400" : "text-green-400");
-
-            quantity.textContent =
-                (outgoing ? "-" : "+") +
-                Number(amount).toLocaleString("es-AR", {
-                    maximumFractionDigits: 6
-                }) + " STBL";
-
-            right.appendChild(quantity);
-
-            if (hash) {
-
-                const link = document.createElement("a");
-
-                link.href = CONFIG.explorer + "/tx/" + hash;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-
-                link.className = "text-xs text-amber-400";
-                link.textContent = "Ver transacción";
-
-                right.appendChild(link);
-            }
-
-            row.append(left, right);
-
+            row.className = "action rounded-xl p-4 flex justify-between items-center gap-3";
+            row.innerHTML = `<div><div class="font-bold text-sm">${outgoing ? "Envío" : "Recepción"}</div><div class="text-xs text-slate-400">${new Date(item.timestamp).toLocaleString("es-AR")}</div></div><div class="font-bold ${outgoing ? "text-red-400" : "text-green-400"}">${outgoing ? "-" : "+"}${Number(amount).toLocaleString("es-AR")} STBL</div>`;
             container.appendChild(row);
         });
-
     } catch (e) {
-
-        console.error(e);
-
-        container.textContent =
-            "No se pudo consultar el historial automático. ";
-
-        const link = document.createElement("a");
-
-        link.href =
-            CONFIG.explorer +
-            "/address/" + userAddress + "#tokentxns";
-
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-
-        link.className = "underline text-amber-400";
-        link.textContent = "Ver movimientos en Arbiscan";
-
-        container.appendChild(link);
+        container.textContent = "No se pudo cargar el historial.";
     }
 }
-
-// ========================================
-// PESTAÑAS
-// ========================================
 
 function showTab(name) {
-
-    const validTabs = [
-        "dashboard",
-        "send",
-        "receive",
-        "history",
-        "swap",
-        "payment"
-    ];
-
-    if (!validTabs.includes(name)) return;
-
     currentTab = name;
-
-    document.querySelectorAll(".tabContent").forEach(el => {
-        el.classList.add("hidden");
-    });
-
-    document.querySelectorAll(".tab").forEach(el => {
-        el.classList.remove("active");
-    });
-
+    document.querySelectorAll(".tabContent").forEach(el => el.classList.add("hidden"));
+    document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
     document.getElementById("tab-" + name).classList.remove("hidden");
-
-    const button = document.querySelector(
-        '[data-tab="' + name + '"]'
-    );
-
+    const button = document.querySelector('[data-tab="' + name + '"]');
     if (button) button.classList.add("active");
-
-    if (name === "history" && userAddress) {
-        loadHistory();
-    }
-
-    if (name === "receive") {
-        renderQR();
-    }
+    if (name === "history" && userAddress) loadHistory();
+    if (name === "receive") renderQR();
 }
-
-// ========================================
-// CALCULADORA
-// ========================================
 
 function calculate() {
-
-    const amount = Number(
-        document.getElementById("calcAmount").value
-    ) || 0;
-
-    const currency =
-        document.getElementById("calcCurrency").value;
-
-    const result = currency === "USDC"
-        ? amount * 1650
-        : amount;
-
-    document.getElementById("calcResult").textContent =
-        result.toLocaleString("es-AR", {
-            maximumFractionDigits: 2
-        }) + " STBL";
+    const amount = Number(document.getElementById("calcAmount").value) || 0;
+    const currency = document.getElementById("calcCurrency").value;
+    const result = currency === "USDC" ? amount * 1650 : amount;
+    document.getElementById("calcResult").textContent = result.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
 }
 
-// ========================================
-// LIMPIAR ESTADO
-// ========================================
-
 function clearWalletState() {
-
     sessionActive = false;
-
     userAddress = null;
     provider = null;
     signer = null;
     token = null;
     wallet = null;
-
     document.getElementById("balance").textContent = "-- STBL";
-
-    document.getElementById("historyList").textContent =
-        "Billetera desconectada.";
-
     updateInterface();
 }
 
 // ========================================
-// EVENTOS METAMASK
+// LÓGICA DE LA RULETA DE JUEGO
 // ========================================
+async function girarRuleta() {
+    try {
+        requireWallet();
+        const apuestaInput = document.getElementById("apuestaRuleta").value;
+        const apuesta = parseAmount(apuestaInput);
+        
+        const balance = await token.balanceOf(userAddress);
+        if (balance < apuesta) {
+            notify("Saldo insuficiente", "No tenés suficiente STBL para apostar.");
+            return;
+        }
+
+        const btnGirar = document.getElementById("btnGirarRuleta");
+        btnGirar.disabled = true;
+        notify("Girando ruleta", "Aguardá el resultado...");
+
+        // Animación visual de giro (aleatoria entre 4 y 8 vueltas completas más un sector)
+        const wheel = document.getElementById("ruletaWheel");
+        const randomDeg = Math.floor(Math.random() * 360) + 1440; 
+        wheel.style.transform = `rotate(${randomDeg}deg)`;
+
+        setTimeout(async () => {
+            // Simulación de resultado o llamada a contrato de juego
+            const premioFactor = [0, 0.5, 1, 2, 5][Math.floor(Math.random() * 5)];
+            const resultadoTxt = premioFactor > 0 ? `¡Ganaste x${premioFactor}!` : "¡Perdiste esta vez!";
+            
+            notify("Resultado de la Ruleta", resultadoTxt);
+            document.getElementById("resultadoRuletaText").textContent = resultadoTxt;
+            btnGirar.disabled = false;
+            await refreshBalance();
+        }, 4000);
+
+    } catch (e) {
+        notify("Error en la Ruleta", e.message);
+        document.getElementById("btnGirarRuleta").disabled = false;
+    }
+}
 
 function setupWalletEvents() {
-
     const w = getWallet();
-
     if (!w || typeof w.on !== "function") return;
-
     w.on("accountsChanged", async accounts => {
-
-        if (!accounts.length) {
-
-            clearWalletState();
-
-            notify(
-                "Billetera desconectada",
-                "MetaMask cerró el acceso a la cuenta."
-            );
-
-            return;
-        }
-
-        try {
-
-            wallet = w;
-
-            const chain = await w.request({
-                method: "eth_chainId"
-            });
-
-            if (chain.toLowerCase() !== CONFIG.chainHex) {
-
-                clearWalletState();
-
-                notify(
-                    "Red incorrecta",
-                    "Conectá Arbitrum One."
-                );
-
-                return;
-            }
-
-            await initializeConnectedWallet();
-
-            if (currentTab === "history") {
-                await loadHistory();
-            }
-
-            notify(
-                "Cuenta actualizada",
-                "Se actualizó la cuenta conectada."
-            );
-
-        } catch (e) {
-
-            console.error(e);
-
-            clearWalletState();
-
-            notify(
-                "Error",
-                "No se pudo actualizar la cuenta."
-            );
-        }
-    });
-
-    w.on("chainChanged", async chainId => {
-
-        if (!sessionActive) return;
-
-        if (chainId.toLowerCase() !== CONFIG.chainHex) {
-
-            clearWalletState();
-
-            notify(
-                "Red incorrecta",
-                "PESO AR STBL necesita Arbitrum One."
-            );
-
-            return;
-        }
-
-        try {
-
-            wallet = w;
-
-            await initializeConnectedWallet();
-
-            notify(
-                "Red actualizada",
-                "Conectado a Arbitrum One."
-            );
-
-        } catch (e) {
-
-            console.error(e);
-
-            clearWalletState();
-
-            notify(
-                "Error",
-                "No se pudo actualizar la red."
-            );
-        }
+        if (!accounts.length) { clearWalletState(); return; }
+        try { await initializeConnectedWallet(); } catch(e) { clearWalletState(); }
     });
 }
 
-// ========================================
-// INICIALIZACIÓN
-// ========================================
-
-document.getElementById("contractText").textContent =
-    CONFIG.contract;
-
-calculate();
-
-updateInterface();
-
-setupWalletEvents();
-
-// Restaurar únicamente una conexión previamente autorizada.
-
-(async function restoreWallet() {
-
-    const w = getWallet();
-
-    if (!w) return;
-
-    try {
-
-        const accounts = await w.request({
-            method: "eth_accounts"
-        });
-
-        if (!accounts.length) return;
-
-        const chain = await w.request({
-            method: "eth_chainId"
-        });
-
-        if (chain.toLowerCase() !== CONFIG.chainHex) return;
-
-        wallet = w;
-
-        await initializeConnectedWallet();
-
-    } catch (e) {
-
-        console.error(
-            "Restauración de conexión:",
-            e
-        );
-    }
-
-})();
-
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("contractText").textContent = CONFIG.contract;
+    calculate();
+    updateInterface();
+    setupWalletEvents();
+});
 </script>
 
 <!-- HEADER -->
-
 <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
-
 <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
-
 <a href="#" class="flex items-center gap-3">
-
 <div class="w-11 h-11 rounded-xl gold flex items-center justify-center text-xl">
 <i class="fa-solid fa-coins"></i>
 </div>
-
 <div>
 <div class="font-bold text-lg">PESO AR STBL</div>
 <div class="text-xs text-amber-400">ARBITRUM ONE TOKEN</div>
 </div>
-
 </a>
-
 <div class="flex flex-wrap items-center gap-2">
-
 <button id="connectBtn" onclick="connectWallet()" class="gold px-4 py-3 rounded-xl text-sm">
 <i class="fa-solid fa-wallet"></i> Conectar Wallet
 </button>
-
 <button id="disconnectBtn" onclick="disconnectWallet()" class="hidden action px-4 py-3 rounded-xl text-sm text-red-300">
 <i class="fa-solid fa-right-from-bracket"></i> Desconectar
 </button>
-
 </div>
 </div>
 </header>
 
 <!-- PRESENTACIÓN -->
-
 <section class="py-12 lg:py-20">
-
 <div class="max-w-7xl mx-auto px-4">
-
 <div class="grid lg:grid-cols-2 gap-10 items-center">
-
 <div class="space-y-5">
-
 <div class="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full px-4 py-2 text-xs font-bold">
 <i class="fa-solid fa-circle text-xs"></i> RED ARBITRUM ONE
 </div>
-
 <h1 class="text-4xl lg:text-6xl font-black leading-tight">
 PESO AR STBL <span class="text-amber-400">(STBL)</span>
 </h1>
-
 <p class="text-slate-400 text-lg">
-Tu espacio para administrar, enviar, recibir y utilizar PESO AR STBL mediante tecnología blockchain.
+Tu espacio para administrar, enviar, recibir, utilizar y jugar con PESO AR STBL mediante tecnología blockchain.
 </p>
-
 <div class="panel p-4 space-y-3">
-
 <div class="text-xs text-slate-400">CONTRATO DEL TOKEN</div>
-
 <div class="flex gap-2 items-center">
-
 <code class="text-xs text-amber-400 break-all flex-1" id="contractText"></code>
-
 <button onclick="copyText(CONFIG.contract)" class="action rounded-lg px-3 py-2">
 <i class="fa-regular fa-copy"></i>
 </button>
-
 </div>
-
-<div class="text-xs text-slate-500">
-Arbitrum One · Chain ID 42161
 </div>
-
 </div>
-
-<div class="flex flex-wrap gap-3">
-
-<a id="buyLink" href="#" target="_blank" rel="noopener noreferrer" class="gold rounded-xl px-5 py-3">
-<i class="fa-solid fa-cart-shopping"></i> Comprar STBL
-</a>
-
-<a href="https://arbiscan.io" target="_blank" rel="noopener noreferrer" class="action rounded-xl px-5 py-3">
-<i class="fa-solid fa-magnifying-glass"></i> Arbiscan
-</a>
-
-</div>
-
-</div>
-
 <div class="panel p-7 text-center">
-
-<div class="text-5xl text-amber-400 mb-4">
-<i class="fa-solid fa-coins"></i>
-</div>
-
+<div class="text-5xl text-amber-400 mb-4"><i class="fa-solid fa-coins"></i></div>
 <h2 class="text-xl font-bold">PESO AR STABLECOIN</h2>
-
-<p class="text-sm text-slate-400 mt-2">
-Tu ecosistema digital
-</p>
-
-<div class="grid grid-cols-2 gap-4 mt-8 border-t border-slate-800 pt-5">
-
-<div>
-<div class="text-xs text-slate-500">RED</div>
-<div class="text-amber-400 font-bold">ARBITRUM</div>
-</div>
-
-<div>
-<div class="text-xs text-slate-500">TOKEN</div>
-<div class="font-bold">STBL</div>
-</div>
-
-</div>
+<p class="text-sm text-slate-400 mt-2">Tu ecosistema digital y de entretenimiento</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- APLICACIÓN -->
-
 <section class="py-12 bg-slate-900/40 border-y border-slate-800">
-
 <div class="max-w-7xl mx-auto px-4">
-
 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-
 <div>
 <h2 class="text-3xl font-bold">Mi billetera</h2>
-<p class="text-slate-400 text-sm mt-1">
-Administrá tus operaciones STBL
-</p>
+<p class="text-slate-400 text-sm mt-1">Administrá tus operaciones y juegos STBL</p>
 </div>
-
 <div id="networkStatus" class="text-xs text-amber-400 bg-amber-500/10 rounded-full px-4 py-2">
 <i class="fa-solid fa-circle"></i> Sin conexión
-</div>
-
-</div>
-
-<!-- DIRECCIÓN -->
-
-<div class="panel p-5 mb-6">
-
-<div class="text-xs text-slate-500 mb-2">
-DIRECCIÓN CONECTADA
-</div>
-
-<div class="flex flex-wrap items-center justify-between gap-3">
-
-<code id="userAddress" class="text-amber-400 text-sm break-all">
-Billetera desconectada
-</code>
-
-<button onclick="copyUserAddress()" class="action px-3 py-2 rounded-lg text-xs">
-<i class="fa-regular fa-copy"></i> Copiar
-</button>
-
 </div>
 </div>
 
 <!-- SALDO -->
-
 <div class="panel p-6 mb-6">
-
-<div class="text-xs text-slate-400">
-SALDO DISPONIBLE
-</div>
-
-<div id="balance" class="text-4xl lg:text-5xl font-black text-amber-400 mt-2">
--- STBL
-</div>
-
+<div class="text-xs text-slate-400">SALDO DISPONIBLE</div>
+<div id="balance" class="text-4xl lg:text-5xl font-black text-amber-400 mt-2">-- STBL</div>
 <div class="flex flex-wrap gap-3 mt-5">
-
 <button onclick="refreshBalance()" class="action rounded-xl px-4 py-2 text-sm">
 <i class="fa-solid fa-rotate"></i> Actualizar saldo
 </button>
-
-<a id="walletExplorer" href="https://arbiscan.io" target="_blank" rel="noopener noreferrer" class="action rounded-xl px-4 py-2 text-sm">
-<i class="fa-solid fa-arrow-up-right-from-square"></i> Ver billetera
-</a>
-
 </div>
 </div>
 
-<!-- PESTAÑAS -->
-
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-6">
-
-<button class="tab active rounded-xl px-3 py-3 text-sm" data-tab="dashboard" onclick="showTab('dashboard')">
-<i class="fa-solid fa-house"></i> Inicio
-</button>
-
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="send" onclick="showTab('send')">
-<i class="fa-solid fa-paper-plane"></i> Enviar
-</button>
-
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="receive" onclick="showTab('receive')">
-<i class="fa-solid fa-qrcode"></i> Recibir
-</button>
-
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="history" onclick="showTab('history')">
-<i class="fa-solid fa-clock-rotate-left"></i> Historial
-</button>
-
-<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="swap" onclick="showTab('swap')">
-<i class="fa-solid fa-arrow-right-arrow-left"></i> Comprar/Vender
-</button>
-
+<!-- PESTAÑAS (Se agregó la pestaña Ruleta) -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+<button class="tab active rounded-xl px-3 py-3 text-sm" data-tab="dashboard" onclick="showTab('dashboard')"><i class="fa-solid fa-house"></i> Inicio</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="send" onclick="showTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="receive" onclick="showTab('receive')"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="history" onclick="showTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="swap" onclick="showTab('swap')"><i class="fa-solid fa-arrow-right-arrow-left"></i> Comprar</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="ruleta" onclick="showTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
 </div>
 
-<!-- INICIO -->
-
+<!-- DASHBOARD -->
 <div id="tab-dashboard" class="tabContent panel p-6">
-
-<h3 class="text-xl font-bold mb-5">
-Panel de operaciones
-</h3>
-
+<h3 class="text-xl font-bold mb-5">Panel de operaciones</h3>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-<button onclick="showTab('send')" class="action p-6 rounded-2xl text-left">
-
-<i class="fa-solid fa-paper-plane text-amber-400 text-2xl"></i>
-
-<h4 class="font-bold mt-3">Enviar STBL</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Transferí tokens a otra dirección.
-</p>
-
-</button>
-
-<button onclick="showTab('receive')" class="action p-6 rounded-2xl text-left">
-
-<i class="fa-solid fa-qrcode text-amber-400 text-2xl"></i>
-
-<h4 class="font-bold mt-3">Recibir STBL</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Compartí tu dirección y QR.
-</p>
-
-</button>
-
-<button onclick="showTab('history')" class="action p-6 rounded-2xl text-left">
-
-<i class="fa-solid fa-clock-rotate-left text-amber-400 text-2xl"></i>
-
-<h4 class="font-bold mt-3">Movimientos</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Consultá tus transferencias.
-</p>
-
-</button>
-
-<button onclick="showTab('swap')" class="action p-6 rounded-2xl text-left">
-
-<i class="fa-solid fa-arrow-right-arrow-left text-amber-400 text-2xl"></i>
-
-<h4 class="font-bold mt-3">Comprar y vender</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Accedé a Uniswap.
-</p>
-
-</button>
-
-<button onclick="showTab('payment')" class="action p-6 rounded-2xl text-left">
-
-<i class="fa-solid fa-money-bill-transfer text-amber-400 text-2xl"></i>
-
-<h4 class="font-bold mt-3">Pagos entre usuarios</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Realizá pagos en STBL.
-</p>
-
-</button>
-
+<button onclick="showTab('send')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-paper-plane text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Enviar STBL</h4></button>
+<button onclick="showTab('receive')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-qrcode text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Recibir STBL</h4></button>
+<button onclick="showTab('ruleta')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-dice text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Ruleta de la Suerte</h4><p class="text-xs text-slate-400 mt-2">Jugá y ganá con STBL.</p></button>
 </div>
 </div>
 
 <!-- ENVIAR -->
-
 <div id="tab-send" class="tabContent panel p-6 hidden">
-
 <h3 class="text-xl font-bold mb-2">Enviar STBL</h3>
-
-<p class="text-sm text-slate-400 mb-6">
-Transferí tokens desde tu billetera.
-</p>
-
 <form onsubmit="sendTokens(event)" class="space-y-4">
-
-<div>
-<label class="text-xs text-slate-400">
-Dirección del destinatario
-</label>
-
-<input id="sendAddress" class="field mt-2" placeholder="0x..." required>
-</div>
-
-<div>
-<label class="text-xs text-slate-400">
-Cantidad de STBL
-</label>
-
-<input id="sendAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required>
-</div>
-
-<div class="text-xs text-slate-500">
-Verificá cuidadosamente la dirección antes de confirmar.
-</div>
-
-<button id="sendButton" type="submit" class="gold w-full py-4 rounded-xl">
-<i class="fa-solid fa-paper-plane"></i> Confirmar transferencia
-</button>
-
+<div><label class="text-xs text-slate-400">Destinatario</label><input id="sendAddress" class="field mt-2" placeholder="0x..." required></div>
+<div><label class="text-xs text-slate-400">Cantidad</label><input id="sendAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required></div>
+<button id="sendButton" type="submit" class="gold w-full py-4 rounded-xl">Confirmar transferencia</button>
 </form>
 </div>
 
 <!-- RECIBIR -->
-
 <div id="tab-receive" class="tabContent panel p-6 hidden">
-
 <h3 class="text-xl font-bold mb-2">Recibir STBL</h3>
-
-<p class="text-sm text-slate-400 mb-6">
-Compartí tu dirección para recibir tokens.
-</p>
-
 <div class="bg-slate-950 rounded-2xl p-5 text-center">
-
 <div id="qr-code" class="bg-white rounded-xl p-3 inline-block min-w-36 min-h-36"></div>
-
-<div id="qrMessage" class="text-xs text-slate-500 mt-3">
-Conectá tu billetera para generar el QR.
 </div>
-
-</div>
-
-<div class="mt-5">
-
-<label class="text-xs text-slate-400">
-Tu dirección pública
-</label>
-
-<div id="receiveAddress" class="field mt-2 break-all text-sm">
-Sin conexión
-</div>
-
-</div>
-
-<button onclick="copyUserAddress()" class="gold w-full rounded-xl py-3 mt-4">
-<i class="fa-regular fa-copy"></i> Copiar dirección
-</button>
-
-<p class="text-xs text-slate-500 mt-4">
-Solo compartí tu dirección pública. Nunca compartas tu frase de recuperación ni claves privadas.
-</p>
-
+<div id="receiveAddress" class="field mt-2 break-all text-sm">Sin conexión</div>
 </div>
 
 <!-- HISTORIAL -->
-
 <div id="tab-history" class="tabContent panel p-6 hidden">
-
-<div class="flex flex-wrap justify-between items-center gap-3 mb-5">
-
-<div>
-<h3 class="text-xl font-bold">
-Historial de transacciones
-</h3>
-
-<p class="text-xs text-slate-400 mt-1">
-Movimientos registrados en blockchain.
-</p>
+<h3 class="text-xl font-bold mb-5">Historial</h3>
+<div id="historyList" class="space-y-3"><p class="text-sm text-slate-500">Conectá tu billetera.</p></div>
 </div>
 
-<button onclick="loadHistory()" class="action px-4 py-2 rounded-xl text-sm">
-<i class="fa-solid fa-rotate"></i> Actualizar
-</button>
-
-</div>
-
-<div id="historyList" class="space-y-3">
-<p class="text-sm text-slate-500">
-Conectá tu billetera para consultar movimientos.
-</p>
-</div>
-
-<div class="mt-5">
-
-<a id="historyExplorer" href="https://arbiscan.io" target="_blank" rel="noopener noreferrer" class="text-sm text-amber-400">
-Ver historial completo en Arbiscan
-<i class="fa-solid fa-arrow-up-right-from-square"></i>
-</a>
-
-</div>
-</div>
-
-<!-- COMPRAR Y VENDER -->
-
+<!-- COMPRAR -->
 <div id="tab-swap" class="tabContent panel p-6 hidden">
-
-<h3 class="text-xl font-bold mb-2">
-Comprar y vender STBL
-</h3>
-
-<p class="text-sm text-slate-400 mb-6">
-Operá mediante Uniswap en Arbitrum One.
-</p>
-
-<div class="grid sm:grid-cols-2 gap-4">
-
-<a id="buyButton" href="#" target="_blank" rel="noopener noreferrer" class="gold p-6 rounded-2xl text-center">
-
-<i class="fa-solid fa-cart-shopping text-2xl"></i>
-
-<h4 class="font-bold mt-3">Comprar STBL</h4>
-
-<p class="text-xs mt-2">
-Intercambiar ETH por STBL
-</p>
-
-</a>
-
-<a id="sellButton" href="#" target="_blank" rel="noopener noreferrer" class="action p-6 rounded-2xl text-center">
-
-<i class="fa-solid fa-money-bill-transfer text-2xl text-amber-400"></i>
-
-<h4 class="font-bold mt-3">Vender STBL</h4>
-
-<p class="text-xs text-slate-400 mt-2">
-Intercambiar STBL por ETH
-</p>
-
-</a>
-
+<h3 class="text-xl font-bold mb-2">Comprar y vender STBL</h3>
+<a id="buyButton" href="#" target="_blank" rel="noopener noreferrer" class="gold p-6 rounded-2xl text-center block">Comprar en Uniswap</a>
 </div>
 
-<div class="mt-6 bg-slate-950 rounded-xl p-4 text-sm text-slate-400">
+<!-- RULETA DE JUEGO (NUEVA PESTAÑA) -->
+<div id="tab-ruleta" class="tabContent panel p-6 hidden text-center">
+<h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-dice text-amber-400"></i> Ruleta STBL</h3>
+<p class="text-sm text-slate-400 mb-6">Apostá tus tokens STBL y poné a prueba tu suerte en Arbitrum One.</p>
 
-<i class="fa-solid fa-circle-info text-amber-400"></i>
-
-Las operaciones dependen de la existencia de liquidez, pares de intercambio, cotización y condiciones de Uniswap. Se pueden aplicar comisiones y deslizamiento.
-
+<div class="ruleta-container my-8">
+<div class="ruleta-pointer"></div>
+<div id="ruletaWheel" class="ruleta-wheel"></div>
 </div>
-</div>
 
-<!-- PAGOS -->
-
-<div id="tab-payment" class="tabContent panel p-6 hidden">
-
-<h3 class="text-xl font-bold mb-2">
-Pagos entre usuarios
-</h3>
-
-<p class="text-sm text-slate-400 mb-6">
-Realizá un pago utilizando PESO AR STBL.
-</p>
-
-<form onsubmit="sendPayment(event)" class="space-y-4">
-
+<div class="max-w-xs mx-auto space-y-4">
 <div>
-<label class="text-xs text-slate-400">
-Dirección del receptor
-</label>
-
-<input id="paymentAddress" class="field mt-2" placeholder="0x..." required>
+<label class="text-xs text-slate-400">Cantidad a apostar (STBL)</label>
+<input id="apuestaRuleta" class="field mt-2 text-center" type="number" min="1" value="10" placeholder="10">
 </div>
-
-<div>
-<label class="text-xs text-slate-400">
-Importe del pago (STBL)
-</label>
-
-<input id="paymentAmount" class="field mt-2" type="number" min="0" step="any" placeholder="0.00" required>
-</div>
-
-<div>
-<label class="text-xs text-slate-400">
-Concepto del pago (opcional)
-</label>
-
-<input id="paymentNote" class="field mt-2" maxlength="100" placeholder="Ej. Pago de producto o servicio">
-</div>
-
-<button id="paymentButton" type="submit" class="gold w-full py-4 rounded-xl">
-<i class="fa-solid fa-money-bill-transfer"></i> Realizar pago
+<button id="btnGirarRuleta" onclick="girarRuleta()" class="gold w-full py-4 rounded-xl text-base shadow-lg">
+<i class="fa-solid fa-play"></i> ¡Girar Ruleta!
 </button>
-
-</form>
-
-<div class="bg-slate-950 rounded-xl p-4 mt-5 text-xs text-slate-400">
-
-El pago es una transferencia directa de STBL. El concepto es solamente informativo y no queda grabado en la blockchain.
-
+<div id="resultadoRuletaText" class="text-lg font-bold text-amber-400 mt-3"></div>
 </div>
 </div>
 
-</div>
-</section>
-
-<!-- CALCULADORA -->
-
-<section class="py-16">
-
-<div class="max-w-4xl mx-auto px-4">
-
-<div class="text-center mb-8">
-
-<h2 class="text-3xl font-bold">
-Calculadora STBL
-</h2>
-
-<p class="text-sm text-slate-400 mt-2">
-Estimación de conversión.
-</p>
-
-</div>
-
-<div class="panel p-6 space-y-4">
-
-<input id="calcAmount" type="number" min="0" value="1000" oninput="calculate()" class="field">
-
-<select id="calcCurrency" onchange="calculate()" class="field">
-
-<option value="ARS">ARS</option>
-<option value="USDC">USDC</option>
-
-</select>
-
-<div class="bg-slate-950 rounded-xl p-5">
-
-<div class="text-xs text-slate-400">
-Resultado estimado
-</div>
-
-<div id="calcResult" class="text-3xl font-bold text-amber-400 mt-2">
-1.000 STBL
-</div>
-
-<div class="text-xs text-slate-500 mt-2">
-Referencia ilustrativa: 1 USDC = 1.650 STBL. No es una cotización en tiempo real. La conversión ARS/STBL es ilustrativa 1:1.
-</div>
-
-</div>
-</div>
 </div>
 </section>
 
 <!-- FOOTER -->
-
 <footer class="border-t border-slate-800 py-10 text-center text-xs text-slate-500">
-
-<p>
-© 2026 PESO AR STBL. Todos los derechos reservados.
-</p>
-
-<p class="mt-2">
-Arbitrum One · Ecosistema digital
-</p>
-
+<p>© 2026 PESO AR STBL. Todos los derechos reservados.</p>
 </footer>
 
 <!-- NOTIFICACIONES -->
-
 <div id="toast" class="fixed bottom-5 right-5 z-[200] hidden max-w-sm">
-
 <div class="bg-slate-900 border border-slate-700 shadow-xl rounded-xl p-4">
-
 <div id="toastTitle" class="font-bold text-amber-400"></div>
-
 <div id="toastMessage" class="text-sm text-slate-300 mt-1 break-words"></div>
-
 </div>
 </div>
 
