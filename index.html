@@ -132,6 +132,7 @@ background: #D4AF37;
 <div class="hidden md:flex items-center gap-6 text-sm font-medium">
 <a href="#about" class="hover:text-gold-400 transition-colors">¿Qué es STBL?</a>
 <a href="#dapp" class="hover:text-gold-400 transition-colors text-gold-400 font-bold"><i class="fa-solid fa-cube mr-1"></i> dApp & Utilidades</a>
+<a href="#chart-section" class="hover:text-gold-400 transition-colors">Gráfico en Vivo</a>
 <a href="#calculator" class="hover:text-gold-400 transition-colors">Calculadora</a>
 <a href="#features" class="hover:text-gold-400 transition-colors">Características</a>
 <a href="#roadmap" class="hover:text-gold-400 transition-colors">Roadmap</a>
@@ -163,6 +164,7 @@ Comprar STBL
 <div id="mobile-menu" class="hidden md:hidden bg-navy-800/95 border-b border-navy-700 px-4 pt-3 pb-6 space-y-3">
 <a href="#about" class="block py-2 text-gray-200 hover:text-gold-400 font-medium">¿Qué es STBL?</a>
 <a href="#dapp" class="block py-2 text-gold-400 font-bold">dApp & Utilidades</a>
+<a href="#chart-section" class="block py-2 text-gray-200 hover:text-gold-400 font-medium">Gráfico en Vivo</a>
 <a href="#calculator" class="block py-2 text-gray-200 hover:text-gold-400 font-medium">Calculadora</a>
 <a href="#features" class="block py-2 text-gray-200 hover:text-gold-400 font-medium">Características</a>
 <a href="#roadmap" class="block py-2 text-gray-200 hover:text-gold-400 font-medium">Roadmap</a>
@@ -362,7 +364,7 @@ DEXScreener
 </div>
 </section>
 
-<!-- PESTAÑA: RULETA STBL -->
+<!-- PESTAÑA: RULETA STBL + HISTORIAL LOCAL DE GANADORES (Opción 2) -->
 <section id="tab-ruleta" class="space-y-6 hidden">
 <div class="panel p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-lg mb-2 text-white">Ruleta de Premios STBL</h3>
@@ -382,6 +384,14 @@ DEXScreener
 <i class="fa-solid fa-dice"></i> ¡Girar Ruleta!
 </button>
 <div id="resultadoRuleta" class="mt-4 text-sm font-bold text-amber-400"></div>
+
+<!-- Tabla de últimos ganadores (Opción 2) -->
+<div class="mt-8 pt-6 border-t border-navy-700 text-left">
+<h4 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3"><i class="fa-solid fa-trophy text-gold-400 mr-1"></i> Últimos Ganadores en la Sesión</h4>
+<div id="ruletaGanadoresList" class="space-y-2 text-xs">
+<div class="text-gray-500 italic">No hay giros registrados todavía.</div>
+</div>
+</div>
 </div>
 </section>
 
@@ -395,6 +405,19 @@ DEXScreener
 <div id="historyList" class="space-y-3 text-sm text-slate-300">Conectá tu billetera primero.</div>
 </div>
 </section>
+</div>
+</div>
+</section>
+
+<!-- GRÁFICO EN VIVO DEXSCREENER (Opción 4) -->
+<section id="chart-section" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-2xl mx-auto mb-10">
+<h2 class="text-3xl font-extrabold text-white">Gráfico y Cotización en <span class="celeste-gradient-text">Tiempo Real</span></h2>
+<p class="text-gray-400 text-sm mt-2">Seguimiento en directo del pool de liquidez en Uniswap V3 mediante DEXScreener.</p>
+</div>
+<div class="glass-card rounded-3xl p-4 sm:p-6 overflow-hidden shadow-2xl">
+<div style="position:relative;width:100%;height:550px;">
+<iframe src="https://dexscreener.com/arbitrum/0xB46Ad28a11d2006058D22a16b16902F8213bDc30?embed=1&theme=dark&trades=0" width="100%" height="100%" style="border:0;border-radius:16px;"></iframe>
 </div>
 </div>
 </section>
@@ -769,6 +792,7 @@ function copyUserAddress() {
     showToast("Copiado", "Dirección copiada correctamente.");
 }
 
+// Opción 3: Detección Multi-Wallet Robusta
 function getWallet() {
     if (!window.ethereum) return null;
     if (window.ethereum.providers?.length) {
@@ -853,7 +877,7 @@ async function connectWallet() {
     if (connecting) return;
     const w = getWallet();
     if (!w) {
-        showToast("MetaMask no detectada", "Instalá o abrilo desde MetaMask.");
+        showToast("Billetera no detectada", "Instalá o abrilo desde MetaMask u otra wallet compatible.");
         return;
     }
     connecting = true;
@@ -1047,7 +1071,46 @@ async function retirarStaking() {
     }
 }
 
-// Función de la Ruleta STBL con cobro de apuesta y premio real
+// Opción 2 y Ruleta: Gestión con Historial local de ganadores
+function cargarGanadoresRuletaLocal() {
+    const listEl = document.getElementById("ruletaGanadoresList");
+    if (!listEl) return;
+    try {
+        const saved = JSON.parse(localStorage.getItem("stbl_ruleta_ganadores") || "[]");
+        if (!saved.length) {
+            listEl.innerHTML = `<div class="text-gray-500 italic">No hay giros registrados todavía.</div>`;
+            return;
+        }
+        listEl.innerHTML = "";
+        saved.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "flex justify-between items-center bg-navy-900/80 p-2 rounded-lg border border-navy-700";
+            row.innerHTML = `<span class="font-mono text-amber-400">${item.wallet}</span> <span class="${item.gano ? 'text-green-400 font-bold' : 'text-gray-400'}">${item.resultado} (${item.monto} STBL)</span>`;
+            listEl.appendChild(row);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function registrarGanadorRuletaLocal(walletStr, montoStr, gano, premioStr) {
+    try {
+        const saved = JSON.parse(localStorage.getItem("stbl_ruleta_ganadores") || "[]");
+        saved.unshift({
+            wallet: walletStr.substring(0, 6) + "..." + walletStr.substring(walletStr.length - 4),
+            monto: montoStr,
+            resultado: gano ? `¡Ganó +${premioStr}!` : "Perdió",
+            gano: gano,
+            time: new Date().toLocaleTimeString()
+        });
+        if (saved.length > 5) saved.pop(); // Mantener solo los últimos 5
+        localStorage.setItem("stbl_ruleta_ganadores", JSON.stringify(saved));
+        cargarGanadoresRuletaLocal();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 async function jugarRuletaSTBL() {
     try {
         requireWallet();
@@ -1077,17 +1140,20 @@ async function jugarRuletaSTBL() {
 
         setTimeout(async () => {
             const gana = Math.random() >= 0.5; 
+            const inputNumStr = document.getElementById("apuestaRuleta").value;
             
             if (gana) {
                 const premioMonto = montoApuesta * 2n;
+                const premioFormatted = ethers.formatUnits(premioMonto, decimals);
                 try {
                     showToast("Pagando premio", "Confirmá la acreditación en MetaMask...");
                     const txPremio = await token.transfer(userAddress, premioMonto);
                     await txPremio.wait();
 
-                    const mensaje = `¡Felicidades! Ganaste ${ethers.formatUnits(premioMonto, decimals)} STBL.`;
+                    const mensaje = `¡Felicidades! Ganaste ${premioFormatted} STBL.`;
                     document.getElementById("resultadoRuleta").textContent = mensaje;
                     showToast("¡Premio Pagado!", mensaje);
+                    registrarGanadorRuletaLocal(userAddress, inputNumStr, true, premioFormatted);
                 } catch (errPremio) {
                     console.error(errPremio);
                     showToast("Aviso", "Saliste ganador, pero la billetera no pudo emitir la transferencia del premio.");
@@ -1096,6 +1162,7 @@ async function jugarRuletaSTBL() {
                 const mensaje = "Mala suerte, perdiste tu apuesta esta vez.";
                 document.getElementById("resultadoRuleta").textContent = mensaje;
                 showToast("Resultado", mensaje);
+                registrarGanadorRuletaLocal(userAddress, inputNumStr, false, "0");
             }
 
             if (btn) btn.disabled = false;
@@ -1192,6 +1259,7 @@ function showTab(name) {
 window.onload = function() {
     calculateSwap();
     updateInterface();
+    cargarGanadoresRuletaLocal();
 }
 </script>
 </body>
