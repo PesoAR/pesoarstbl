@@ -183,7 +183,7 @@ a { cursor:pointer; }
            
             <div class="mb-4 text-left max-w-xs mx-auto">
                 <label class="block text-xs text-slate-400 mb-2">Cantidad a apostar (STBL)</label>
-                <input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 1 o 10">
+                <input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 0.1 o 10">
             </div>
 
             <div class="ruleta-container mb-6">
@@ -584,7 +584,7 @@ async function retirarStaking() {
     }
 }
 
-// Función principal de la Ruleta STBL
+// Ruleta conectada con pago real automático al ganar
 async function jugarRuletaSTBL() {
     try {
         requireWallet();
