@@ -37,6 +37,7 @@ a { cursor:pointer; }
 
 const CONFIG = {
     contract: "0xB46Ad28a11d2006058D22a16b16902F8213bDc30",
+    stakingContract: "PEGAR_AQUI_DIRECCION_CONTRATO_STAKING", // Reemplazar por la dirección de tu contrato de Staking desplegado
     chainId: 42161,
     chainHex: "0xa4b1",
     chainName: "Arbitrum One",
@@ -49,16 +50,24 @@ const CONFIG = {
 const ABI = [
     "function balanceOf(address) view returns (uint256)",
     "function transfer(address,uint256) returns (bool)",
+    "function approve(address spender, uint256 amount) returns (bool)",
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
     "function name() view returns (string)",
     "event Transfer(address indexed from,address indexed to,uint256 value)"
 ];
 
+const STAKING_ABI = [
+    "function stake(uint256 _amount) external",
+    "function withdraw() external",
+    "function stakes(address) view returns (uint256 amount, uint256 timestamp)"
+];
+
 let wallet = null;
 let provider = null;
 let signer = null;
 let token = null;
+let stakingContract = null;
 let userAddress = null;
 
 let decimals = 18;
@@ -170,6 +179,11 @@ async function initializeConnectedWallet() {
     token = newToken;
     decimals = tokenDecimals;
     symbol = tokenSymbol;
+    
+    if (CONFIG.stakingContract && CONFIG.stakingContract.startsWith("0x")) {
+        stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
+    }
+
     sessionActive = true;
 
     updateInterface();
@@ -208,6 +222,7 @@ function disconnectWallet(showNotice = true) {
     provider = null;
     signer = null;
     token = null;
+    stakingContract = null;
     wallet = null;
     decimals = 18;
     symbol = "STBL";
@@ -388,6 +403,52 @@ async function sendPayment(event) {
     }
 }
 
+async function realizarStaking(event) {
+    event.preventDefault();
+    try {
+        requireWallet();
+        if (!stakingContract) {
+            notify("Configuración pendiente", "Falta definir la dirección del contrato de Staking en CONFIG.");
+            return;
+        }
+        const amountInput = document.getElementById("stakeAmount").value;
+        const parsedAmount = parseAmount(amountInput);
+
+        notify("Aprobando tokens", "Confirmá el permiso en MetaMask...");
+        const txApprove = await token.approve(CONFIG.stakingContract, parsedAmount);
+        await txApprove.wait();
+
+        notify("Haciendo staking", "Confirmá la operación en MetaMask...");
+        const txStake = await stakingContract.stake(parsedAmount);
+        await txStake.wait();
+
+        notify("¡Staking exitoso!", "Tus tokens ya están generando rendimiento.");
+        document.getElementById("stakeAmount").value = "";
+        await refreshBalance();
+    } catch (e) {
+        notify("Error en Staking", e.shortMessage || e.message);
+    }
+}
+
+async function retirarStaking() {
+    try {
+        requireWallet();
+        if (!stakingContract) {
+            notify("Configuración pendiente", "Falta definir la dirección del contrato de Staking en CONFIG.");
+            return;
+        }
+
+        notify("Retirando", "Confirmá el retiro en MetaMask...");
+        const tx = await stakingContract.withdraw();
+        await tx.wait();
+
+        notify("Retiro exitoso", "Tus tokens y ganancias fueron acreditados.");
+        await refreshBalance();
+    } catch (e) {
+        notify("Error al retirar", e.shortMessage || e.message);
+    }
+}
+
 function renderQR() {
     const box = document.getElementById("qr-code");
     if (!box) return;
@@ -451,7 +512,7 @@ async function loadHistory() {
 }
 
 function showTab(name) {
-    const validTabs = ["dashboard", "send", "receive", "history", "swap", "payment", "ruleta"];
+    const validTabs = ["dashboard", "send", "receive", "history", "swap", "payment", "ruleta", "staking"];
     if (!validTabs.includes(name)) return;
     currentTab = name;
 
@@ -484,6 +545,7 @@ function clearWalletState() {
     provider = null;
     signer = null;
     token = null;
+    stakingContract = null;
     wallet = null;
     const balEl = document.getElementById("balance");
     if (balEl) balEl.textContent = "-- STBL";
@@ -660,13 +722,14 @@ Tu espacio para administrar, enviar, recibir y utilizar PESO AR STBL mediante te
 </div>
 </div>
 
-<!-- PESTAÑAS -->
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+<!-- PESTAÑAS (Con Staking y Ruleta incluidos) -->
+<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
 <button class="tab active rounded-xl px-3 py-3 text-sm" data-tab="dashboard" onclick="showTab('dashboard')"><i class="fa-solid fa-house"></i> Inicio</button>
 <button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="send" onclick="showTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
 <button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="receive" onclick="showTab('receive')"><i class="fa-solid fa-qrcode"></i> Recibir</button>
 <button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="history" onclick="showTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
 <button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="swap" onclick="showTab('swap')"><i class="fa-solid fa-arrow-right-arrow-left"></i> Comprar</button>
+<button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="staking" onclick="showTab('staking')"><i class="fa-solid fa-vault"></i> Staking</button>
 <button class="tab action rounded-xl px-3 py-3 text-sm" data-tab="ruleta" onclick="showTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
 </div>
 
@@ -678,7 +741,7 @@ Tu espacio para administrar, enviar, recibir y utilizar PESO AR STBL mediante te
 <button onclick="showTab('receive')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-qrcode text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Recibir STBL</h4></button>
 <button onclick="showTab('history')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-clock-rotate-left text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Movimientos</h4></button>
 <button onclick="showTab('swap')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-arrow-right-arrow-left text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Comprar y vender</h4></button>
-<button onclick="showTab('payment')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-money-bill-transfer text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Pagos entre usuarios</h4></button>
+<button onclick="showTab('staking')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-vault text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Staking pasivo</h4></button>
 <button onclick="showTab('ruleta')" class="action p-6 rounded-2xl text-left"><i class="fa-solid fa-dice text-amber-400 text-2xl"></i><h4 class="font-bold mt-3">Ruleta STBL</h4></button>
 </div>
 </div>
@@ -718,15 +781,24 @@ Tu espacio para administrar, enviar, recibir y utilizar PESO AR STBL mediante te
 </div>
 </div>
 
-<!-- PAGOS -->
-<div id="tab-payment" class="tabContent panel p-6 hidden">
-<h3 class="text-xl font-bold mb-2">Pagos entre usuarios</h3>
-<form onsubmit="sendPayment(event)" class="space-y-4">
-<input id="paymentAddress" class="field" placeholder="0x..." required>
-<input id="paymentAmount" class="field" type="number" min="0" step="any" placeholder="0.00" required>
-<input id="paymentNote" class="field" placeholder="Concepto">
-<button id="paymentButton" type="submit" class="gold w-full py-4 rounded-xl">Realizar pago</button>
+<!-- STAKING -->
+<div id="tab-staking" class="tabContent panel p-6 hidden">
+<h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-vault text-amber-400"></i> Staking de STBL</h3>
+<p class="text-sm text-slate-400 mb-6">Bloqueá tus tokens STBL y obtené un rendimiento anual estimado del 12%.</p>
+<div class="max-w-md mx-auto space-y-4">
+<form onsubmit="realizarStaking(event)" class="space-y-4">
+<div>
+<label class="text-xs text-slate-400">Cantidad a bloquear (STBL)</label>
+<input id="stakeAmount" class="field mt-2 text-center" type="number" min="1" step="any" placeholder="100" required>
+</div>
+<button type="submit" class="gold w-full py-4 rounded-xl text-base shadow-lg">
+<i class="fa-solid fa-lock"></i> Depositar en Staking
+</button>
 </form>
+<button onclick="retirarStaking()" class="action w-full py-4 rounded-xl text-base text-amber-400 shadow-lg">
+<i class="fa-solid fa-unlock"></i> Retirar Capital y Ganancias
+</button>
+</div>
 </div>
 
 <!-- RULETA DE JUEGO -->
