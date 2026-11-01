@@ -316,3 +316,419 @@ async function switchNetwork() {
             params: [{ chainId: CONFIG.chainHex }]
         });
     } catch (e) {
+        if (e.code !== 4902) throw e;
+        await w.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+                chainId: CONFIG.chainHex,
+                chainName: CONFIG.chainName,
+                nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                rpcUrls: [CONFIG.rpc],
+                blockExplorerUrls: [CONFIG.explorer]
+            }]
+        });
+        await w.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: CONFIG.chainHex }]
+        });
+    }
+}
+
+async function initializeConnectedWallet() {
+    if (!wallet) throw new Error("Billetera no disponible.");
+    const newProvider = new ethers.BrowserProvider(wallet);
+    const network = await newProvider.getNetwork();
+    if (network.chainId !== BigInt(CONFIG.chainId)) {
+        throw new Error("La billetera debe estar en Arbitrum One.");
+    }
+    const newSigner = await newProvider.getSigner();
+    const address = await newSigner.getAddress();
+    const code = await newProvider.getCode(CONFIG.contract);
+    if (code === "0x") {
+        throw new Error("No se encontró un contrato en la dirección configurada sobre Arbitrum One.");
+    }
+    const newToken = new ethers.Contract(CONFIG.contract, ABI, newSigner);
+    const tokenDecimals = Number(await newToken.decimals());
+    const tokenSymbol = await newToken.symbol();
+
+    provider = newProvider;
+    signer = newSigner;
+    userAddress = address;
+    token = newToken;
+    decimals = tokenDecimals;
+    symbol = tokenSymbol;
+   
+    if (CONFIG.stakingContract && CONFIG.stakingContract.startsWith("0x")) {
+        stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
+    }
+
+    sessionActive = true;
+    updateInterface();
+    await refreshBalance();
+}
+
+async function connectWallet() {
+    if (connecting) return;
+    const w = getWallet();
+    if (!w) {
+        notify("MetaMask no detectada", "Instalá o abrilo desde MetaMask.");
+        return;
+    }
+    connecting = true;
+    const button = document.getElementById("connectBtn");
+    if (button) button.disabled = true;
+    try {
+        wallet = w;
+        await wallet.request({ method: "eth_requestAccounts" });
+        await switchNetwork();
+        await initializeConnectedWallet();
+        notify("Conexión exitosa", "Tu billetera está conectada a Arbitrum One.");
+    } catch (e) {
+        console.error(e);
+        disconnectWallet(false);
+        notify("Error de conexión", e.shortMessage || e.message || "No se pudo conectar.");
+    } finally {
+        connecting = false;
+        if (button) button.disabled = false;
+    }
+}
+
+function disconnectWallet(showNotice = true) {
+    sessionActive = false;
+    userAddress = null;
+    provider = null;
+    signer = null;
+    token = null;
+    stakingContract = null;
+    wallet = null;
+    decimals = 18;
+    symbol = "STBL";
+
+    const sendAddr = document.getElementById("sendAddress");
+    if (sendAddr) sendAddr.value = "";
+    const sendAmt = document.getElementById("sendAmount");
+    if (sendAmt) sendAmt.value = "";
+    const histList = document.getElementById("historyList");
+    if (histList) histList.textContent = "Billetera desconectada.";
+    const bal = document.getElementById("balance");
+    if (bal) bal.textContent = "-- STBL";
+
+    updateInterface();
+    if (showNotice) {
+        notify("Billetera desconectada", "Se cerró la sesión de esta página.");
+    }
+}
+
+function updateInterface() {
+    const short = userAddress ? userAddress.slice(0, 6) + "..." + userAddress.slice(-4) : null;
+    const connectButton = document.getElementById("connectBtn");
+    if (connectButton) {
+        connectButton.innerHTML = short ? '<i class="fa-solid fa-wallet"></i> ' + short : '<i class="fa-solid fa-wallet"></i> Conectar Wallet';
+        connectButton.classList.toggle("hidden", !!userAddress);
+    }
+
+    const discBtn = document.getElementById("disconnectBtn");
+    if (discBtn) discBtn.classList.toggle("hidden", !userAddress);
+
+    const userAddrEl = document.getElementById("userAddress");
+    if (userAddrEl) userAddrEl.textContent = userAddress || "Billetera desconectada";
+   
+    const recAddr = document.getElementById("receiveAddress");
+    if (recAddr) recAddr.textContent = userAddress || "Sin conexión";
+   
+    const netStatus = document.getElementById("networkStatus");
+    if (netStatus) {
+        netStatus.innerHTML = userAddress ? '<i class="fa-solid fa-circle text-green-400"></i> Arbitrum One conectado' : '<i class="fa-solid fa-circle"></i> Sin conexión';
+    }
+
+    const wExp = document.getElementById("walletExplorer");
+    if (wExp) wExp.href = userAddress ? CONFIG.explorer + "/address/" + userAddress : CONFIG.explorer;
+   
+    const hExp = document.getElementById("historyExplorer");
+    if (hExp) hExp.href = userAddress ? CONFIG.explorer + "/address/" + userAddress + "#tokentxns" : CONFIG.explorer;
+
+    const buyURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=ETH&outputCurrency=" + CONFIG.contract;
+    const sellURL = CONFIG.uniswap + "?chain=arbitrum&inputCurrency=" + CONFIG.contract + "&outputCurrency=ETH";
+
+    const buyBtn = document.getElementById("buyButton");
+    if (buyBtn) buyBtn.href = buyURL;
+    const sellBtn = document.getElementById("sellButton");
+    if (sellBtn) sellBtn.href = sellURL;
+
+    renderQR();
+}
+
+async function refreshBalance() {
+    try {
+        requireWallet();
+        if (!await checkNetwork()) {
+            notify("Red incorrecta", "Conectá Arbitrum One.");
+            return;
+        }
+        const result = await token.balanceOf(userAddress);
+        const formatted = ethers.formatUnits(result, decimals);
+        const balEl = document.getElementById("balance");
+        if (balEl) {
+            balEl.textContent = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 6 }) + " " + symbol;
+        }
+    } catch (e) {
+        console.error(e);
+        notify("Saldo no disponible", e.message);
+    }
+}
+
+function parseAmount(value) {
+    if (typeof value !== "string" || !value.trim() || !/^\d+(\.\d+)?$/.test(value.trim())) {
+        throw new Error("Ingresá un importe válido.");
+    }
+    try {
+        const amount = ethers.parseUnits(value.trim(), decimals);
+        if (amount <= 0n) throw new Error();
+        return amount;
+    } catch (e) {
+        throw new Error("El importe tiene demasiados decimales o no es válido.");
+    }
+}
+
+async function executeTransfer(address, amount) {
+    requireWallet();
+    if (!await checkNetwork()) {
+        await switchNetwork();
+        await initializeConnectedWallet();
+    }
+    if (!ethers.isAddress(address)) throw new Error("La dirección de destino no es válida.");
+    const destination = ethers.getAddress(address);
+    if (destination.toLowerCase() === userAddress.toLowerCase()) {
+        throw new Error("No podés enviarte tokens a tu propia dirección.");
+    }
+    const parsed = parseAmount(amount);
+    const balance = await token.balanceOf(userAddress);
+    if (balance < parsed) throw new Error("No tenés saldo STBL suficiente.");
+
+    const tx = await token.transfer(destination, parsed);
+    notify("Transacción enviada", "Esperando confirmación en Arbitrum One.");
+    const receipt = await tx.wait();
+    if (receipt.status !== 1) throw new Error("La transacción no se confirmó correctamente.");
+    await refreshBalance();
+    return tx.hash;
+}
+
+async function sendTokens(event) {
+    event.preventDefault();
+    if (busy) return;
+    const button = document.getElementById("sendButton");
+    busy = true;
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Procesando...";
+    }
+    try {
+        const hash = await executeTransfer(document.getElementById("sendAddress").value.trim(), document.getElementById("sendAmount").value);
+        notify("Transferencia confirmada", "Hash: " + hash);
+        document.getElementById("sendAddress").value = "";
+        document.getElementById("sendAmount").value = "";
+        await loadHistory();
+    } catch (e) {
+        console.error(e);
+        notify("Transferencia no completada", e.shortMessage || e.message);
+    } finally {
+        busy = false;
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Confirmar transferencia';
+        }
+    }
+}
+
+async function realizarStaking(event) {
+    event.preventDefault();
+    try {
+        requireWallet();
+        if (!stakingContract) {
+            notify("Configuración pendiente", "Falta definir la dirección del contrato de Staking.");
+            return;
+        }
+        const parsedAmount = parseAmount(document.getElementById("stakeAmount").value);
+
+        notify("Aprobando tokens", "Confirmá el permiso en MetaMask...");
+        const txApprove = await token.approve(CONFIG.stakingContract, parsedAmount);
+        await txApprove.wait();
+
+        notify("Haciendo staking", "Confirmá la operación en MetaMask...");
+        const txStake = await stakingContract.stake(parsedAmount);
+        await txStake.wait();
+
+        notify("¡Staking exitoso!", "Tus tokens ya están generando rendimiento.");
+        document.getElementById("stakeAmount").value = "";
+        await refreshBalance();
+    } catch (e) {
+        notify("Error en Staking", e.shortMessage || e.message);
+    }
+}
+
+async function retirarStaking() {
+    try {
+        requireWallet();
+        if (!stakingContract) {
+            notify("Configuración pendiente", "Falta definir la dirección del contrato de Staking.");
+            return;
+        }
+        notify("Retirando", "Confirmá el retiro en MetaMask...");
+        const tx = await stakingContract.withdraw();
+        await tx.wait();
+
+        notify("Retiro exitoso", "Tus tokens y ganancias fueron acreditados.");
+        await refreshBalance();
+    } catch (e) {
+        notify("Error al retirar", e.shortMessage || e.message);
+    }
+}
+
+// Función principal de la Ruleta STBL
+async function jugarRuletaSTBL() {
+    try {
+        requireWallet();
+        const btn = document.getElementById("btnGirar");
+        
+        const inputVal = document.getElementById("apuestaRuleta").value;
+        const montoApuesta = parseAmount(inputVal);
+
+        if (montoApuesta <= 0n) {
+            notify("Apuesta inválida", "Ingresá un monto mayor a 0 para apostar.");
+            return;
+        }
+
+        const saldo = await token.balanceOf(userAddress);
+        if (saldo < montoApuesta) {
+            notify("Saldo insuficiente", "No tenés suficientes tokens STBL para esa apuesta.");
+            return;
+        }
+
+        if (btn) btn.disabled = true;
+
+        notify("Girando ruleta", "La suerte está echada...");
+        
+        const wheel = document.getElementById("ruletaWheel");
+        const randomDeg = Math.floor(1440 + Math.random() * 1080);
+        wheel.style.transform = `rotate(${randomDeg}deg)`;
+
+        setTimeout(async () => {
+            const gana = Math.random() >= 0.5; 
+            
+            if (gana) {
+                const premioMonto = montoApuesta * 2n;
+                try {
+                    notify("Pagando premio", "Confirmá la acreditación en MetaMask...");
+                    const txPremio = await token.transfer(userAddress, premioMonto);
+                    await txPremio.wait();
+
+                    const mensaje = `¡Felicidades! Ganaste ${ethers.formatUnits(premioMonto, decimals)} STBL.`;
+                    document.getElementById("resultadoRuleta").textContent = mensaje;
+                    notify("¡Premio Pagado!", mensaje);
+                } catch (errPremio) {
+                    console.error(errPremio);
+                    notify("Aviso", "Saliste ganador, pero la billetera no pudo emitir la transferencia del premio.");
+                }
+            } else {
+                const mensaje = "Mala suerte, perdiste tu apuesta esta vez.";
+                document.getElementById("resultadoRuleta").textContent = mensaje;
+                notify("Resultado", mensaje);
+            }
+
+            if (btn) btn.disabled = false;
+            refreshBalance();
+        }, 4000);
+
+    } catch (e) {
+        console.error(e);
+        notify("Jugada cancelada", e.shortMessage || e.message);
+        const btn = document.getElementById("btnGirar");
+        if (btn) btn.disabled = false;
+    }
+}
+
+function renderQR() {
+    const box = document.getElementById("qr-code");
+    if (!box) return;
+    box.innerHTML = "";
+    if (!userAddress || !window.QRCode) {
+        const qrMsg = document.getElementById("qrMessage");
+        if (qrMsg) qrMsg.textContent = "Conectá tu billetera para generar el QR.";
+        return;
+    }
+    new QRCode(box, {
+        text: userAddress,
+        width: 180,
+        height: 180,
+        correctLevel: QRCode.CorrectLevel.M
+    });
+    const qrMsg = document.getElementById("qrMessage");
+    if (qrMsg) qrMsg.textContent = "QR de tu dirección pública en Arbitrum One.";
+}
+
+async function loadHistory() {
+    const container = document.getElementById("historyList");
+    if (!container) return;
+    if (!userAddress || !sessionActive) {
+        container.textContent = "Conectá tu billetera primero.";
+        return;
+    }
+    container.textContent = "Consultando blockchain...";
+    try {
+        const url = CONFIG.historyAPI + "/addresses/" + userAddress + "/token-transfers?type=ERC-20";
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("El explorador no respondió.");
+        const data = await response.json();
+        const transfers = (data.items || []).filter(item => {
+            return item.token && item.token.address && item.token.address.toLowerCase() === CONFIG.contract.toLowerCase();
+        });
+        if (!transfers.length) {
+            container.textContent = "No se encontraron movimientos STBL en el historial disponible.";
+            return;
+        }
+        container.innerHTML = "";
+        transfers.slice(0, 30).forEach(item => {
+            const from = item.from?.hash || "";
+            const to = item.to?.hash || "";
+            const outgoing = from.toLowerCase() === userAddress.toLowerCase();
+            const value = item.total?.value || "0";
+            const tokenDecimals = Number(item.token?.decimals ?? decimals);
+            const amount = ethers.formatUnits(value, tokenDecimals);
+            const hash = item.tx_hash || item.transaction_hash || "";
+            const date = item.timestamp ? new Date(item.timestamp).toLocaleString("es-AR") : "Fecha no disponible";
+            const peer = outgoing ? to : from;
+
+            const row = document.createElement("div");
+            row.className = "action rounded-xl p-4 flex flex-wrap justify-between gap-3";
+            row.innerHTML = `<div><div class="font-bold text-sm">${outgoing ? "Envío de STBL" : "Recepción de STBL"}</div><div class="text-xs text-slate-400 mt-2">${(outgoing ? "Para: " : "De: ")}${peer ? peer.slice(0, 8) + "..." + peer.slice(-6) : "No disponible"}</div><div class="text-xs text-slate-500 mt-1">${date}</div></div><div class="text-right"><div class="font-bold ${outgoing ? "text-red-400" : "text-green-400"}">${outgoing ? "-" : "+"}${Number(amount).toLocaleString("es-AR", { maximumFractionDigits: 6 })} STBL</div>${hash ? `<a href="${CONFIG.explorer}/tx/${hash}" target="_blank" rel="noopener noreferrer" class="text-xs text-amber-400 block mt-1">Ver transacción</a>` : ""}</div>`;
+            container.appendChild(row);
+        });
+    } catch (e) {
+        console.error(e);
+        container.textContent = "No se pudo consultar el historial automático.";
+    }
+}
+
+function showTab(name) {
+    const validTabs = ["dashboard", "send", "receive", "staking", "ruleta", "history"];
+    if (!validTabs.includes(name)) return;
+    currentTab = name;
+    validTabs.forEach(t => {
+        const el = document.getElementById("tab-" + t);
+        if (el) el.classList.toggle("hidden", t !== name);
+    });
+    document.querySelectorAll(".tab").forEach(btn => {
+        const tabName = btn.getAttribute("data-tab");
+        btn.classList.toggle("active", tabName === name);
+    });
+    if (name === "history") {
+        loadHistory();
+    }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    updateInterface();
+});
+</script>
+</body>
+</html>
