@@ -250,7 +250,7 @@ DEXScreener
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-10">
 <h2 class="text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-sm mt-2">Gestiona tu saldo, haz staking pasivo al 12% APR, reclama tu airdrop diario de 0.30 STBL o diviértete en la ruleta.</p>
+<p class="text-gray-400 text-sm mt-2">Gestiona tu saldo, haz staking pasivo al 12% APR, reclama tu airdrop diario de 0.25 STBL o diviértete en la ruleta descentralizada.</p>
 </div>
 
 <!-- Menú de Pestañas de la dApp -->
@@ -258,7 +258,7 @@ DEXScreener
 <button onclick="showTab('dashboard')" class="tab active px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
 <button onclick="showTab('receive')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
-<button onclick="showTab('faucet')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 text-amber-400" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop (0.30)</button>
+<button onclick="showTab('faucet')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 text-amber-400" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop (0.25)</button>
 <button onclick="showTab('staking')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button onclick="showTab('ruleta')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button onclick="showTab('history')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
@@ -276,10 +276,10 @@ DEXScreener
 </div>
 </div>
 <div class="panel p-6">
-<div class="text-slate-400 text-sm">Red y Contrato</div>
+<div class="text-slate-400 text-sm">Red y Contratos</div>
 <div class="text-lg font-bold mt-2">Arbitrum One</div>
-<div class="text-xs text-slate-400 mt-1 truncate">Token: <span class="text-amber-400">0xB46A...Dc30</span></div>
-<div class="text-xs text-slate-400 mt-0.5 truncate">Airdrop: <span class="text-amber-400">0xBc2e...6712</span></div>
+<div class="text-xs text-slate-400 mt-1 truncate">Airdrop: <span class="text-amber-400">0xBc2e...6712</span></div>
+<div class="text-xs text-slate-400 mt-0.5 truncate">Ruleta: <span class="text-amber-400">0xC791...8B97</span></div>
 </div>
 <div class="panel p-6 flex flex-col justify-between">
 <div>
@@ -335,19 +335,19 @@ DEXScreener
 </div>
 </section>
 
-<!-- PESTAÑA: AIRDROP / FAUCET (0.30 STBL c/ 24hs) -->
+<!-- PESTAÑA: AIRDROP / FAUCET (0.25 STBL c/ 24hs) -->
 <section id="tab-faucet" class="space-y-6 hidden">
 <div class="panel p-6 max-w-xl mx-auto text-center">
 <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-xl mx-auto mb-4">
 <i class="fa-solid fa-gift"></i>
 </div>
-<h3 class="font-bold text-lg mb-2 text-white">Airdrop Diario (0.30 STBL)</h3>
-<p class="text-xs text-slate-400 mb-6">Reclamá 0.30 STBL diarios por billetera. Límite global de campaña: 10.000 STBL.</p>
+<h3 class="font-bold text-lg mb-2 text-white">Airdrop Diario (0.25 STBL)</h3>
+<p class="text-xs text-slate-400 mb-6">Reclamá 0.25 STBL diarios por billetera. Límite global de campaña: 10.000 STBL.</p>
 
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-6 text-left space-y-2">
 <div class="flex justify-between text-xs">
 <span class="text-slate-400">Recompensa por reclamo:</span>
-<span class="text-gold-400 font-bold">0.30 STBL</span>
+<span class="text-gold-400 font-bold">0.25 STBL</span>
 </div>
 <div class="flex justify-between text-xs">
 <span class="text-slate-400">Estado de Cooldown:</span>
@@ -356,7 +356,7 @@ DEXScreener
 </div>
 
 <button onclick="reclamarFaucet()" id="btnFaucet" class="gold-gradient-text w-full py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-2 shadow-lg">
-<i class="fa-solid fa-circle-down"></i> Reclamar 0.30 STBL del Contrato
+<i class="fa-solid fa-circle-down"></i> Reclamar 0.25 STBL del Contrato
 </button>
 </div>
 </section>
@@ -389,15 +389,15 @@ DEXScreener
 </div>
 </section>
 
-<!-- PESTAÑA: RULETA STBL -->
+<!-- PESTAÑA: RULETA DESCENTRALIZADA -->
 <section id="tab-ruleta" class="space-y-6 hidden">
 <div class="panel p-6 max-w-xl mx-auto text-center">
-<h3 class="font-bold text-lg mb-2 text-white">Ruleta de Premios STBL</h3>
-<p class="text-xs text-slate-400 mb-6">Apostá tus tokens STBL y poné a prueba tu suerte en Arbitrum One.</p>
+<h3 class="font-bold text-lg mb-2 text-white">Ruleta de Premios Descentralizada</h3>
+<p class="text-xs text-slate-400 mb-6">Apostá tus tokens a través del contrato inteligente y ganá el doble de forma automatizada.</p>
 
 <div class="mb-4 text-left max-w-xs mx-auto">
 <label class="block text-xs text-slate-400 mb-2">Cantidad a apostar (STBL)</label>
-<input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 0.1 o 10">
+<input type="text" id="apuestaRuleta" class="field" placeholder="Ej: 1 o 10">
 </div>
 
 <div class="ruleta-container mb-6">
@@ -405,14 +405,14 @@ DEXScreener
 <div id="ruletaWheel" class="ruleta-wheel"></div>
 </div>
 
-<button onclick="jugarRuletaSTBL()" id="btnGirar" class="gold-gradient-text w-full max-w-xs py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-2 shadow-lg mx-auto">
-<i class="fa-solid fa-dice"></i> ¡Girar Ruleta!
+<button onclick="jugarRuletaContrato()" id="btnGirar" class="gold-gradient-text w-full max-w-xs py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-2 shadow-lg mx-auto">
+<i class="fa-solid fa-dice"></i> ¡Girar Ruleta (Contrato)!
 </button>
 <div id="resultadoRuleta" class="mt-4 text-sm font-bold text-amber-400"></div>
 
 <!-- Tabla de últimos ganadores -->
 <div class="mt-8 pt-6 border-t border-navy-700 text-left">
-<h4 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3"><i class="fa-solid fa-trophy text-gold-400 mr-1"></i> Últimos Ganadores en la Sesión</h4>
+<h4 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-3"><i class="fa-solid fa-trophy text-gold-400 mr-1"></i> Últimos Eventos de Ruleta</h4>
 <div id="ruletaGanadoresList" class="space-y-2 text-xs">
 <div class="text-gray-500 italic">No hay giros registrados todavía.</div>
 </div>
@@ -462,21 +462,21 @@ DEXScreener
 <div class="space-y-4 mb-12">
 <div class="glass-card rounded-2xl p-6 transition-all">
 <h3 class="font-bold text-white text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Airdrop diario de 0.30 STBL?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Airdrop diario de 0.25 STBL?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-3 leading-relaxed hidden">
-Cada 24 horas podés reclamar 0.30 STBL gestionados directamente por el contrato inteligente del Airdrop, hasta alcanzar el límite global de 10.000 STBL de campaña.
+Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato inteligente del Airdrop, hasta alcanzar el límite global de 10.000 STBL de campaña.
 </p>
 </div>
 
 <div class="glass-card rounded-2xl p-6 transition-all">
 <h3 class="font-bold text-white text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo agrego el token STBL a mi billetera MetaMask?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona la Ruleta descentralizada?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-3 leading-relaxed hidden">
-Copiá la dirección del contrato inteligente <code class="text-gold-400 font-mono">0xB46Ad28a11d2006058D22a16b16902F8213bDc30</code>, abrí MetaMask asegurándote de estar conectado a la red <b>Arbitrum One</b>, hacé clic en "Importar tokens", pegá la dirección y se completará automáticamente el símbolo STBL y los decimales.
+La ruleta interactúa con un contrato inteligente que custodia los fondos de los premios. Al apostar y girar, el contrato procesa el resultado y paga automáticamente el doble si resultas ganador.
 </p>
 </div>
 </div>
@@ -624,6 +624,7 @@ Ejecutar Intercambio en Uniswap
 const CONFIG = {
     contract: "0xB46Ad28a11d2006058D22a16b16902F8213bDc30",
     faucetContract: "0xBc2edF50f34390Ea91a102bd02c27d39A2136712",
+    ruletaContract: "0xC79146E0Af999190223747D15763861D01ff8B97",
     stakingContract: "0xFf44d54c17fd251C48B978AdA96913444B78926c",
     chainId: 42161,
     chainHex: "0xa4b1",
@@ -657,12 +658,18 @@ const FAUCET_ABI = [
     "function totalAirdropped() view returns (uint256)"
 ];
 
+const RULETA_ABI = [
+    "function girarRuleta(uint256 montoApuesta) external",
+    "event ResultadoRuleta(address indexed jugador, uint256 apuesta, bool gano, uint256 premio)"
+];
+
 let wallet = null;
 let provider = null;
 let signer = null;
 let token = null;
 let stakingContract = null;
 let faucetContract = null;
+let ruletaContract = null;
 let userAddress = null;
 
 let decimals = 18;
@@ -830,10 +837,14 @@ async function initializeConnectedWallet() {
     if (CONFIG.faucetContract && CONFIG.faucetContract.startsWith("0x")) {
         faucetContract = new ethers.Contract(CONFIG.faucetContract, FAUCET_ABI, signer);
     }
+    if (CONFIG.ruletaContract && CONFIG.ruletaContract.startsWith("0x")) {
+        ruletaContract = new ethers.Contract(CONFIG.ruletaContract, RULETA_ABI, signer);
+    }
 
     sessionActive = true;
     updateInterface();
     verificarEstadoFaucetOnChain();
+    cargarGanadoresRuletaOnChain();
     await refreshBalance();
 }
 
@@ -872,6 +883,7 @@ function disconnectWallet(showNotice = true) {
     token = null;
     stakingContract = null;
     faucetContract = null;
+    ruletaContract = null;
     wallet = null;
     decimals = 18;
     symbol = "STBL";
@@ -914,7 +926,7 @@ async function reclamarFaucet() {
     try {
         requireWallet();
         if (!faucetContract) {
-            showToast("Configuración pendiente", "Falta definir la dirección del contrato Faucet.");
+            showToast("Configuración pendiente", "Falta definir la dirección del contrato Airdrop.");
             return;
         }
 
@@ -923,7 +935,7 @@ async function reclamarFaucet() {
         await tx.wait();
 
         playSound('success');
-        showToast("¡Airdrop Exitoso!", "Has reclamado 0.30 STBL desde el contrato inteligente.");
+        showToast("¡Airdrop Exitoso!", "Has reclamado 0.25 STBL desde el contrato inteligente.");
         verificarEstadoFaucetOnChain();
         await refreshBalance();
     } catch(e) {
@@ -1040,49 +1052,96 @@ async function retirarStaking() {
     }
 }
 
-function cargarGanadoresRuletaLocal() {
+async function cargarGanadoresRuletaOnChain() {
     const listEl = document.getElementById("ruletaGanadoresList");
-    if (!listEl) return;
+    if (!listEl || !ruletaContract) return;
     try {
-        const saved = JSON.parse(localStorage.getItem("stbl_ruleta_ganadores") || "[]");
-        if (!saved.length) return;
+        const filter = ruletaContract.filters.ResultadoRuleta();
+        const events = await ruletaContract.queryFilter(filter, -2000, "latest");
+        if (!events.length) return;
         listEl.innerHTML = "";
-        saved.forEach(item => {
+        events.slice(-5).reverse().forEach(ev => {
+            const [jugador, apuesta, gano, premio] = ev.args;
             const row = document.createElement("div");
             row.className = "flex justify-between items-center bg-navy-900/80 p-2 rounded-lg border border-navy-700";
-            row.innerHTML = `<span class="font-mono text-amber-400">${item.wallet}</span> <span class="${item.gano ? 'text-green-400 font-bold' : 'text-gray-400'}">${item.resultado} (${item.monto} STBL)</span>`;
+            const shortJ = jugador.substring(0, 6) + "..." + jugador.substring(jugador.length - 4);
+            const apuestaF = ethers.formatUnits(apuesta, decimals);
+            const premioF = ethers.formatUnits(premio, decimals);
+            row.innerHTML = `<span class="font-mono text-amber-400">${shortJ}</span> <span class="${gano ? 'text-green-400 font-bold' : 'text-gray-400'}">${gano ? `¡Ganó +${premioF} STBL!` : `Perdió ${apuestaF} STBL`}</span>`;
             listEl.appendChild(row);
         });
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
 }
 
-async function jugarRuletaSTBL() {
+async function jugarRuletaContrato() {
     try {
         requireWallet();
+        if (!ruletaContract) {
+            showToast("Configuración pendiente", "Falta definir la dirección del contrato Ruleta.");
+            return;
+        }
+
         const btn = document.getElementById("btnGirar");
         const montoApuesta = parseAmount(document.getElementById("apuestaRuleta").value);
+        if (montoApuesta <= 0n) {
+            showToast("Apuesta inválida", "Ingresá un monto mayor a 0.");
+            return;
+        }
+
+        const saldo = await token.balanceOf(userAddress);
+        if (saldo < montoApuesta) {
+            showToast("Saldo insuficiente", "No tenés suficientes tokens STBL.");
+            return;
+        }
 
         if (btn) btn.disabled = true;
+
+        showToast("Aprobando tokens", "Confirmá el permiso para la ruleta en MetaMask...");
+        const txApprove = await token.approve(CONFIG.ruletaContract, montoApuesta);
+        await txApprove.wait();
+
         playSound('spin');
-        showToast("Girando ruleta", "La suerte está echada...");
+        showToast("Girando ruleta", "Procesando apuesta en el contrato inteligente...");
         
         const wheel = document.getElementById("ruletaWheel");
         wheel.style.transform = `rotate(${1440 + Math.random() * 1080}deg)`;
 
+        const txGirar = await ruletaContract.girarRuleta(montoApuesta);
+        const receipt = await txGirar.wait();
+
         setTimeout(async () => {
-            if (Math.random() >= 0.5) {
-                const txPremio = await token.transfer(userAddress, montoApuesta * 2n);
-                await txPremio.wait();
-                playSound('success');
-                showToast("¡Ganaste!", "Premio acreditado.");
-            } else {
-                showToast("Perdiste", "Mucha suerte la próxima.");
+            // Buscamos el evento en el recibo de la transacción
+            let ganoLocal = false;
+            let premioLocal = "0";
+            for (const log of receipt.logs) {
+                try {
+                    const parsed = ruletaContract.interface.parseLog({ topics: log.topics, data: log.data });
+                    if (parsed && parsed.name === "ResultadoRuleta") {
+                        ganoLocal = parsed.args.gano;
+                        premioLocal = ethers.formatUnits(parsed.args.premio, decimals);
+                    }
+                } catch(err) {}
             }
+
+            if (ganoLocal) {
+                playSound('success');
+                showToast("¡Felicidades, ganaste!", `Premio acreditado: +${premioLocal} STBL.`);
+                document.getElementById("resultadoRuleta").textContent = `¡Ganaste +${premioLocal} STBL!`;
+            } else {
+                showToast("Mala suerte", "Perdiste tu apuesta esta vez.");
+                document.getElementById("resultadoRuleta").textContent = "Mala suerte, perdiste tu apuesta.";
+            }
+
             if (btn) btn.disabled = false;
-            refreshBalance();
+            await refreshBalance();
+            await cargarGanadoresRuletaOnChain();
         }, 4000);
+
     } catch (e) {
-        showToast("Error", e.shortMessage || e.message);
+        console.error(e);
+        showToast("Jugada cancelada", e.shortMessage || e.message);
         const btn = document.getElementById("btnGirar");
         if (btn) btn.disabled = false;
     }
@@ -1101,12 +1160,12 @@ function showTab(name) {
     validTabs.forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
     document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-tab") === name));
     if (name === "faucet") verificarEstadoFaucetOnChain();
+    if (name === "ruleta") cargarGanadoresRuletaOnChain();
 }
 
 window.onload = function() {
     calculateSwap();
     updateInterface();
-    cargarGanadoresRuletaLocal();
 }
 </script>
 </body>
