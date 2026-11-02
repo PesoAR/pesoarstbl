@@ -121,6 +121,7 @@ a { cursor:pointer; }
 <div class="hidden md:flex items-center gap-6 text-sm font-medium">
 <a href="#about" class="hover:text-gold-400 transition-colors">¿Qué es STBL?</a>
 <a href="#dapp" class="hover:text-gold-400 transition-colors text-gold-400 font-bold"><i class="fa-solid fa-cube mr-1"></i> dApp & Utilidades</a>
+<a href="#pool-info" class="hover:text-gold-400 transition-colors">Pool de Liquidez</a>
 <a href="#chart-section" class="hover:text-gold-400 transition-colors">Gráfico</a>
 <a href="#support-section" class="hover:text-gold-400 transition-colors">Soporte y FAQ</a>
 <a href="https://x.com/PesoAR_STBL" target="_blank" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-brands fa-x-twitter"></i> X (Twitter)</a>
@@ -186,7 +187,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <p class="text-gray-400 text-sm mt-2">Gestiona tu saldo, haz staking, reclama airdrops, juega a la ruleta o prueba suerte en la tragamonedas.</p>
 </div>
 
-<!-- Menú de Pestañas de la dApp (Sin pestaña de ranking separada) -->
+<!-- Menú de Pestañas de la dApp -->
 <div class="flex flex-wrap justify-center gap-2 mb-8 bg-navy-800/90 p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
 <button onclick="showTab('dashboard')" class="tab active px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -271,7 +272,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- RULETA (Con su propio Ranking / Historial integrado abajo) -->
+<!-- RULETA -->
 <section id="tab-ruleta" class="space-y-6 hidden">
 <div class="panel p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-lg mb-2 text-white">Ruleta de Premios</h3>
@@ -280,7 +281,6 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <button onclick="jugarRuletaContrato()" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
 <div id="resultadoRuleta" class="mt-4 text-sm font-bold text-amber-400"></div>
 
-<!-- Ranking / Últimos Ganadores de Ruleta -->
 <div class="mt-8 pt-6 border-t border-navy-700 text-left">
 <h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Últimos Ganadores (Ruleta)</h4>
 <div id="ruletaGanadoresList" class="space-y-2 text-xs">
@@ -290,7 +290,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- TRAGAMONEDAS / SLOT MACHINE (Con su propio Ranking / Historial integrado abajo) -->
+<!-- TRAGAMONEDAS -->
 <section id="tab-slot" class="space-y-6 hidden">
 <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-6 shadow-xl max-w-md mx-auto text-center my-6">
 <div class="flex items-center justify-center gap-2 mb-4">
@@ -316,7 +316,6 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 
 <div id="slotResult" class="mt-4 text-sm font-medium text-gray-300 min-h-[24px]"></div>
 
-<!-- Ranking / Últimos Ganadores de Tragamonedas -->
 <div class="mt-8 pt-6 border-t border-gray-800 text-left">
 <h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Mejores Premios (Slot)</h4>
 <div id="slotGanadoresList" class="space-y-2 text-xs">
@@ -326,6 +325,38 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
+</div>
+</div>
+</section>
+
+<!-- SECCIÓN: INFORMACIÓN DEL POOL DE LIQUIDEZ -->
+<section id="pool-info" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-2xl mx-auto mb-10">
+<h2 class="text-3xl font-extrabold text-white">Pool de Liquidez <span class="gold-gradient-text">Uniswap V3</span></h2>
+<p class="text-gray-400 text-sm mt-2">Detalles técnicos del par comercial operando en la red de Arbitrum One.</p>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+<div class="panel p-6 text-center">
+<div class="text-slate-400 text-xs uppercase font-semibold mb-1">DEX / Protocolo</div>
+<div class="text-lg font-bold text-white">Uniswap V3</div>
+<div class="text-xs text-celeste-400 mt-1">Arbitrum One Network</div>
+</div>
+
+<div class="panel p-6 text-center">
+<div class="text-slate-400 text-xs uppercase font-semibold mb-1">Par Comercial</div>
+<div class="text-lg font-bold text-gold-400 font-mono">STBL / USDC</div>
+<div class="text-xs text-slate-400 mt-1">Comisión de Pool: 0.3%</div>
+</div>
+
+<div class="panel p-6 text-center flex flex-col justify-between">
+<div>
+<div class="text-slate-400 text-xs uppercase font-semibold mb-1">Acceso Directo</div>
+<div class="text-sm font-bold text-white mt-1">Liquidez Oficial</div>
+</div>
+<div class="mt-4">
+<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs block font-bold">Ver Pool en Uniswap</a>
+</div>
 </div>
 </div>
 </section>
@@ -355,21 +386,21 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="space-y-4 mb-12">
 <div class="glass-card rounded-2xl p-6 transition-all">
 <h3 class="font-bold text-white text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Airdrop diario de 0.25 STBL?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Dónde está operando el Pool de Liquidez?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-3 leading-relaxed hidden">
-Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato inteligente del Airdrop, hasta alcanzar el límite global de 10.000 STBL de campaña.
+El pool de liquidez oficial de PESO AR STBL opera en Uniswap V3 dentro de la red de Arbitrum One, garantizando paridad y transacciones instantáneas.
 </p>
 </div>
 
 <div class="glass-card rounded-2xl p-6 transition-all">
 <h3 class="font-bold text-white text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Dónde veo el ranking de los juegos?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Airdrop diario de 0.25 STBL?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-3 leading-relaxed hidden">
-Cada minijuego (Ruleta y Tragamonedas) cuenta con su propio panel de ranking integrado en la parte inferior para que consultes los últimos ganadores en tiempo real mientras jugás.
+Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato inteligente del Airdrop, hasta alcanzar el límite global de 10.000 STBL de campaña.
 </p>
 </div>
 </div>
@@ -570,14 +601,12 @@ async function jugarRuletaContrato() {
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
-// Lógica de la Tragamonedas (Slot Machine) con actualización de ranking local
 const simbolosSlot = ["🍒", "🍋", "🔔", "💎", "7️⃣"];
 
 async function jugarTragamonedas() {
     const apuesta = parseFloat(document.getElementById("slotBetAmount").value);
     const resultadoDiv = document.getElementById("slotResult");
     const btnSpin = document.getElementById("btnSpinSlot");
-    const slotList = document.getElementById("slotGanadoresList");
 
     if (isNaN(apuesta) || apuesta <= 0) {
         resultadoDiv.innerHTML = "⚠️ Ingresá un monto de apuesta válido.";
