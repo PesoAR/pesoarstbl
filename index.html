@@ -186,7 +186,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <p class="text-gray-400 text-sm mt-2">Gestiona tu saldo, haz staking, reclama airdrops, juega a la ruleta o prueba suerte en la tragamonedas.</p>
 </div>
 
-<!-- Menú de Pestañas de la dApp -->
+<!-- Menú de Pestañas de la dApp (Sin pestaña de ranking separada) -->
 <div class="flex flex-wrap justify-center gap-2 mb-8 bg-navy-800/90 p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
 <button onclick="showTab('dashboard')" class="tab active px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -195,7 +195,6 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <button onclick="showTab('staking')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button onclick="showTab('ruleta')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button onclick="showTab('slot')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
-<button onclick="showTab('ranking')" class="tab px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 text-gold-400" data-tab="ranking"><i class="fa-solid fa-trophy"></i> Ranking</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -272,7 +271,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- RULETA -->
+<!-- RULETA (Con su propio Ranking / Historial integrado abajo) -->
 <section id="tab-ruleta" class="space-y-6 hidden">
 <div class="panel p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-lg mb-2 text-white">Ruleta de Premios</h3>
@@ -280,10 +279,18 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="ruleta-container mb-6"><div class="ruleta-pointer"></div><div id="ruletaWheel" class="ruleta-wheel"></div></div>
 <button onclick="jugarRuletaContrato()" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
 <div id="resultadoRuleta" class="mt-4 text-sm font-bold text-amber-400"></div>
+
+<!-- Ranking / Últimos Ganadores de Ruleta -->
+<div class="mt-8 pt-6 border-t border-navy-700 text-left">
+<h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Últimos Ganadores (Ruleta)</h4>
+<div id="ruletaGanadoresList" class="space-y-2 text-xs">
+<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay giros registrados todavía en la red.</div>
+</div>
+</div>
 </div>
 </section>
 
-<!-- TRAGAMONEDAS (SLOT MACHINE) -->
+<!-- TRAGAMONEDAS / SLOT MACHINE (Con su propio Ranking / Historial integrado abajo) -->
 <section id="tab-slot" class="space-y-6 hidden">
 <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-6 shadow-xl max-w-md mx-auto text-center my-6">
 <div class="flex items-center justify-center gap-2 mb-4">
@@ -308,39 +315,12 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </button>
 
 <div id="slotResult" class="mt-4 text-sm font-medium text-gray-300 min-h-[24px]"></div>
-</div>
-</section>
 
-<!-- RANKING DE GANADORES -->
-<section id="tab-ranking" class="space-y-6 hidden">
-<div class="panel p-6 max-w-xl mx-auto">
-<div class="flex items-center justify-center gap-2 mb-2">
-<span class="text-2xl">🏆</span>
-<h3 class="font-bold text-lg text-white">Ranking Global de Ganadores</h3>
-</div>
-<p class="text-xs text-slate-400 mb-6 text-center">Top de jugadores con mayores premios acumulados en los juegos de la dApp.</p>
-
-<div class="space-y-3" id="rankingList">
-<div class="flex items-center justify-between bg-navy-900/80 p-3 rounded-xl border border-navy-700">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center">1</span>
-<span class="font-mono text-xs text-amber-400">0x3f8...a192</span>
-</div>
-<span class="font-bold text-green-400 text-xs">+50.00 STBL</span>
-</div>
-<div class="flex items-center justify-between bg-navy-900/80 p-3 rounded-xl border border-navy-700">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-gray-400 text-slate-950 font-bold text-xs flex items-center justify-center">2</span>
-<span class="font-mono text-xs text-amber-400">0x8b2...c441</span>
-</div>
-<span class="font-bold text-green-400 text-xs">+25.00 STBL</span>
-</div>
-<div class="flex items-center justify-between bg-navy-900/80 p-3 rounded-xl border border-navy-700">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs flex items-center justify-center">3</span>
-<span class="font-mono text-xs text-amber-400">0x1a4...e930</span>
-</div>
-<span class="font-bold text-green-400 text-xs">+10.00 STBL</span>
+<!-- Ranking / Últimos Ganadores de Tragamonedas -->
+<div class="mt-8 pt-6 border-t border-gray-800 text-left">
+<h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Mejores Premios (Slot)</h4>
+<div id="slotGanadoresList" class="space-y-2 text-xs">
+<div class="text-gray-500 italic bg-black/40 p-2.5 rounded-lg border border-gray-800 text-center">No hay tiradas ganadoras registradas todavía.</div>
 </div>
 </div>
 </div>
@@ -385,11 +365,11 @@ Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato
 
 <div class="glass-card rounded-2xl p-6 transition-all">
 <h3 class="font-bold text-white text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Ranking de Ganadores?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Dónde veo el ranking de los juegos?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-3 leading-relaxed hidden">
-El ranking recopila de forma automática las mayores ganancias obtenidas por los usuarios en las partidas de la Ruleta y la Tragamonedas, mostrando los mejores puestos de la comunidad.
+Cada minijuego (Ruleta y Tragamonedas) cuenta con su propio panel de ranking integrado en la parte inferior para que consultes los últimos ganadores en tiempo real mientras jugás.
 </p>
 </div>
 </div>
@@ -590,13 +570,14 @@ async function jugarRuletaContrato() {
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
-// Lógica de la Tragamonedas (Slot Machine)
+// Lógica de la Tragamonedas (Slot Machine) con actualización de ranking local
 const simbolosSlot = ["🍒", "🍋", "🔔", "💎", "7️⃣"];
 
 async function jugarTragamonedas() {
     const apuesta = parseFloat(document.getElementById("slotBetAmount").value);
     const resultadoDiv = document.getElementById("slotResult");
     const btnSpin = document.getElementById("btnSpinSlot");
+    const slotList = document.getElementById("slotGanadoresList");
 
     if (isNaN(apuesta) || apuesta <= 0) {
         resultadoDiv.innerHTML = "⚠️ Ingresá un monto de apuesta válido.";
@@ -632,10 +613,12 @@ async function jugarTragamonedas() {
             premio = apuesta * 5;
             resultadoDiv.innerHTML = `🎉 ¡JACKPOT! ¡Ganaste ${premio} STBL (x5)!`;
             resultadoDiv.className = "mt-4 text-sm font-bold text-green-400 min-h-[24px]";
+            registrarGanadorSlot(userAddress || "Tú (Local)", premio);
         } else if (r1 === r2 || r2 === r3 || r1 === r3) {
             premio = apuesta * 2;
             resultadoDiv.innerHTML = `✨ ¡Bien! Ganaste ${premio} STBL (x2)!`;
             resultadoDiv.className = "mt-4 text-sm font-bold text-amber-300 min-h-[24px]";
+            registrarGanadorSlot(userAddress || "Tú (Local)", premio);
         } else {
             resultadoDiv.innerHTML = `❌ Sigue intentando, no hubo coincidencia.`;
             resultadoDiv.className = "mt-4 text-sm font-medium text-red-400 min-h-[24px]";
@@ -646,8 +629,20 @@ async function jugarTragamonedas() {
     }, 2000);
 }
 
+function registrarGanadorSlot(jugador, premio) {
+    const slotList = document.getElementById("slotGanadoresList");
+    if (slotList.innerText.includes("No hay")) {
+        slotList.innerHTML = "";
+    }
+    const shortJ = jugador.startsWith("0x") ? jugador.substring(0, 6) + "..." + jugador.substring(jugador.length - 4) : jugador;
+    const row = document.createElement("div");
+    row.className = "flex justify-between items-center bg-black/60 p-2 rounded-lg border border-gray-800 text-xs";
+    row.innerHTML = `<span class="font-mono text-amber-400">${shortJ}</span> <span class="text-green-400 font-bold">+${premio} STBL</span>`;
+    slotList.prepend(row);
+}
+
 function showTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "ranking"];
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot"];
     tabs.forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
     document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-tab") === name));
 }
