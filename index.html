@@ -159,10 +159,10 @@ a { cursor:pointer; }
 <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> Red Arbitrum One
 </div>
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
-<i class="fa-solid fa-shield-halved"></i> Contrato Verificado
+<i class="fa-solid fa-shield-halved"></i> Contrato Verificado[span_1](start_span)[span_1](end_span)
 </div>
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
-<i class="fa-solid fa-rocket"></i> Fase Intermedia Activa
+<i class="fa-solid fa-rocket"></i> Fase Intermedia Activa[span_2](start_span)[span_2](end_span)
 </div>
 </div>
 
@@ -176,7 +176,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="pt-2">
 <div class="bg-navy-800/90 border border-navy-600/60 rounded-2xl p-3.5 sm:p-4 max-w-xl mx-auto lg:mx-0 shadow-xl">
 <div class="flex items-center justify-between text-[11px] sm:text-xs text-gray-400 mb-2 font-mono">
-<span>Contrato Inteligente Verificado:</span>
+<span>Contrato Inteligente Verificado:[span_3](start_span)[span_3](end_span)</span>
 <a href="https://arbiscan.io/address/0xB46Ad28a11d2006058D22a16b16902F8213bDc30#code" target="_blank" class="text-emerald-400 font-semibold hover:underline flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Arbiscan</a>
 </div>
 <div class="flex items-center gap-2">
@@ -225,7 +225,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 <div class="panel p-5 sm:p-6">
 <div class="text-slate-400 text-xs sm:text-sm">Red y Contratos</div>
-<div class="text-base sm:text-lg font-bold mt-1.5 flex items-center gap-2">Arbitrum One <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 font-normal">Fase Intermedia</span></div>
+<div class="text-base sm:text-lg font-bold mt-1.5 flex items-center gap-2">Arbitrum One <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 font-normal">Fase Intermedia[span_4](start_span)[span_4](end_span)</span></div>
 <div class="text-[11px] sm:text-xs text-slate-400 mt-1">Airdrop: <span class="text-amber-400">0xBc2e...6712</span></div>
 <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Ruleta: <span class="text-amber-400">0xC791...8B97</span></div>
 </div>
@@ -240,7 +240,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="panel p-5 sm:p-6">
 <div class="flex items-center justify-between mb-2">
 <h3 class="font-bold text-base sm:text-lg text-white">Información de Cuenta</h3>
-<span class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Contrato Verificado</span>
+<span class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Contrato Verificado[span_5](start_span)[span_5](end_span)</span>
 </div>
 <p id="userAddress" class="text-xs text-slate-400 font-mono break-all bg-navy-900 p-3 rounded-xl border border-navy-700">Billetera desconectada</p>
 </div>
@@ -283,6 +283,13 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <section id="tab-staking" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Staking (12% APR)</h3>
+<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-4 flex justify-between items-center">
+<div>
+<div class="text-xs text-slate-400">Tu Staking Actual:</div>
+<div id="stakedBalance" class="text-lg font-bold text-amber-400">0.00 STBL</div>
+</div>
+<button onclick="actualizarStakingInfo()" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white">Actualizar</button>
+</div>
 <form onsubmit="realizarStaking(event)" class="space-y-4">
 <div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="stakeAmount" class="field" required></div>
 <button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
@@ -405,11 +412,11 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
 <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all">
 <h3 class="font-bold text-white text-sm sm:text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿El contrato está verificado en la blockchain?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿El contrato está verificado en la blockchain?[span_6](start_span)[span_6](end_span)</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-2.5 sm:mt-3 leading-relaxed hidden">
-Sí, todos los contratos inteligentes de PESO AR STBL y sus complementos se encuentran auditados y verificados públicamente en el explorador oficial de Arbiscan.
+Sí, todos los contratos inteligentes de PESO AR STBL y sus complementos se encuentran auditados y verificados públicamente en el explorador oficial de Arbiscan[span_7](start_span)[span_7](end_span).
 </p>
 </div>
 
@@ -476,7 +483,8 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external"
+    "function withdraw() external",
+    "function apuestas_públicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)"
 ];
 
 const FAUCET_ABI = [
@@ -548,6 +556,7 @@ async function connectWallet() {
     sessionActive = true;
     updateInterface();
     await refreshBalance();
+    await actualizarStakingInfo();
 }
 
 function disconnectWallet() {
@@ -575,6 +584,21 @@ async function refreshBalance() {
     document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
 }
 
+async function actualizarStakingInfo() {
+    if (!userAddress || !stakingContract) return;
+    try {
+        const info = await stakingContract.apuestas_públicas(userAddress);
+        const cantidadStaked = info.cantidad || info[0];
+        const stakedFormateado = Number(ethers.formatUnits(cantidadStaked, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 });
+        const stakeDisplay = document.getElementById("stakedBalance");
+        if (stakeDisplay) {
+            stakeDisplay.textContent = stakedFormateado + " STBL";
+        }
+    } catch(e) {
+        console.error("Error al leer el staking:", e);
+    }
+}
+
 async function reclamarFaucet() {
     try {
         const tx = await faucetContract.claimFaucet();
@@ -594,6 +618,7 @@ async function realizarStaking(event) {
         await txStake.wait();
         showToast("Staking Exitoso", "Tokens bloqueados.");
         await refreshBalance();
+        await actualizarStakingInfo();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -603,6 +628,7 @@ async function retirarStaking() {
         await tx.wait();
         showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
         await refreshBalance();
+        await actualizarStakingInfo();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
