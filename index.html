@@ -521,7 +521,17 @@ let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
 
-let userStakingStats = { staked: 0, earned: 0, withdrawn: 0 };
+// Funciones para persistir el staking por billetera en localStorage
+function cargarStakingStats() {
+    if (!userAddress) return { staked: 0, earned: 0, withdrawn: 0 };
+    const guardado = localStorage.getItem("stabi_staking_" + userAddress.toLowerCase());
+    return guardado ? JSON.parse(guardado) : { staked: 0, earned: 0, withdrawn: 0 };
+}
+
+function guardarStakingStats(stats) {
+    if (!userAddress) return;
+    localStorage.setItem("stabi_staking_" + userAddress.toLowerCase(), JSON.stringify(stats));
+}
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -632,12 +642,13 @@ async function sendTokens(event) {
 function actualizarStakingInfo() {
     if (!userAddress) return;
     try {
-        const stakedNum = userStakingStats.staked;
+        const stats = cargarStakingStats();
+        const stakedNum = stats.staked;
         const gananciasCalculadas = stakedNum * 0.03; 
 
         document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
         document.getElementById("earnedBalance").textContent = gananciasCalculadas.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
-        document.getElementById("withdrawnBalance").textContent = userStakingStats.withdrawn.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        document.getElementById("withdrawnBalance").textContent = stats.withdrawn.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
     } catch(e) {
         console.error("Error al procesar la info de staking:", e);
     }
@@ -659,6 +670,12 @@ async function realizarStaking(event) {
         return;
     }
     
+    const stats = cargarStakingStats();
+    if (stats.staked > 0) {
+        showToast("Aviso", "Ya tenés un staking activo. Retiralo primero.");
+        return;
+    }
+
     const btnSubmit = document.getElementById("btnStakeSubmit");
     const rawVal = document.getElementById("stakeAmount").value;
     
@@ -684,7 +701,9 @@ async function realizarStaking(event) {
         showToast("Staking Enviado", "Confirmá el depósito en MetaMask...");
         await txStake.wait();
         
-        userStakingStats.staked += valNum;
+        stats.staked = valNum;
+        guardarStakingStats(stats);
+
         showToast("¡Staking Exitoso!", `Has bloqueado ${rawVal} STBL correctamente.`);
         
         document.getElementById("stakeAmount").value = "";
@@ -705,7 +724,8 @@ async function retirarStaking() {
         return;
     }
     try {
-        if (userStakingStats.staked <= 0) {
+        const stats = cargarStakingStats();
+        if (stats.staked <= 0) {
             showToast("Aviso", "No tenés capital activo en staking para retirar.");
             return;
         }
@@ -714,9 +734,10 @@ async function retirarStaking() {
         showToast("Retiro Enviado", "Confirmá la transacción en MetaMask...");
         await tx.wait();
         
-        const amountWithdrawn = userStakingStats.staked;
-        userStakingStats.withdrawn += amountWithdrawn;
-        userStakingStats.staked = 0;
+        const amountWithdrawn = stats.staked;
+        stats.withdrawn += amountWithdrawn;
+        stats.staked = 0;
+        guardarStakingStats(stats);
         
         showToast("¡Retiro Exitoso!", "Capital y ganancias acreditados a tu saldo.");
         await refreshBalance();
