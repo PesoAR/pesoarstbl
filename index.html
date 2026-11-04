@@ -153,7 +153,6 @@ a { cursor:pointer; }
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 <div class="lg:col-span-7 text-center lg:text-left space-y-4 sm:space-y-6">
-<!-- Insignias de Estado y Verificación -->
 <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-celeste-500/10 border border-celeste-400/30 text-celeste-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
 <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> Red Arbitrum One
@@ -203,7 +202,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops, opera en el POS o diviértete con los juegos.</p>
 </div>
 
-<!-- Menú de Pestañas con Scroll Horizontal suave en celulares -->
+<!-- Menú de Pestañas -->
 <div class="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-navy-800/90 p-1.5 sm:p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto whitespace-nowrap">
 <button onclick="showTab('dashboard')" class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -268,7 +267,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- COBROS POS / TRANSFERENCIA FIAT -->
+<!-- COBROS POS / TRANSFERENCIA FIAT (Corregido) -->
 <section id="tab-pos" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <div class="flex items-center gap-2 mb-4">
@@ -751,12 +750,15 @@ function registrarGanadorSlot(jugador, premio) {
     slotList.prepend(row);
 }
 
-// Lógica de cálculo y aviso del POS Fiat/STBL
+// Funciones operativas del POS (Terminal de Pagos)
 function calcularStblNecesarios() {
     const ars = parseFloat(document.getElementById("posMontoArs").value) || 0;
-    const tasaCambio = 1; // Ajustable según la paridad deseada frente al peso
+    const tasaCambio = 1; // Podés ajustar la paridad según tu criterio
     const stblNecesarios = ars * tasaCambio;
-    document.getElementById("posStblCalculado").textContent = stblNecesarios.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
+    const display = document.getElementById("posStblCalculado");
+    if (display) {
+        display.textContent = stblNecesarios.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
+    }
 }
 
 function enviarAvisoPago() {
@@ -764,14 +766,14 @@ function enviarAvisoPago() {
     const resultadoDiv = document.getElementById("posResultado");
 
     if (!monto || monto <= 0) {
-        resultadoDiv.innerHTML = "⚠️ Por favor, ingresá un monto válido.";
+        resultadoDiv.innerHTML = "⚠️ Por favor, ingresá un monto válido en pesos.";
         resultadoDiv.className = "text-xs text-center font-medium text-red-400 mt-2";
         return;
     }
 
-    resultadoDiv.innerHTML = "⏳ Comprobante generado. Verificando transferencia en cuenta... (Te enviaremos los STBL a tu billetera en Arbitrum al acreditarse).";
+    resultadoDiv.innerHTML = "⏳ Comprobante generado con éxito. Verificando transferencia local... (Los fondos se acreditarán en breve).";
     resultadoDiv.className = "text-xs text-center font-medium text-amber-400 mt-2";
-    showToast("Aviso Enviado", "El comercio verificará los pesos y liberará los fondos.");
+    showToast("Aviso Enviado", "El comercio registró la orden de pago.");
 }
 
 function showTab(name) {
