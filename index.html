@@ -94,10 +94,10 @@ a { cursor:pointer; }
 <a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" rel="noopener noreferrer" class="hidden xs:flex px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 text-navy-900 hover:brightness-110 shadow-gold-glow transition-all active:scale-95 items-center gap-1.5">
 <i class="fa-solid fa-right-left"></i> <span class="hidden sm:inline">Comprar STBL</span>
 </a>
-<button id="connectWalletBtn" onclick="connectWallet()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm transition-all shadow-lg flex items-center gap-1.5">
+<button id="connectWalletBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm transition-all shadow-lg flex items-center gap-1.5">
 <i class="fa-solid fa-wallet"></i> <span>Conectar</span>
 </button>
-<button id="disconnectBtn" onclick="disconnectWallet()" class="bg-navy-800 border border-red-500/50 text-red-400 font-semibold px-2.5 py-2 rounded-xl text-xs transition-all hidden flex items-center gap-1">
+<button id="disconnectBtn" class="bg-navy-800 border border-red-500/50 text-red-400 font-semibold px-2.5 py-2 rounded-xl text-xs transition-all hidden flex items-center gap-1">
 <i class="fa-solid fa-power-off"></i>
 </button>
 </div>
@@ -136,7 +136,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 <div class="flex items-center gap-2">
 <code id="contract-address" class="bg-navy-900/90 text-gold-400 text-[11px] sm:text-sm font-mono px-2.5 py-2 rounded-xl flex-1 overflow-x-auto select-all border border-navy-700 whitespace-nowrap">0xB46Ad28a11d2006058D22a16b16902F8213bDc30</code>
-<button onclick="copyContract()" class="bg-navy-700 hover:bg-gold-500 hover:text-navy-900 text-gray-200 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shrink-0">Copiar</button>
+<button id="copyContractBtn" class="bg-navy-700 hover:bg-gold-500 hover:text-navy-900 text-gray-200 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shrink-0">Copiar</button>
 </div>
 </div>
 </div>
@@ -160,14 +160,14 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 
 <!-- Menú de Pestañas con Scroll Horizontal suave -->
 <div class="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-navy-800/90 p-1.5 sm:p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto whitespace-nowrap">
-<button onclick="showTab('dashboard')" class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
-<button onclick="showTab('send')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-<button onclick="showTab('receive')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
-<button onclick="showTab('faucet')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-amber-400 shrink-0" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
-<button onclick="showTab('staking')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
-<button onclick="showTab('ruleta')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
-<button onclick="showTab('slot')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
-<button onclick="showTab('investment')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 shrink-0" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
+<button class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-amber-400 shrink-0" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 shrink-0" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -177,7 +177,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="panel p-5 sm:p-6">
 <div class="text-slate-400 text-xs sm:text-sm">Saldo Disponible</div>
 <div id="balance" class="text-2xl sm:text-3xl font-bold mt-2 text-amber-400">0.00 STBL</div>
-<div class="mt-3 sm:mt-4"><button onclick="refreshBalance()" class="action bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white">Actualizar</button></div>
+<div class="mt-3 sm:mt-4"><button id="refreshBalanceBtn" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white font-bold">Actualizar</button></div>
 </div>
 <div class="panel p-5 sm:p-6">
 <div class="text-slate-400 text-xs sm:text-sm">Red y Contratos</div>
@@ -206,7 +206,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <section id="tab-send" class="dapp-tab space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <h3 class="font-bold text-base sm:text-lg mb-4 text-white">Enviar PESO AR STBL</h3>
-<form onsubmit="sendTokens(event)" class="space-y-4">
+<form id="sendForm" class="space-y-4">
 <div><label class="block text-xs text-slate-400 mb-2">Destino (0x...)</label><input type="text" id="sendAddress" class="field" required></div>
 <div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="sendAmount" class="field" required></div>
 <button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Enviar</button>
@@ -231,7 +231,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-6 text-left">
 <div class="flex justify-between text-xs"><span class="text-slate-400">Estado:</span><span id="faucetTimer" class="text-green-400 font-mono">Verificando...</span></div>
 </div>
-<button onclick="reclamarFaucet()" id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Reclamar 0.25 STBL</button>
+<button id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Reclamar 0.25 STBL</button>
 </div>
 </section>
 
@@ -240,7 +240,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
 <div class="flex items-center justify-between">
 <h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Staking & Rendimiento (12% APR)</h3>
-<button onclick="actualizarDatosStaking()" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+<button id="updateStakingBtn" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
 <i class="fa-solid fa-rotate"></i> Actualizar Staking
 </button>
 </div>
@@ -261,11 +261,11 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </div>
 
-<form onsubmit="realizarStaking(event)" class="space-y-4 pt-2">
+<form id="stakeForm" class="space-y-4 pt-2">
 <div><label class="block text-xs text-slate-400 mb-2">Cantidad a Depositar en Staking</label><input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required></div>
 <button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
 </form>
-<button onclick="retirarStaking()" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all">Reclamar Ganancias / Retirar Capital</button>
+<button id="withdrawStakingBtn" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all">Reclamar Ganancias / Retirar Capital</button>
 </div>
 </section>
 
@@ -275,7 +275,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Ruleta de Premios</h3>
 <div class="mb-4 text-left max-w-xs mx-auto"><label class="block text-xs text-slate-400 mb-2">Apuesta (STBL)</label><input type="text" id="apuestaRuleta" class="field" value="1"></div>
 <div class="ruleta-container mb-6"><div class="ruleta-pointer"></div><div id="ruletaWheel" class="ruleta-wheel"></div></div>
-<button onclick="jugarRuletaContrato()" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
+<button id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
 <div id="resultadoRuleta" class="mt-4 text-xs sm:text-sm font-bold text-amber-400"></div>
 
 <div class="mt-6 pt-5 border-t border-navy-700 text-left">
@@ -307,7 +307,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <input type="number" id="slotBetAmount" value="1" min="1" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-500">
 </div>
 
-<button onclick="jugarTragamonedas()" id="btnSpinSlot" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-bold py-2.5 sm:py-3 px-4 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
+<button id="btnSpinSlot" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-bold py-2.5 sm:py-3 px-4 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
 ¡GIRAR RODILLOS! 🎰
 </button>
 
@@ -479,8 +479,7 @@ const STAKING_ABI = [
 ];
 
 let wallet = null, provider = null, signer = null, token = null;
-let stakingContract = null, faucetContract = null, ruletaContract = null;
-let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
+let stakingContract = null, userAddress = null, decimals = 18, symbol = "STBL";
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -492,23 +491,6 @@ function showToast(title, message) {
         toast.classList.remove('translate-y-0', 'opacity-100');
         toast.classList.add('translate-y-24', 'opacity-0');
     }, 3500);
-}
-
-function copyContract() {
-    navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
-    showToast("¡Copiado!", "Dirección copiada al portapapeles.");
-}
-
-function toggleFaq(element) {
-    const p = element.nextElementSibling;
-    const icon = element.querySelector('.fa-chevron-down');
-    if (p.classList.contains('hidden')) {
-        p.classList.remove('hidden');
-        if (icon) icon.style.transform = 'rotate(180deg)';
-    } else {
-        p.classList.add('hidden');
-        if (icon) icon.style.transform = 'rotate(0deg)';
-    }
 }
 
 function getWallet() {
@@ -551,7 +533,6 @@ async function connectWallet() {
         token = new ethers.Contract(CONFIG.contract, ABI, signer);
         stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
         
-        sessionActive = true;
         updateInterface();
         await refreshBalance();
         actualizarDatosStaking();
@@ -563,7 +544,6 @@ async function connectWallet() {
 }
 
 function disconnectWallet() {
-    sessionActive = false; 
     userAddress = null; 
     provider = null; 
     signer = null; 
@@ -593,24 +573,21 @@ async function refreshBalance() {
         return;
     }
     try {
-        let currentProvider = provider;
-        let currentSigner = signer;
+        console.log("Iniciando consulta de saldo para:", userAddress);
+        let currentProvider = provider || new ethers.JsonRpcProvider(CONFIG.rpc);
+        const tokenContract = new ethers.Contract(CONFIG.contract, ABI, currentProvider);
         
-        if (!currentProvider) {
-            currentProvider = new ethers.JsonRpcProvider(CONFIG.rpc);
-            currentSigner = currentProvider;
-        }
-
-        const tokenContract = new ethers.Contract(CONFIG.contract, ABI, currentSigner);
         const rawBalance = await tokenContract.balanceOf(userAddress);
-        const formatted = ethers.formatUnits(rawBalance, decimals);
+        console.log("Saldo crudo obtenido:", rawBalance.toString());
         
-        document.getElementById("balance").innerText = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
-        showToast("Actualizado", "Saldo consultado correctamente.");
+        const formatted = ethers.formatUnits(rawBalance, decimals);
+        const finalVal = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+        
+        document.getElementById("balance").innerText = finalVal;
+        showToast("Actualizado", "Saldo: " + finalVal);
     } catch(e) {
-        console.error("Detalle del error en balanceOf:", e);
-        document.getElementById("balance").innerText = "0.00 STBL";
-        showToast("Aviso", "No se pudo leer el saldo de la red.");
+        console.error("Error al consultar saldo:", e);
+        showToast("Error Red", "No se pudo leer el saldo.");
     }
 }
 
@@ -637,178 +614,43 @@ function actualizarDatosStaking() {
     if (elWithdrawn) elWithdrawn.innerText = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
 }
 
-async function reclamarFaucet() {
-    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
-    try {
-        const faucetABI = ["function claimFaucet() external"];
-        const fc = new ethers.Contract(CONFIG.faucetContract, faucetABI, signer);
-        const tx = await fc.claimFaucet();
-        await tx.wait();
-        showToast("¡Airdrop Exitoso!", "Reclamaste 0.25 STBL.");
-        await refreshBalance();
-    } catch(e) { showToast("Error", e.shortMessage || "Error al reclamar Airdrop."); }
-}
-
-async function realizarStaking(event) {
-    event.preventDefault();
-    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
-    try {
-        const inputVal = document.getElementById("stakeAmount").value;
-        const parsed = ethers.parseUnits(inputVal, decimals);
-        
-        const txApp = await token.approve(CONFIG.stakingContract, parsed);
-        await txApp.wait();
-        
-        const txStake = await stakingContract.stake(parsed);
-        await txStake.wait();
-
-        const localStakedKey = "staked_" + userAddress.toLowerCase();
-        const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
-        localStorage.setItem(localStakedKey, actualStaked.toString());
-
-        showToast("Staking Exitoso", "Tokens bloqueados correctamente.");
-        document.getElementById("stakeAmount").value = "";
-        await refreshBalance();
-        actualizarDatosStaking();
-    } catch(e) { showToast("Error", e.shortMessage || "Error en transacción de staking."); }
-}
-
-async function retirarStaking() {
-    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
-    try {
-        const localStakedKey = "staked_" + userAddress.toLowerCase();
-        const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
-        
-        const currentStaked = parseFloat(localStorage.getItem(localStakedKey) || "0");
-        if (currentStaked <= 0) return showToast("Aviso", "No posees saldo bloqueado para retirar.");
-
-        const tx = await stakingContract.withdraw();
-        await tx.wait();
-
-        const prevWithdrawn = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
-        localStorage.setItem(localWithdrawnKey, (prevWithdrawn + currentStaked).toString());
-        localStorage.setItem(localStakedKey, "0");
-
-        showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
-        await refreshBalance();
-        actualizarDatosStaking();
-    } catch(e) { showToast("Error", e.shortMessage || "Error al retirar staking."); }
-}
-
-async function jugarRuletaContrato() {
-    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
-    try {
-        const monto = ethers.parseUnits(document.getElementById("apuestaRuleta").value, decimals);
-        const rABI = ["function girarRuleta(uint256 montoApuesta) external"];
-        const rContract = new ethers.Contract(CONFIG.ruletaContract, rABI, signer);
-
-        const txApp = await token.approve(CONFIG.ruletaContract, monto);
-        await txApp.wait();
-
-        const wheel = document.getElementById("ruletaWheel");
-        wheel.style.transform = `rotate(${1440 + Math.random() * 1080}deg)`;
-        
-        const txGirar = await rContract.girarRuleta(monto);
-        await txGirar.wait();
-        showToast("Ruleta Girada", "¡Resultado procesado en la blockchain!");
-        await refreshBalance();
-    } catch(e) { showToast("Error", e.shortMessage || "Error en la ruleta."); }
-}
-
-const simbolosSlot = ["🍒", "🍋", "🔔", "💎", "7️⃣"];
-
-async function jugarTragamonedas() {
-    const apuesta = parseFloat(document.getElementById("slotBetAmount").value);
-    const resultadoDiv = document.getElementById("slotResult");
-    const btnSpin = document.getElementById("btnSpinSlot");
-
-    if (isNaN(apuesta) || apuesta <= 0) {
-        resultadoDiv.innerHTML = "⚠️ Ingresá un monto de apuesta válido.";
-        resultadoDiv.className = "mt-3 text-xs sm:text-sm font-medium text-red-400 min-h-[24px]";
-        return;
-    }
-
-    btnSpin.disabled = true;
-    btnSpin.classList.add("opacity-50", "cursor-not-allowed");
-    resultadoDiv.innerHTML = "🎲 Girando rodillos...";
-    resultadoDiv.className = "mt-3 text-xs sm:text-sm font-medium text-amber-400 min-h-[24px]";
-
-    const animacion = setInterval(() => {
-        document.getElementById("reel1").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
-        document.getElementById("reel2").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
-        document.getElementById("reel3").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
-    }, 100);
-
-    setTimeout(() => {
-        clearInterval(animacion);
-        const r1 = Math.floor(Math.random() * 5);
-        const r2 = Math.floor(Math.random() * 5);
-        const r3 = Math.floor(Math.random() * 5);
-
-        document.getElementById("reel1").innerText = simbolosSlot[r1];
-        document.getElementById("reel2").innerText = simbolosSlot[r2];
-        document.getElementById("reel3").innerText = simbolosSlot[r3];
-
-        let premio = 0;
-        if (r1 === r2 && r2 === r3) {
-            premio = apuesta * 5;
-            resultadoDiv.innerHTML = `🎉 ¡JACKPOT! ¡Ganaste ${premio} STBL (x5)!`;
-            resultadoDiv.className = "mt-3 text-xs sm:text-sm font-bold text-green-400 min-h-[24px]";
-            registrarGanadorSlot(userAddress || "Tú (Local)", premio);
-        } else if (r1 === r2 || r2 === r3 || r1 === r3) {
-            premio = apuesta * 2;
-            resultadoDiv.innerHTML = `✨ ¡Bien! Ganaste ${premio} STBL (x2)!`;
-            resultadoDiv.className = "mt-3 text-xs sm:text-sm font-bold text-amber-300 min-h-[24px]";
-            registrarGanadorSlot(userAddress || "Tú (Local)", premio);
-        } else {
-            resultadoDiv.innerHTML = `❌ Sigue intentando, no hubo coincidencia.`;
-            resultadoDiv.className = "mt-3 text-xs sm:text-sm font-medium text-red-400 min-h-[24px]";
-        }
-
-        btnSpin.disabled = false;
-        btnSpin.classList.remove("opacity-50", "cursor-not-allowed");
-    }, 2000);
-}
-
-function registrarGanadorSlot(jugador, premio) {
-    const slotList = document.getElementById("slotGanadoresList");
-    if (slotList.innerText.includes("No hay")) {
-        slotList.innerHTML = "";
-    }
-    const shortJ = jugador.startsWith("0x") ? jugador.substring(0, 6) + "..." + jugador.substring(jugador.length - 4) : jugador;
-    const row = document.createElement("div");
-    row.className = "flex justify-between items-center bg-black/60 p-2 rounded-lg border border-gray-800 text-xs";
-    row.innerHTML = `<span class="font-mono text-amber-400">${shortJ}</span> <span class="text-green-400 font-bold">+${premio} STBL</span>`;
-    slotList.prepend(row);
-}
-
-function showTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment"];
-    tabs.forEach(t => {
-        const panel = document.getElementById("tab-" + t);
-        if (panel) panel.classList.toggle("hidden", t !== name);
-    });
-    document.querySelectorAll(".tab").forEach(btn => {
-        const dataTab = btn.getAttribute("data-tab");
-        if (dataTab === name) {
-            if (name === 'investment') {
-                btn.classList.add("active-invest");
-                btn.classList.remove("active");
-            } else {
-                btn.classList.add("active");
-                btn.classList.remove("active-invest");
-            }
-        } else {
-            btn.classList.remove("active", "active-invest");
-        }
-    });
-
-    if (name === 'staking') {
-        actualizarDatosStaking();
-    }
-}
-
+// Enlace limpio de eventos por JavaScript nativo (evita fallos de onclick en HTML)
 window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+    document.getElementById("disconnectBtn").addEventListener("click", disconnectWallet);
+    document.getElementById("refreshBalanceBtn").addEventListener("click", refreshBalance);
+    document.getElementById("copyContractBtn").addEventListener("click", () => {
+        navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
+        showToast("¡Copiado!", "Dirección copiada al portapapeles.");
+    });
+
+    // Pestañas
+    document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const name = btn.getAttribute("data-tab");
+            const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment"];
+            tabs.forEach(t => {
+                const panel = document.getElementById("tab-" + t);
+                if (panel) panel.classList.toggle("hidden", t !== name);
+            });
+            document.querySelectorAll(".tab").forEach(b => {
+                const dataTab = b.getAttribute("data-tab");
+                if (dataTab === name) {
+                    if (name === 'investment') {
+                        b.classList.add("active-invest");
+                        b.classList.remove("active");
+                    } else {
+                        b.classList.add("active");
+                        b.classList.remove("active-invest");
+                    }
+                } else {
+                    b.classList.remove("active", "active-invest");
+                }
+            });
+            if (name === 'staking') actualizarDatosStaking();
+        });
+    });
+
     actualizarDatosStaking();
 });
 </script>
