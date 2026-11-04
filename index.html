@@ -97,10 +97,10 @@ a { cursor:pointer; }
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
 <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, aporta liquidez y gana comisiones.</p>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, staking, juegos, inversión y mercado.</p>
 </div>
 
-<!-- Menú de Pestañas con Inversión visible -->
+<!-- Menú de Pestañas Completo -->
 <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-8 bg-navy-800/90 p-2 rounded-2xl border border-navy-700 max-w-5xl mx-auto">
 <button onclick="showTab('dashboard')" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -134,6 +134,13 @@ a { cursor:pointer; }
 <div class="mt-3 sm:mt-4"><a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs text-center block font-bold">Comprar STBL</a></div>
 </div>
 </div>
+<div class="panel p-5 sm:p-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-bold text-base sm:text-lg text-white">Información de Cuenta</h3>
+<span class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Contrato Verificado</span>
+</div>
+<p id="userAddress" class="text-xs text-slate-400 font-mono break-all bg-navy-900 p-3 rounded-xl border border-navy-700">Billetera desconectada</p>
+</div>
 </section>
 
 <!-- ENVIAR -->
@@ -161,7 +168,8 @@ a { cursor:pointer; }
 <section id="tab-faucet" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Airdrop Diario (0.25 STBL)</h3>
-<button onclick="reclamarFaucet()" id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mt-4">Reclamar 0.25 STBL</button>
+<p class="text-xs text-slate-400 mb-6">Reclamá 0.25 STBL cada 24 horas.</p>
+<button onclick="reclamarFaucet()" id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Reclamar 0.25 STBL</button>
 </div>
 </section>
 
@@ -169,6 +177,25 @@ a { cursor:pointer; }
 <section id="tab-staking" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
 <h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Staking & Rendimiento (12% APR)</h3>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Capital Invertido</div>
+<div id="stakedBalance" class="text-base sm:text-lg font-bold text-amber-400 mt-1">0.00 STBL</div>
+</div>
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Ganancias Generadas</div>
+<div id="earnedBalance" class="text-base sm:text-lg font-bold text-emerald-400 mt-1">0.00 STBL</div>
+</div>
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Total Retirado</div>
+<div id="withdrawnBalance" class="text-base sm:text-lg font-bold text-celeste-400 mt-1">0.00 STBL</div>
+</div>
+</div>
+<form onsubmit="realizarStaking(event)" class="space-y-4 pt-2">
+<div><label class="block text-xs text-slate-400 mb-2">Cantidad a Depositar en Staking</label><input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required></div>
+<button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
+</form>
+<button onclick="retirarStaking()" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 text-white text-xs">Reclamar Ganancias / Retirar</button>
 </div>
 </section>
 
@@ -176,8 +203,10 @@ a { cursor:pointer; }
 <section id="tab-ruleta" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Ruleta de Premios</h3>
+<div class="mb-4 text-left max-w-xs mx-auto"><label class="block text-xs text-slate-400 mb-2">Apuesta (STBL)</label><input type="text" id="apuestaRuleta" class="field" value="1"></div>
 <div class="ruleta-container mb-6"><div class="ruleta-pointer"></div><div id="ruletaWheel" class="ruleta-wheel"></div></div>
 <button onclick="jugarRuletaContrato()" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
+<div id="resultadoRuleta" class="mt-4 text-xs sm:text-sm font-bold text-amber-400"></div>
 </div>
 </section>
 
@@ -185,59 +214,32 @@ a { cursor:pointer; }
 <section id="tab-slot" class="space-y-6 hidden">
 <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 sm:p-6 shadow-xl max-w-md mx-auto text-center my-4">
 <h3 class="text-lg font-bold text-amber-400 mb-4">STBL SLOT MACHINE</h3>
+<div class="grid grid-cols-3 gap-2 mb-5 bg-black/60 p-3 rounded-xl border border-gray-800">
+<div id="reel1" class="text-2xl sm:text-4xl bg-gray-800 py-4 rounded-lg flex items-center justify-center">🍒</div>
+<div id="reel2" class="text-2xl sm:text-4xl bg-gray-800 py-4 rounded-lg flex items-center justify-center">🍋</div>
+<div id="reel3" class="text-2xl sm:text-4xl bg-gray-800 py-4 rounded-lg flex items-center justify-center">🔔</div>
+</div>
+<button onclick="jugarTragamonedas()" id="btnSpinSlot" class="w-full bg-amber-500 text-gray-950 font-bold py-3 rounded-xl">¡GIRAR RODILLOS! 🎰</button>
+<div id="slotResult" class="mt-3 text-xs sm:text-sm font-medium text-gray-300"></div>
 </div>
 </section>
 
-<!-- SECCIÓN: PANEL DE INVERSIÓN Y COMISIÓN 1.5% -->
+<!-- SECCIÓN: PANEL DE INVERSIÓN (COMPRAR / VENDER STBL) -->
 <section id="tab-investment" class="space-y-6 hidden">
-<div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow">
-<div class="flex items-center gap-3 mb-6 pb-4 border-b border-navy-700">
-<div class="w-12 h-12 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-2xl">
-<i class="fa-solid fa-water"></i>
+<div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow text-center">
+<div class="w-16 h-16 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-3xl mx-auto mb-4">
+<i class="fa-solid fa-right-left"></i>
 </div>
-<div>
-<h3 class="font-extrabold text-xl sm:text-2xl text-white">Aporte de Liquidez & Comisión 1.5%</h3>
-<p class="text-sm text-slate-400 mt-1">Aporta al pool de liquidez oficial y obtén comisiones estimadas del 1.5% sobre las operaciones.</p>
-</div>
-</div>
+<h3 class="font-extrabold text-2xl text-white mb-2">Comprar y Vender STBL</h3>
+<p class="text-sm text-slate-400 max-w-md mx-auto mb-6">Accede directamente al mercado descentralizado en Uniswap para realizar tus operaciones de compra y venta de forma instantánea y segura.</p>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-<!-- Columna Izquierda: Simulador Comisión -->
-<div class="space-y-4 text-slate-300 text-sm">
-<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 space-y-3">
-<h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-percent mr-1"></i> Simulador Comisión (1.5%)</h4>
-<div>
-<label class="block text-[11px] text-slate-400 mb-1">Tu Inversión en Liquidez (STBL):</label>
-<input type="number" id="inputAportePool" value="1000" min="10" oninput="calcularComisionPool()" class="field text-sm font-mono">
-</div>
-<div class="pt-2 border-t border-navy-800 text-xs space-y-1.5">
-<div class="flex justify-between">
-<span class="text-slate-400">Comisión Base Aplicada:</span>
-<span class="text-emerald-400 font-bold">1.5% APR / Fees</span>
-</div>
-<div class="flex justify-between">
-<span class="text-slate-400">Rendimiento Estimado (Anual):</span>
-<span id="lblComision" class="text-gold-400 font-bold font-mono">~15.00 STBL</span>
-</div>
-</div>
-</div>
-<p class="text-[11px] text-slate-400 leading-relaxed">
-Al añadir liquidez al par oficial, recibís automáticamente la acreditación de tu participación y el reparto de comisiones en tiempo real.
-</p>
-</div>
-
-<!-- Columna Derecha: Código QR Adjunto y Enlace Directo al Token en Uniswap -->
-<div class="flex flex-col items-center justify-center">
-<div class="bg-white p-3 rounded-2xl shadow-2xl border-4 border-celeste-400/20">
-<img src="unnamed.jpg" alt="Código QR Pool de Liquidez" class="w-44 h-44 sm:w-52 sm:h-52 rounded-lg object-contain">
-</div>
-<a href="https://app.uniswap.org/explore/tokens/arbitrum/0xB46Ad28a11d2006058D22a16b16902F8213bDc30" target="_blank" class="mt-4 w-full py-3 px-4 rounded-xl font-bold bg-celeste-500 hover:bg-celeste-400 text-white text-xs text-center transition-all shadow-lg flex items-center justify-center gap-2">
-<i class="fa-solid fa-external-link-alt"></i> Ver Token y Pool en Uniswap
+<div class="max-w-xs mx-auto space-y-3">
+<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="w-full py-3.5 px-6 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+<i class="fa-solid fa-coins"></i> Comprar / Vender STBL
 </a>
 </div>
-</div>
 
-<div class="mt-6 pt-4 border-t border-navy-700 text-center">
+<div class="mt-8 pt-5 border-t border-navy-700">
 <p class="text-[11px] text-slate-400 font-mono">Contrato Oficial (Arbitrum One): <span class="text-gold-400 select-all">0xB46Ad28a11d2006058D22a16b16902F8213bDc30</span></p>
 </div>
 </div>
@@ -250,7 +252,7 @@ Al añadir liquidez al par oficial, recibís automáticamente la acreditación d
 <!-- SECCIÓN: INFORMACIÓN DEL POOL -->
 <section id="pool-info" class="py-12 max-w-7xl mx-auto px-4 text-center">
 <h2 class="text-2xl font-extrabold text-white mb-4">Mercado y Liquidez Oficial</h2>
-<a href="https://app.uniswap.org/explore/tokens/arbitrum/0xB46Ad28a11d2006058D22a16b16902F8213bDc30" target="_blank" class="text-amber-400 hover:underline font-mono">Ver token oficial en Uniswap Explorer</a>
+<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="text-amber-400 hover:underline font-mono">Operar en Uniswap</a>
 </section>
 
 <footer class="bg-navy-900 border-t border-navy-800 py-8 text-xs text-gray-400 text-center px-4">
@@ -268,16 +270,6 @@ const CONFIG = {
 
 let wallet = null, provider = null, signer = null, token = null;
 let userAddress = null, decimals = 18, symbol = "STBL";
-
-function calcularComisionPool() {
-    const aporte = parseFloat(document.getElementById("inputAportePool").value) || 0;
-    const comisionAnual = aporte * 0.015;
-    document.getElementById("lblComision").innerText = "~" + comisionAnual.toFixed(2) + " STBL";
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    calcularComisionPool();
-});
 
 function getWallet() {
     if (!window.ethereum) return null;
