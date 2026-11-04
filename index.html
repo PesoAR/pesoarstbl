@@ -553,6 +553,7 @@ async function connectWallet() {
     try {
         const accounts = await wallet.request({ method: "eth_requestAccounts" });
         await switchNetwork();
+        
         provider = new ethers.BrowserProvider(wallet);
         signer = await provider.getSigner();
         userAddress = accounts[0] || await signer.getAddress();
@@ -599,14 +600,24 @@ function updateInterface() {
 }
 
 async function refreshBalance() {
-    if (!userAddress || !token) return;
+    if (!userAddress) {
+        showToast("Aviso", "Conecta tu billetera primero.");
+        return;
+    }
     try {
+        // Instanciación de respaldo en caso de que el objeto global se haya reiniciado
+        if (!token && provider) {
+            token = new ethers.Contract(CONFIG.contract, ABI, signer || await provider.getSigner());
+        }
+        
         const rawBalance = await token.balanceOf(userAddress);
         const formatted = ethers.formatUnits(rawBalance, decimals);
         document.getElementById("balance").innerText = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+        showToast("Actualizado", "Saldo consultado con éxito.");
     } catch(e) {
         console.error("Error al consultar balanceOf:", e);
         document.getElementById("balance").innerText = "0.00 STBL";
+        showToast("Error", "No se pudo leer el saldo de la red.");
     }
 }
 
