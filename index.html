@@ -21,76 +21,32 @@ tailwind.config = {
 theme: {
 extend: {
 colors: {
-navy: {
-900: '#0B132B',
-800: '#1C2541',
-700: '#2A3A5E',
-600: '#3A506B'
+navy: { 900: '#0B132B', 800: '#1C2541', 700: '#2A3A5E', 600: '#3A506B' },
+gold: { 400: '#FFE17D', 500: '#D4AF37', 600: '#AA820A' },
+celeste: { 400: '#74ACDF', 500: '#5297D6', 600: '#327ABF' }
 },
-gold: {
-400: '#FFE17D',
-500: '#D4AF37',
-600: '#AA820A'
-},
-celeste: {
-400: '#74ACDF',
-500: '#5297D6',
-600: '#327ABF'
-}
-},
-fontFamily: {
-sans: ['Plus Jakarta Sans', 'sans-serif'],
-},
-boxShadow: {
-'gold-glow': '0 0 25px -5px rgba(212, 175, 55, 0.3)',
-'celeste-glow': '0 0 25px -5px rgba(116, 172, 223, 0.3)',
-}
+fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+boxShadow: { 'gold-glow': '0 0 25px -5px rgba(212, 175, 55, 0.3)', 'celeste-glow': '0 0 25px -5px rgba(116, 172, 223, 0.3)' }
 }
 }
 }
 </script>
 <style>
-html, body {
-overflow-x: hidden;
-width: 100%;
-position: relative;
-background-color: #0B132B;
-color: #E2E8F0;
-font-family: 'Plus Jakarta Sans', sans-serif;
-}
-.bg-grid-pattern {
-background-image: radial-gradient(rgba(116, 172, 223, 0.1) 1px, transparent 1px);
-background-size: 30px 30px;
-}
-.gold-gradient-text {
-background: linear-gradient(135deg, #FFE17D 0%, #D4AF37 50%, #AA820A 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
-.celeste-gradient-text {
-background: linear-gradient(135deg, #BDE0FE 0%, #74ACDF 50%, #327ABF 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
-.glass-card {
-background: rgba(28, 37, 65, 0.65);
-backdrop-filter: blur(12px);
-border: 1px solid rgba(212, 175, 55, 0.2);
-}
-.glass-card:hover {
-border-color: rgba(212, 175, 55, 0.5);
-}
+html, body { overflow-x: hidden; width: 100%; position: relative; background-color: #0B132B; color: #E2E8F0; font-family: 'Plus Jakarta Sans', sans-serif; }
+.bg-grid-pattern { background-image: radial-gradient(rgba(116, 172, 223, 0.1) 1px, transparent 1px); background-size: 30px 30px; }
+.gold-gradient-text { background: linear-gradient(135deg, #FFE17D 0%, #D4AF37 50%, #AA820A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.celeste-gradient-text { background: linear-gradient(135deg, #BDE0FE 0%, #74ACDF 50%, #327ABF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.glass-card { background: rgba(28, 37, 65, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); }
 .panel { background:#1C2541; border:1px solid #2A3A5E; border-radius:20px; }
 .field { width:100%; background:#0B132B; border:1px solid #3A506B; border-radius:12px; padding:13px; color:white; outline:none; }
 .field:focus { border-color:#D4AF37; }
 .tab.active { background:#D4AF37; color:#0B132B; font-weight:700; }
+.tab.active-invest { background:#5297D6; color:white; font-weight:700; }
 #qr-code img { margin:auto; padding:8px; background:white; border-radius:8px; max-width: 100%; height: auto; }
 button:disabled { opacity:.5; cursor:not-allowed; }
 a { cursor:pointer; }
 .ruleta-container { position: relative; width: 220px; height: 220px; margin: 0 auto; }
-@media (min-width: 640px) {
-  .ruleta-container { width: 260px; height: 260px; }
-}
+@media (min-width: 640px) { .ruleta-container { width: 260px; height: 260px; } }
 .ruleta-wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #D4AF37; position: relative; transition: transform 4s cubic-bezier(0.15, 0.9, 0.2, 1); background: conic-gradient(#5297D6 0deg 60deg, #10b981 60deg 120deg, #D4AF37 120deg 180deg, #ef4444 180deg 240deg, #8b5cf6 240deg 300deg, #ec4899 300deg 360deg); }
 .ruleta-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 16px solid #D4AF37; z-index: 10; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -153,7 +109,6 @@ a { cursor:pointer; }
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 <div class="lg:col-span-7 text-center lg:text-left space-y-4 sm:space-y-6">
-<!-- Insignias de Estado y Verificación -->
 <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-celeste-500/10 border border-celeste-400/30 text-celeste-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
 <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> Red Arbitrum One
@@ -200,10 +155,10 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
 <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops, juega a la ruleta o prueba suerte en la tragamonedas.</p>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, staking, juegos, inversión y mercado.</p>
 </div>
 
-<!-- Menú de Pestañas con Scroll Horizontal suave en celulares -->
+<!-- Menú de Pestañas con Scroll Horizontal suave y botón de Inversión visible -->
 <div class="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-navy-800/90 p-1.5 sm:p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto whitespace-nowrap">
 <button onclick="showTab('dashboard')" class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -212,6 +167,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <button onclick="showTab('staking')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button onclick="showTab('ruleta')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button onclick="showTab('slot')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
+<button onclick="showTab('investment')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 shrink-0" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -281,13 +237,31 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 
 <!-- STAKING -->
 <section id="tab-staking" class="space-y-6 hidden">
-<div class="panel p-5 sm:p-6 max-w-xl mx-auto">
-<h3 class="font-bold text-base sm:text-lg mb-2 text-white">Staking (12% APR)</h3>
-<form onsubmit="realizarStaking(event)" class="space-y-4">
-<div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="stakeAmount" class="field" required></div>
-<button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
+<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Staking & Rendimiento (12% APR)</h3>
+
+
+<!-- Tarjetas informativas de Staking -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Cantidad Bloqueada</div>
+<div id="stakedBalance" class="text-base sm:text-lg font-bold text-amber-400 mt-1">0.00 STBL</div>
+</div>
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Ganancias Diarias</div>
+<div id="dailyEarnings" class="text-base sm:text-lg font-bold text-emerald-400 mt-1">0.00 STBL</div>
+</div>
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Total Retirado</div>
+<div id="withdrawnBalance" class="text-base sm:text-lg font-bold text-celeste-400 mt-1">0.00 STBL</div>
+</div>
+</div>
+
+<form onsubmit="realizarStaking(event)" class="space-y-4 pt-2">
+<div><label class="block text-xs text-slate-400 mb-2">Cantidad a Depositar en Staking</label><input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required></div>
+<button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
 </form>
-<div class="mt-4"><button onclick="retirarStaking()" class="text-xs text-red-400 font-bold">Retirar Capital y Ganancias</button></div>
+<button onclick="retirarStaking()" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all">Reclamar Ganancias / Retirar Capital</button>
 </div>
 </section>
 
@@ -340,6 +314,27 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div id="slotGanadoresList" class="space-y-2 text-xs">
 <div class="text-gray-500 italic bg-black/40 p-2.5 rounded-lg border border-gray-800 text-center">No hay tiradas ganadoras registradas todavía.</div>
 </div>
+</div>
+</div>
+</section>
+
+<!-- SECCIÓN: PANEL DE INVERSIÓN (COMPRAR / VENDER STBL) -->
+<section id="tab-investment" class="space-y-6 hidden">
+<div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow text-center">
+<div class="w-16 h-16 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-3xl mx-auto mb-4">
+<i class="fa-solid fa-right-left"></i>
+</div>
+<h3 class="font-extrabold text-2xl text-white mb-2">Comprar y Vender STBL</h3>
+<p class="text-sm text-slate-400 max-w-md mx-auto mb-6">Accede directamente al mercado descentralizado en Uniswap para realizar tus operaciones de compra y venta de forma instantánea y segura.</p>
+
+<div class="max-w-xs mx-auto space-y-3">
+<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="w-full py-3.5 px-6 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+<i class="fa-solid fa-coins"></i> Comprar / Vender STBL
+</a>
+</div>
+
+<div class="mt-8 pt-5 border-t border-navy-700">
+<p class="text-[11px] text-slate-400 font-mono">Contrato Oficial (Arbitrum One): <span class="text-gold-400 select-all">0xB46Ad28a11d2006058D22a16b16902F8213bDc30</span></p>
 </div>
 </div>
 </section>
@@ -476,7 +471,9 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external"
+    "function withdraw() external",
+    "function stakedBalance(address) view returns (uint256)",
+    "function withdrawnTotal(address) view returns (uint256)"
 ];
 
 const FAUCET_ABI = [
@@ -548,6 +545,7 @@ async function connectWallet() {
     sessionActive = true;
     updateInterface();
     await refreshBalance();
+    await actualizarDatosStaking();
 }
 
 function disconnectWallet() {
@@ -575,6 +573,32 @@ async function refreshBalance() {
     document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
 }
 
+async function actualizarDatosStaking() {
+    if (!userAddress || !stakingContract) return;
+    try {
+        // Intentamos leer del contrato si tiene las funciones, de lo contrario manejamos por defecto
+        let staked = 0n;
+        let withdrawn = 0n;
+        try {
+            staked = await stakingContract.stakedBalance(userAddress);
+            withdrawn = await stakingContract.withdrawnTotal(userAddress);
+        } catch(err) {
+            // Si el contrato no expone estos getters específicos aún, mantenemos en 0 o simulación local
+        }
+
+        const stakedNum = parseFloat(ethers.formatUnits(staked, decimals));
+        const withdrawnNum = parseFloat(ethers.formatUnits(withdrawn, decimals));
+        // Cálculo de ganancias diarias basadas en 12% APR (12% / 365 días = ~0.0328% diario)
+        const gananciaDiaria = stakedNum * (0.12 / 365);
+
+        document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        document.getElementById("dailyEarnings").textContent = gananciaDiaria.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        document.getElementById("withdrawnBalance").textContent = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+    } catch(e) {
+        console.error("Error al actualizar staking:", e);
+    }
+}
+
 async function reclamarFaucet() {
     try {
         const tx = await faucetContract.claimFaucet();
@@ -592,8 +616,9 @@ async function realizarStaking(event) {
         await txApp.wait();
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
-        showToast("Staking Exitoso", "Tokens bloqueados.");
+        showToast("Staking Exitoso", "Tokens bloqueados correctamente.");
         await refreshBalance();
+        await actualizarDatosStaking();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -603,6 +628,7 @@ async function retirarStaking() {
         await tx.wait();
         showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
         await refreshBalance();
+        await actualizarDatosStaking();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -690,9 +716,25 @@ function registrarGanadorSlot(jugador, premio) {
 }
 
 function showTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot"];
-    tabs.forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
-    document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-tab") === name));
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment"];
+    tabs.forEach(t => {
+        const panel = document.getElementById("tab-" + t);
+        if (panel) panel.classList.toggle("hidden", t !== name);
+    });
+    document.querySelectorAll(".tab").forEach(btn => {
+        const dataTab = btn.getAttribute("data-tab");
+        if (dataTab === name) {
+            if (name === 'investment') {
+                btn.classList.add("active-invest");
+                btn.classList.remove("active");
+            } else {
+                btn.classList.add("active");
+                btn.classList.remove("active-invest");
+            }
+        } else {
+            btn.classList.remove("active", "active-invest");
+        }
+    });
 }
 </script>
 </body>
