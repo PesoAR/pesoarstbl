@@ -15,6 +15,8 @@
 <!-- Librería Ethers.js v6 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Librería de Escaneo QR (jsQR) -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
 <script>
 tailwind.config = {
@@ -199,14 +201,16 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
 <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops o diviértete con los juegos.</p>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, invierte, escanea códigos QR y utiliza todas las herramientas Web3.</p>
 </div>
 
-<!-- Menú de Pestañas (Sin POS) -->
+<!-- Menú de Pestañas -->
 <div class="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-navy-800/90 p-1.5 sm:p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto whitespace-nowrap">
 <button onclick="showTab('dashboard')" class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-<button onclick="showTab('receive')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button onclick="showTab('receive')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir & QR</button>
+<button onclick="showTab('scanner')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 shrink-0" data-tab="scanner"><i class="fa-solid fa-camera"></i> Escáner QR Dinámico</button>
+<button onclick="showTab('inversion')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-gold-400 shrink-0" data-tab="inversion"><i class="fa-solid fa-piggy-bank"></i> Módulo Inversión</button>
 <button onclick="showTab('faucet')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-amber-400 shrink-0" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
 <button onclick="showTab('staking')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button onclick="showTab('ruleta')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
@@ -250,7 +254,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <h3 class="font-bold text-base sm:text-lg mb-4 text-white">Enviar PESO AR STBL</h3>
 <form onsubmit="sendTokens(event)" class="space-y-4">
-<div><label class="block text-xs text-slate-400 mb-2">Destino (0x...)</label><input type="text" id="sendAddress" class="field" required></div>
+<div><label class="block text-xs text-slate-400 mb-2">Destino (0x... o Alias QR)</label><input type="text" id="sendAddress" class="field" required></div>
 <div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="sendAmount" class="field" required></div>
 <button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Enviar</button>
 </form>
@@ -263,6 +267,68 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <h3 class="font-bold text-base sm:text-lg mb-4 text-white">Recibir Fondos</h3>
 <div id="qr-code" class="my-4 flex justify-center"></div>
 <div class="bg-navy-900 p-3 rounded-xl border border-navy-700 text-xs font-mono break-all mb-4 text-amber-400" id="receiveAddress">Sin conexión</div>
+</div>
+</section>
+
+<!-- ESCÁNER QR DINÁMICO -->
+<section id="tab-scanner" class="space-y-6 hidden">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
+<div class="flex items-center justify-center gap-2 mb-3">
+<span class="text-xl">📷</span>
+<h3 class="font-bold text-base sm:text-lg text-white">Escáner QR Dinámico</h3>
+</div>
+<p class="text-xs text-slate-400 mb-4">Apunta con la cámara de tu dispositivo al código QR de otro usuario, comercio o red para autocompletar la dirección de destino instantáneamente.</p>
+
+<div class="relative bg-black rounded-2xl overflow-hidden border border-navy-700 mx-auto max-w-sm h-64 flex items-center justify-center">
+<video id="qr-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
+<canvas id="qr-canvas" class="hidden"></canvas>
+<div id="scanner-overlay" class="absolute inset-0 border-2 border-dashed border-amber-400/50 m-8 rounded-xl pointer-events-none flex items-center justify-center">
+<span class="text-[11px] bg-navy-900/80 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30">Buscando código QR...</span>
+</div>
+</div>
+
+<div class="mt-4 flex gap-2 justify-center">
+<button onclick="iniciarEscaneoQR()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-lg flex items-center gap-1.5">
+<i class="fa-solid fa-play"></i> Iniciar Cámara
+</button>
+<button onclick="detenerEscaneoQR()" class="bg-navy-800 border border-red-500/50 text-red-400 font-semibold px-4 py-2.5 rounded-xl text-xs transition-all">
+<i class="fa-solid fa-stop"></i> Detener
+</button>
+</div>
+<div id="qr-result-box" class="mt-4 p-3 bg-navy-900 rounded-xl border border-navy-700 text-xs font-mono text-emerald-400 hidden">
+Resultado: <span id="qr-scanned-text" class="text-white">Ninguno</span>
+</div>
+</div>
+</section>
+
+<!-- MÓDULO DE INVERSIÓN -->
+<section id="tab-inversion" class="space-y-6 hidden">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xl">📈</span>
+<h3 class="font-bold text-base sm:text-lg text-white">Fondo de Inversión Automática T+0</h3>
+</div>
+<p class="text-xs text-slate-400 mb-4">Derivá tus saldos líquidos en STBL o ARS hacia instrumentos de rescate inmediato con tasas competitivas para ganarle a la devaluación.</p>
+
+<div class="space-y-4">
+<div class="bg-gradient-to-r from-navy-900 to-navy-800 p-4 rounded-xl border border-gold-500/40 space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-gold-400 flex items-center gap-1.5"><i class="fa-solid fa-chart-line"></i> Capitalización Diaria</span>
+<span class="text-[10px] bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded-full font-mono">TNA Estimada: 38%</span>
+</div>
+<div>
+<label class="block text-[11px] text-slate-400 mb-1">Monto a Invertir (STBL)</label>
+<input type="number" id="inversionMonto" class="field text-xs py-2" placeholder="Ej: 5000" oninput="calcularRendimientoInversion()">
+</div>
+<div class="flex justify-between items-center text-xs pt-1 border-t border-navy-700/60">
+<span class="text-gray-400 text-[11px]">Rendimiento estimado a 30 días:</span>
+<span id="inversionResultado" class="text-amber-400 font-mono font-bold">0.00 STBL</span>
+</div>
+<button onclick="ejecutarInversionPos()" class="w-full py-2.5 rounded-xl font-bold bg-gold-500 hover:bg-gold-400 text-navy-900 transition-all text-xs flex items-center justify-center gap-1.5">
+<i class="fa-solid fa-piggy-bank"></i> Suscribir al Fondo T+0
+</button>
+</div>
+</div>
 </div>
 </section>
 
@@ -499,6 +565,7 @@ const RULETA_ABI = [
 let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
+let videoStream = null, scanningQR = false;
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -714,8 +781,88 @@ function registrarGanadorSlot(jugador, premio) {
     slotList.prepend(row);
 }
 
+// Lógica del Módulo de Inversión Automática T+0
+function calcularRendimientoInversion() {
+    const monto = parseFloat(document.getElementById("inversionMonto").value) || 0;
+    const tnaMensual = 0.38 / 12;
+    const gananciaEstimada = monto * tnaMensual;
+    const display = document.getElementById("inversionResultado");
+    if (display) {
+        display.textContent = "+ " + gananciaEstimada.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
+    }
+}
+
+function ejecutarInversionPos() {
+    const monto = document.getElementById("inversionMonto").value;
+    if (!monto || monto <= 0) {
+        showToast("Atención", "Ingresá un monto válido para invertir.");
+        return;
+    }
+    showToast("¡Suscripción Exitosa!", `Se derivaron ${monto} STBL al fondo remunerado T+0.`);
+}
+
+// Lógica de Escáner QR Dinámico con Cámara y jsQR
+async function iniciarEscaneoQR() {
+    const video = document.getElementById("qr-video");
+    const canvasElement = document.getElementById("qr-canvas");
+    const canvas = canvasElement.getContext("2d");
+    const resultBox = document.getElementById("qr-result-box");
+    const scannedTextSpan = document.getElementById("qr-scanned-text");
+
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = videoStream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        scanningQR = true;
+        showToast("Cámara Activa", "Alinea el código QR dentro del recuadro.");
+
+        requestAnimationFrame(tickQR);
+    } catch (e) {
+        showToast("Error de Cámara", "No se pudo acceder a la cámara del dispositivo.");
+        console.error(e);
+    }
+}
+
+function tickQR() {
+    if (!scanningQR) return;
+    const video = document.getElementById("qr-video");
+    const canvasElement = document.getElementById("qr-canvas");
+    const canvas = canvasElement.getContext("2d");
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvasElement.height = video.videoHeight;
+        canvasElement.width = video.videoWidth;
+        canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+        var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+
+        if (code) {
+            scanningQR = false;
+            detenerEscaneoQR();
+            document.getElementById("qr-result-box").classList.remove("hidden");
+            document.getElementById("qr-scanned-text").textContent = code.data;
+            document.getElementById("sendAddress").value = code.data;
+            showToast("¡QR Escaneado!", "Dirección cargada en la pestaña Enviar.");
+            setTimeout(() => { showTab('send'); }, 1500);
+            return;
+        }
+    }
+    requestAnimationFrame(tickQR);
+}
+
+function detenerEscaneoQR() {
+    scanningQR = false;
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    showToast("Escáner Detenido", "Cámara cerrada.");
+}
+
 function showTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot"];
+    if (name !== 'scanner') { detenerEscaneoQR(); }
+    const tabs = ["dashboard", "send", "receive", "scanner", "inversion", "faucet", "staking", "ruleta", "slot"];
     tabs.forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
     document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-tab") === name));
 }
