@@ -188,9 +188,7 @@ a { cursor:pointer; }
 </div>
 </section>
 
-<!-- ================================================= -->
-<!-- NUEVA SECCIÓN: PANEL DE INVERSIÓN Y COMISIÓN 1.5% -->
-<!-- ================================================= -->
+<!-- SECCIÓN: PANEL DE INVERSIÓN Y COMISIÓN 1.5% -->
 <section id="tab-investment" class="space-y-6 hidden">
 <div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow">
 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-navy-700">
@@ -204,7 +202,7 @@ a { cursor:pointer; }
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-<!-- Columna Izquierda: Calculadora de Comisión (1.5%) -->
+<!-- Columna Izquierda: Simulador Comisión -->
 <div class="space-y-4 text-slate-300 text-sm">
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 space-y-3">
 <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-percent mr-1"></i> Simulador Comisión (1.5%)</h4>
@@ -228,14 +226,13 @@ Al añadir liquidez al par oficial, recibís automáticamente un NFT que acredit
 </p>
 </div>
 
-<!-- Columna Derecha: Código QR Adjunto y Botón de Acción -->
+<!-- Columna Derecha: Código QR Adjunto y Enlace Directo corregido para Uniswap -->
 <div class="flex flex-col items-center justify-center">
 <div class="bg-white p-3 rounded-2xl shadow-2xl border-4 border-celeste-400/20">
 <img src="unnamed.jpg" alt="Código QR Pool de Liquidez" class="w-44 h-44 sm:w-52 sm:h-52 rounded-lg object-contain">
 </div>
-<!-- Enlace directo que abre la posición de Uniswap en nueva pestaña -->
-<a href="https://app.uniswap.org/positions/v4/arbitrum/228122" target="_blank" class="mt-4 w-full py-3 px-4 rounded-xl font-bold bg-celeste-500 hover:bg-celeste-400 text-white text-xs text-center transition-all shadow-lg flex items-center justify-center gap-2">
-<i class="fa-solid fa-plus-circle"></i> Agregar Liquidez en Uniswap
+<a href="https://app.uniswap.org/#/add/0xB46Ad28a11d2006058D22a16b16902F8213bDc30/ETH/3000?chain=arbitrum" target="_blank" class="mt-4 w-full py-3 px-4 rounded-xl font-bold bg-celeste-500 hover:bg-celeste-400 text-white text-xs text-center transition-all shadow-lg flex items-center justify-center gap-2">
+<i class="fa-solid fa-plus-circle"></i> Agregar Liquidez al Pool (STBL)
 </a>
 </div>
 </div>
@@ -253,7 +250,7 @@ Al añadir liquidez al par oficial, recibís automáticamente un NFT que acredit
 <!-- SECCIÓN: INFORMACIÓN DEL POOL -->
 <section id="pool-info" class="py-12 max-w-7xl mx-auto px-4 text-center">
 <h2 class="text-2xl font-extrabold text-white mb-4">Pool de Liquidez Oficial</h2>
-<a href="https://app.uniswap.org/positions/v4/arbitrum/228122" target="_blank" class="text-amber-400 hover:underline font-mono">Ver posición activa #228122 en Uniswap</a>
+<a href="https://app.uniswap.org/#/pool/0xD0eEd13FddE5c84a5201bf65f00Da57310A53e5c?chain=arbitrum" target="_blank" class="text-amber-400 hover:underline font-mono">Ver pool oficial en Uniswap</a>
 </section>
 
 <footer class="bg-navy-900 border-t border-navy-800 py-8 text-xs text-gray-400 text-center px-4">
@@ -274,7 +271,6 @@ let userAddress = null, decimals = 18, symbol = "STBL";
 
 function calcularComisionPool() {
     const aporte = parseFloat(document.getElementById("inputAportePool").value) || 0;
-    // Cálculo exacto del 1.5% de comisión/rendimiento estimado sobre el aporte del usuario
     const comisionAnual = aporte * 0.015;
     document.getElementById("lblComision").innerText = "~" + comisionAnual.toFixed(2) + " STBL";
 }
