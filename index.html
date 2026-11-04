@@ -579,7 +579,7 @@ function updateInterface() {
     const btn = document.getElementById("connectWalletBtn");
     if (btn) btn.innerHTML = short ? `<i class="fa-solid fa-wallet"></i> ${short}` : `<i class="fa-solid fa-wallet"></i> Conectar`;
     document.getElementById("disconnectBtn").classList.toggle("hidden", !userAddress);
-    document.getElementById("userAddresstextContent", userAddress || "Billetera desconectada");
+    document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
     document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
     if (userAddress) {
         document.getElementById("qr-code").innerHTML = "";
