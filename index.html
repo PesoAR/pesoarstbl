@@ -238,7 +238,12 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <!-- STAKING -->
 <section id="tab-staking" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
+<div class="flex items-center justify-between">
 <h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Staking & Rendimiento (12% APR)</h3>
+<button onclick="actualizarDatosStaking()" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+<i class="fa-solid fa-rotate"></i> Actualizar Staking
+</button>
+</div>
 
 <!-- Tarjetas informativas de Staking -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -574,30 +579,37 @@ async function refreshBalance() {
 }
 
 async function actualizarDatosStaking() {
-    if (!userAddress) return;
     try {
-        const localStakedKey = "staked_" + userAddress.toLowerCase();
-        const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
+        let stakedNum = 0;
+        let withdrawnNum = 0;
 
-        let stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
-        let withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
+        if (userAddress) {
+            const localStakedKey = "staked_" + userAddress.toLowerCase();
+            const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
 
-        // Intentar lectura adicional en blockchain si el contrato lo soporta
-        if (stakingContract) {
-            try {
-                if (stakingContract.stakedBalance) {
-                    const res = await stakingContract.stakedBalance(userAddress);
-                    const onChainStaked = parseFloat(ethers.formatUnits(res, decimals));
-                    if (onChainStaked > 0) stakedNum = onChainStaked;
-                }
-            } catch (err) {}
+            stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
+            withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
+
+            if (stakingContract) {
+                try {
+                    if (stakingContract.stakedBalance) {
+                        const res = await stakingContract.stakedBalance(userAddress);
+                        const onChainStaked = parseFloat(ethers.formatUnits(res, decimals));
+                        if (onChainStaked > 0) stakedNum = onChainStaked;
+                    }
+                } catch (err) {}
+            }
         }
 
         const gananciaDiaria = stakedNum * (0.12 / 365);
 
-        document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
-        document.getElementById("dailyEarnings").textContent = gananciaDiaria.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
-        document.getElementById("withdrawnBalance").textContent = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        const elStaked = document.getElementById("stakedBalance");
+        const elDaily = document.getElementById("dailyEarnings");
+        const elWithdrawn = document.getElementById("withdrawnBalance");
+
+        if (elStaked) elStaked.textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        if (elDaily) elDaily.textContent = gananciaDiaria.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+        if (elWithdrawn) elWithdrawn.textContent = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
     } catch(e) {
         console.error("Error al actualizar staking:", e);
     }
@@ -614,6 +626,10 @@ async function reclamarFaucet() {
 
 async function realizarStaking(event) {
     event.preventDefault();
+    if (!userAddress) {
+        showToast("Error", "Conecta tu billetera primero.");
+        return;
+    }
     try {
         const inputVal = document.getElementById("stakeAmount").value;
         const parsed = ethers.parseUnits(inputVal, decimals);
@@ -624,7 +640,6 @@ async function realizarStaking(event) {
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
 
-        // Actualización inmediata en LocalStorage para reflejar los datos en las tarjetas
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
         localStorage.setItem(localStakedKey, actualStaked.toString());
@@ -636,6 +651,10 @@ async function realizarStaking(event) {
 }
 
 async function retirarStaking() {
+    if (!userAddress) {
+        showToast("Error", "Conecta tu billetera primero.");
+        return;
+    }
     try {
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
@@ -762,7 +781,16 @@ function showTab(name) {
             btn.classList.remove("active", "active-invest");
         }
     });
+
+    if (name === 'staking') {
+        actualizarDatosStaking();
+    }
 }
+
+// Carga inicial al abrir la página
+window.addEventListener('DOMContentLoaded', () => {
+    actualizarDatosStaking();
+});
 </script>
 </body>
 </html>
