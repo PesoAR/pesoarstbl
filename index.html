@@ -475,7 +475,8 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external"
+    "function withdraw() external",
+    "function balanceOf(address account) view returns (uint256)"
 ];
 
 let wallet = null, provider = null, signer = null, token = null;
@@ -535,7 +536,7 @@ async function connectWallet() {
         
         updateInterface();
         await refreshBalance();
-        actualizarDatosStaking();
+        await actualizarDatosStaking();
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
@@ -548,6 +549,7 @@ function disconnectWallet() {
     provider = null; 
     signer = null; 
     token = null;
+    stakingContract = null;
     updateInterface();
     document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
@@ -573,34 +575,44 @@ async function refreshBalance() {
         return;
     }
     try {
-        console.log("Iniciando consulta de saldo para:", userAddress);
         let currentProvider = provider || new ethers.JsonRpcProvider(CONFIG.rpc);
         const tokenContract = new ethers.Contract(CONFIG.contract, ABI, currentProvider);
         
         const rawBalance = await tokenContract.balanceOf(userAddress);
-        console.log("Saldo crudo obtenido:", rawBalance.toString());
-        
         const formatted = ethers.formatUnits(rawBalance, decimals);
-        const numVal = parseFloat(formatted);
-        const finalVal = numVal.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
         
-        document.getElementById("balance").innerText = finalVal;
-        showToast("Actualizado", "Saldo: " + finalVal);
+        // Conversión segura de string a número formateado
+        const parts = formatted.split('.');
+        let integerPart = parts[0];
+        let decimalPart = parts[1] ? parts[1].substring(0, 4) : '00';
+        let displayVal = Number(integerPart).toLocaleString("es-AR") + ',' + decimalPart;
+
+        document.getElementById("balance").innerText = displayVal + " " + symbol;
+        showToast("Actualizado", "Saldo: " + displayVal + " " + symbol);
     } catch(e) {
         console.error("Error al consultar saldo:", e);
         showToast("Error Red", "No se pudo leer el saldo.");
     }
 }
 
-function actualizarDatosStaking() {
+async function actualizarDatosStaking() {
     let stakedNum = 0;
     let withdrawnNum = 0;
 
     if (userAddress) {
-        const localStakedKey = "staked_" + userAddress.toLowerCase();
-        const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
+        try {
+            if (stakingContract) {
+                // Intenta leer directamente del contrato si soporta lectura
+                const rawStaked = await stakingContract.balanceOf(userAddress);
+                stakedNum = parseFloat(ethers.formatUnits(rawStaked, decimals));
+            }
+        } catch (err) {
+            // Respaldo por LocalStorage si el contrato usa almacenamiento local
+            const localStakedKey = "staked_" + userAddress.toLowerCase();
+            stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
+        }
 
-        stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
+        const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
         withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
     }
 
@@ -615,11 +627,68 @@ function actualizarDatosStaking() {
     if (elWithdrawn) elWithdrawn.innerText = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
 }
 
+async function realizarStaking(event) {
+    event.preventDefault();
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
+    try {
+        const inputVal = document.getElementById("stakeAmount").value;
+        const parsed = ethers.parseUnits(inputVal, decimals);
+        
+        showToast("Procesando", "Aprobando tokens para Staking...");
+        const txApp = await token.approve(CONFIG.stakingContract, parsed);
+        await txApp.wait();
+        
+        showToast("Procesando", "Depositando en Staking...");
+        const txStake = await stakingContract.stake(parsed);
+        await txStake.wait();
+
+        const localStakedKey = "staked_" + userAddress.toLowerCase();
+        const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
+        localStorage.setItem(localStakedKey, actualStaked.toString());
+
+        showToast("Staking Exitoso", "Tokens bloqueados correctamente.");
+        document.getElementById("stakeAmount").value = "";
+        await refreshBalance();
+        await actualizarDatosStaking();
+    } catch(e) {
+        console.error("Error en staking:", e);
+        showToast("Error", e.shortMessage || "Error en transacción de staking.");
+    }
+}
+
+async function retirarStaking() {
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
+    try {
+        const localStakedKey = "staked_" + userAddress.toLowerCase();
+        const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
+        
+        const currentStaked = parseFloat(localStorage.getItem(localStakedKey) || "0");
+        if (currentStaked <= 0) return showToast("Aviso", "No posees saldo bloqueado para retirar.");
+
+        showToast("Procesando", "Retirando fondos del Staking...");
+        const tx = await stakingContract.withdraw();
+        await tx.wait();
+
+        const prevWithdrawn = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
+        localStorage.setItem(localWithdrawnKey, (prevWithdrawn + currentStaked).toString());
+        localStorage.setItem(localStakedKey, "0");
+
+        showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
+        await refreshBalance();
+        await actualizarDatosStaking();
+    } catch(e) {
+        console.error("Error en retiro:", e);
+        showToast("Error", e.shortMessage || "Error al retirar staking.");
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("disconnectBtn").addEventListener("click", disconnectWallet);
     document.getElementById("refreshBalanceBtn").addEventListener("click", refreshBalance);
     document.getElementById("updateStakingBtn").addEventListener("click", actualizarDatosStaking);
+    document.getElementById("stakeForm").addEventListener("submit", realizarStaking);
+    document.getElementById("withdrawStakingBtn").addEventListener("click", retirarStaking);
     document.getElementById("copyContractBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
         showToast("¡Copiado!", "Dirección copiada al portapapeles.");
