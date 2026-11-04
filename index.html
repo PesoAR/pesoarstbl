@@ -581,7 +581,8 @@ async function refreshBalance() {
         console.log("Saldo crudo obtenido:", rawBalance.toString());
         
         const formatted = ethers.formatUnits(rawBalance, decimals);
-        const finalVal = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+        const numVal = parseFloat(formatted);
+        const finalVal = numVal.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
         
         document.getElementById("balance").innerText = finalVal;
         showToast("Actualizado", "Saldo: " + finalVal);
@@ -614,17 +615,16 @@ function actualizarDatosStaking() {
     if (elWithdrawn) elWithdrawn.innerText = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
 }
 
-// Enlace limpio de eventos por JavaScript nativo (evita fallos de onclick en HTML)
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("disconnectBtn").addEventListener("click", disconnectWallet);
     document.getElementById("refreshBalanceBtn").addEventListener("click", refreshBalance);
+    document.getElementById("updateStakingBtn").addEventListener("click", actualizarDatosStaking);
     document.getElementById("copyContractBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
         showToast("¡Copiado!", "Dirección copiada al portapapeles.");
     });
 
-    // Pestañas
     document.querySelectorAll(".tab").forEach(btn => {
         btn.addEventListener("click", () => {
             const name = btn.getAttribute("data-tab");
