@@ -603,8 +603,12 @@ function updateInterface() {
 
 async function refreshBalance() {
     if (!userAddress) return;
-    const result = await token.balanceOf(userAddress);
-    document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+    try {
+        const result = await token.balanceOf(userAddress);
+        document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+    } catch(e) {
+        console.error("Error al refrescar saldo:", e);
+    }
 }
 
 async function sendTokens(event) {
@@ -629,22 +633,30 @@ async function sendTokens(event) {
 async function actualizarStakingInfo() {
     if (!userAddress || !stakingContract) return;
     try {
-        let info;
+        let stakedNum = 0;
         try {
-            info = await stakingContract.apuestas_públicas(userAddress);
+            let info;
+            try {
+                info = await stakingContract.apuestas_públicas(userAddress);
+            } catch (err) {
+                info = await stakingContract.apuestas_publicas(userAddress);
+            }
+            if (info) {
+                const cantidadStaked = info.cantidad || info[0];
+                stakedNum = Number(ethers.formatUnits(cantidadStaked, decimals));
+            }
         } catch (err) {
-            info = await stakingContract.apuestas_publicas(userAddress);
+            // Si la llamada revierte porque no hay staking activo, se maneja de forma limpia
+            stakedNum = 0;
         }
-
-        const cantidadStaked = info.cantidad || info[0];
-        const stakedNum = Number(ethers.formatUnits(cantidadStaked, decimals));
+        
         const gananciasCalculadas = stakedNum * 0.03; 
 
         document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
         document.getElementById("earnedBalance").textContent = gananciasCalculadas.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
         document.getElementById("withdrawnBalance").textContent = userStakingStats.withdrawn.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
     } catch(e) {
-        console.error("Error al leer el staking:", e);
+        console.error("Error al procesar la info de staking:", e);
     }
 }
 
@@ -682,16 +694,22 @@ async function retirarStaking() {
         return;
     }
     try {
-        let info;
+        let stakedNum = 0;
         try {
-            info = await stakingContract.apuestas_públicas(userAddress);
+            let info;
+            try {
+                info = await stakingContract.apuestas_públicas(userAddress);
+            } catch (err) {
+                info = await stakingContract.apuestas_publicas(userAddress);
+            }
+            if (info) {
+                stakedNum = Number(ethers.formatUnits(info.cantidad || info[0], decimals));
+            }
         } catch (err) {
-            info = await stakingContract.apuestas_publicas(userAddress);
+            stakedNum = 0;
         }
-
-        const cantidadStaked = Number(ethers.formatUnits(info.cantidad || info[0], decimals));
         
-        if (cantidadStaked <= 0) {
+        if (stakedNum <= 0) {
             showToast("Aviso", "No tenés capital activo en staking para retirar.");
             return;
         }
@@ -699,7 +717,7 @@ async function retirarStaking() {
         const tx = await stakingContract.withdraw();
         await tx.wait();
         
-        userStakingStats.withdrawn += cantidadStaked;
+        userStakingStats.withdrawn += stakedNum;
         showToast("Retiro Exitoso", "Capital y ganancias acreditados a tu saldo.");
         
         await refreshBalance();
