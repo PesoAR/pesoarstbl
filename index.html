@@ -176,7 +176,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
 <div class="panel p-5 sm:p-6">
 <div class="text-slate-400 text-xs sm:text-sm">Saldo Disponible</div>
-<div id="balance" class="text-2xl sm:text-3xl font-bold mt-2 text-amber-400">-- STBL</div>
+<div id="balance" class="text-2xl sm:text-3xl font-bold mt-2 text-amber-400">0.00 STBL</div>
 <div class="mt-3 sm:mt-4"><button onclick="refreshBalance()" class="action bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white">Actualizar</button></div>
 </div>
 <div class="panel p-5 sm:p-6">
@@ -466,8 +466,8 @@ const CONFIG = {
 };
 
 const ABI = [
-    "function balanceOf(address) view returns (uint256)",
-    "function transfer(address,uint256) returns (bool)",
+    "function balanceOf(address owner) view returns (uint256)",
+    "function transfer(address to, uint256 amount) returns (bool)",
     "function approve(address spender, uint256 amount) returns (bool)",
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)"
@@ -528,31 +528,59 @@ function getWallet() {
 
 async function switchNetwork() {
     const w = wallet || getWallet();
-    await w.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
+    try {
+        await w.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
+    } catch (switchError) {
+        if (switchError.code === 4902) {
+            await w.request({
+                method: "wallet_addEthereumChain",
+                params: [{
+                    chainId: CONFIG.chainHex,
+                    chainName: CONFIG.chainName,
+                    rpcUrls: [CONFIG.rpc],
+                    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                    blockExplorerUrls: [CONFIG.explorer]
+                }]
+            });
+        }
+    }
 }
 
 async function connectWallet() {
     const w = getWallet();
     if (!w) return showToast("Error", "Instala MetaMask.");
     wallet = w;
-    await wallet.request({ method: "eth_requestAccounts" });
-    await switchNetwork();
-    provider = new ethers.BrowserProvider(wallet);
-    signer = await provider.getSigner();
-    userAddress = await signer.getAddress();
-    token = new ethers.Contract(CONFIG.contract, ABI, signer);
-    stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
-    faucetContract = new ethers.Contract(CONFIG.faucetContract, FAUCET_ABI, signer);
-    ruletaContract = new ethers.Contract(CONFIG.ruletaContract, RULETA_ABI, signer);
-    sessionActive = true;
-    updateInterface();
-    await refreshBalance();
-    actualizarDatosStaking();
+    try {
+        const accounts = await wallet.request({ method: "eth_requestAccounts" });
+        await switchNetwork();
+        provider = new ethers.BrowserProvider(wallet);
+        signer = await provider.getSigner();
+        userAddress = accounts[0] || await signer.getAddress();
+        
+        token = new ethers.Contract(CONFIG.contract, ABI, signer);
+        stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
+        faucetContract = new ethers.Contract(CONFIG.faucetContract, FAUCET_ABI, signer);
+        ruletaContract = new ethers.Contract(CONFIG.ruletaContract, RULETA_ABI, signer);
+        
+        sessionActive = true;
+        updateInterface();
+        await refreshBalance();
+        actualizarDatosStaking();
+        showToast("Conectado", "Billetera vinculada correctamente.");
+    } catch(e) {
+        console.error("Error al conectar:", e);
+        showToast("Error", e.shortMessage || e.message || "No se pudo conectar.");
+    }
 }
 
 function disconnectWallet() {
-    sessionActive = false; userAddress = null; provider = null; signer = null; token = null;
+    sessionActive = false; 
+    userAddress = null; 
+    provider = null; 
+    signer = null; 
+    token = null;
     updateInterface();
+    document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
     showToast("Desconectado", "Sesión cerrada.");
 }
@@ -571,12 +599,14 @@ function updateInterface() {
 }
 
 async function refreshBalance() {
-    if (!userAddress) return;
+    if (!userAddress || !token) return;
     try {
-        const result = await token.balanceOf(userAddress);
-        document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
+        const rawBalance = await token.balanceOf(userAddress);
+        const formatted = ethers.formatUnits(rawBalance, decimals);
+        document.getElementById("balance").innerText = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
     } catch(e) {
-        console.error("Error al refrescar saldo:", e);
+        console.error("Error al consultar balanceOf:", e);
+        document.getElementById("balance").innerText = "0.00 STBL";
     }
 }
 
@@ -604,6 +634,7 @@ function actualizarDatosStaking() {
 }
 
 async function reclamarFaucet() {
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
         const tx = await faucetContract.claimFaucet();
         await tx.wait();
@@ -668,6 +699,7 @@ async function retirarStaking() {
 }
 
 async function jugarRuletaContrato() {
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
         const monto = ethers.parseUnits(document.getElementById("apuestaRuleta").value, decimals);
         const txApp = await token.approve(CONFIG.ruletaContract, monto);
