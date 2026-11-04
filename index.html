@@ -598,9 +598,9 @@ function actualizarDatosStaking() {
     const elDaily = document.getElementById("dailyEarnings");
     const elWithdrawn = document.getElementById("withdrawnBalance");
 
-    if (elStaked) elStaked.textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
-    if (elDaily) elDaily.textContent = gananciaDiaria.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
-    if (elWithdrawn) elWithdrawn.textContent = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+    if (elStaked) elStaked.innerText = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+    if (elDaily) elDaily.innerText = gananciaDiaria.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
+    if (elWithdrawn) elWithdrawn.innerText = withdrawnNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
 }
 
 async function reclamarFaucet() {
