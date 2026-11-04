@@ -201,7 +201,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops o diviértete con los juegos.</p>
 </div>
 
-<!-- Menú de Pestañas en Grilla Ajustada para que Inversión se vea siempre -->
+<!-- Menú de Pestañas en Grilla -->
 <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-8 bg-navy-800/90 p-2 rounded-2xl border border-navy-700 max-w-5xl mx-auto">
 <button onclick="showTab('dashboard')" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -371,41 +371,58 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- SECCIÓN: PANEL INVERSIÓN CON QR ADJUNTO -->
+<!-- SECCIÓN: PANEL INVERSIÓN & APORTE AL POOL DE LIQUIDEZ -->
 <section id="tab-investment" class="space-y-6 hidden">
 <div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow">
 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-navy-700">
 <div class="w-12 h-12 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-2xl">
-<i class="fa-solid fa-chart-line"></i>
+<i class="fa-solid fa-water"></i>
 </div>
 <div>
-<h3 class="font-extrabold text-xl sm:text-2xl text-white">Panel de Inversión y Capital</h3>
-<p class="text-sm text-slate-400 mt-1">Escanea el código QR para acceder a las opciones de inversión externa y gestión de capital.</p>
+<h3 class="font-extrabold text-xl sm:text-2xl text-white">Aporte al Pool de Liquidez & Comisiones</h3>
+<p class="text-sm text-slate-400 mt-1">Aporta capital al pool oficial de Uniswap V3 y gana tu porcentaje proporcional de comisiones (0.3%).</p>
 </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-<!-- Columna Izquierda: Información -->
-<div class="space-y-4 text-slate-300 text-sm leading-relaxed">
-<p>Bienvenido al Panel de Inversión oficial de <span class="font-bold text-gold-400">PESO AR STBL</span>.</p>
-<p>Este espacio está diseñado para conectar nuestro ecosistema tokenizado con oportunidades de inversión gestionadas.</p>
-<ul class="space-y-2.5 list-inside text-xs bg-navy-900/80 p-4 rounded-xl border border-navy-700">
-<li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-emerald-400"></i> Acceso a Fondos de Inversión Diversificados.</li>
-<li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-emerald-400"></i> Gestión de Capital con Rendimiento Potencial.</li>
-<li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-emerald-400"></i> Transparencia y Seguridad en Arbitrum One.</li>
-</ul>
+<!-- Columna Izquierda: Formulario de cálculo de aporte y comisiones -->
+<div class="space-y-4 text-slate-300 text-sm">
+<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 space-y-3">
+<h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-calculator mr-1"></i> Simulador de Comisiones</h4>
+<div>
+<label class="block text-[11px] text-slate-400 mb-1">Tu Aporte Estimado (STBL):</label>
+<input type="number" id="inputAportePool" value="1000" min="10" oninput="calcularComisionPool()" class="field text-sm font-mono">
+</div>
+<div class="pt-2 border-t border-navy-800 text-xs space-y-1.5">
+<div class="flex justify-between">
+<span class="text-slate-400">Participación estimada:</span>
+<span id="lblShare" class="text-white font-bold">~0.15%</span>
+</div>
+<div class="flex justify-between">
+<span class="text-slate-400">Comisión estimada (Diaria):</span>
+<span id="lblComision" class="text-emerald-400 font-bold font-mono">~1.45 STBL</span>
+</div>
+</div>
 </div>
 
-<!-- Columna Derecha: El Código QR Adjunto -->
-<div class="flex justify-center md:justify-end items-center">
-<div class="bg-white p-3 rounded-2xl shadow-2xl border-4 border-celeste-400/20 transform md:rotate-2 hover:rotate-0 transition-transform duration-300">
-<img src="unnamed.jpg" alt="Código QR de Inversión STBL" class="w-48 h-48 sm:w-56 sm:h-56 rounded-lg object-contain">
+<p class="text-[11px] text-slate-400 leading-relaxed">
+Escanea el código QR oficial o usa el enlace directo para añadir liquidez de manera segura al par <span class="text-gold-400 font-mono">STBL / USDC</span> en Arbitrum One.
+</p>
 </div>
+
+<!-- Columna Derecha: Código QR Adjunto -->
+<div class="flex flex-col items-center justify-center">
+<div class="bg-white p-3 rounded-2xl shadow-2xl border-4 border-celeste-400/20">
+<img src="unnamed.jpg" alt="Código QR del Pool de Liquidez" class="w-44 h-44 sm:w-52 sm:h-52 rounded-lg object-contain">
+</div>
+<a href="https://app.uniswap.org/#/pool/0xD0eEd13FddE5c84a5201bf65f00Da57310A53e5c?chain=arbitrum" target="_blank" class="mt-4 w-full py-2.5 px-4 rounded-xl font-bold bg-celeste-500 hover:bg-celeste-400 text-white text-xs text-center transition-all shadow-lg flex items-center justify-center gap-2">
+<i class="fa-solid fa-arrow-up-right-from-square"></i> Ir al Pool en Uniswap
+</a>
 </div>
 </div>
 
-<div class="mt-8 pt-5 border-t border-navy-700 text-center">
-<p class="text-xs text-slate-500">Si no puedes escanear el QR, contacta a soporte para recibir asistencia directa.</p>
+<div class="mt-6 pt-4 border-t border-navy-700 text-center">
+<p class="text-[11px] text-slate-400 font-mono">Dirección del Pool (Arbitrum One): <span class="text-gold-400 select-all">0xD0eEd13FddE5c84a5201bf65f00Da57310A53e5c</span></p>
 </div>
 </div>
 </section>
@@ -471,11 +488,11 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
 <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all">
 <h3 class="font-bold text-white text-sm sm:text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿El contrato está verificado en la blockchain?</span>
+<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo gano comisiones aportando al Pool de Liquidez?</span>
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-2.5 sm:mt-3 leading-relaxed hidden">
-Sí, todos los contratos inteligentes de PESO AR STBL y sus complementos se encuentran auditados y verificados públicamente en el explorador oficial de Arbiscan.
+Cada vez que un usuario intercambia tokens en el pool de Uniswap V3, se cobra una pequeña comisión del 0.3%. Esa comisión se reparte proporcionalmente entre todos los proveedores de liquidez que aportaron al par.
 </p>
 </div>
 </div>
@@ -540,6 +557,24 @@ const RULETA_ABI = [
 let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
+
+function calcularComisionPool() {
+    const aporte = parseFloat(document.getElementById("inputAportePool").value) || 0;
+    // Estimación simulada de TVL base del pool para calcular participación y comisiones por el 0.3% de volumen diario estimado
+    const tvlTotalSimulado = 650000; 
+    const share = tvlTotalSimulado > 0 ? (aporte / tvlTotalSimulado) * 100 : 0;
+    const volumenDiarioSimulado = 12000; // Volumen diario estimado del pool
+    const comisionDiariaTotal = volumenDiarioSimulado * 0.003; // 0.3% de comisión del pool
+    const comisionUsuario = (share / 100) * comisionDiariaTotal;
+
+    document.getElementById("lblShare").innerText = "~" + share.toFixed(3) + "%";
+    document.getElementById("lblComision").innerText = "~" + comisionUsuario.toFixed(2) + " STBL";
+}
+
+// Ejecutar al cargar para inicializar el simulador
+window.addEventListener('DOMContentLoaded', () => {
+    calcularComisionPool();
+});
 
 function cargarStakingStats() {
     if (!userAddress) return { staked: 0, earned: 0, withdrawn: 0 };
