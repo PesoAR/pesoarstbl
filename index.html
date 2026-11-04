@@ -478,16 +478,6 @@ const STAKING_ABI = [
     "function withdraw() external"
 ];
 
-const FAUCET_ABI = [
-    "function claimFaucet() external",
-    "function lastClaimTime(address) view returns (uint256)"
-];
-
-const RULETA_ABI = [
-    "function girarRuleta(uint256 montoApuesta) external",
-    "event ResultadoRuleta(address indexed jugador, uint256 apuesta, bool gano, uint256 premio)"
-];
-
 let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
@@ -501,7 +491,7 @@ function showToast(title, message) {
     setTimeout(() => {
         toast.classList.remove('translate-y-0', 'opacity-100');
         toast.classList.add('translate-y-24', 'opacity-0');
-    }, 3000);
+    }, 3500);
 }
 
 function copyContract() {
@@ -560,8 +550,6 @@ async function connectWallet() {
         
         token = new ethers.Contract(CONFIG.contract, ABI, signer);
         stakingContract = new ethers.Contract(CONFIG.stakingContract, STAKING_ABI, signer);
-        faucetContract = new ethers.Contract(CONFIG.faucetContract, FAUCET_ABI, signer);
-        ruletaContract = new ethers.Contract(CONFIG.ruletaContract, RULETA_ABI, signer);
         
         sessionActive = true;
         updateInterface();
@@ -570,7 +558,7 @@ async function connectWallet() {
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
-        showToast("Error", e.shortMessage || e.message || "No se pudo conectar.");
+        showToast("Error", "No se pudo conectar la billetera.");
     }
 }
 
@@ -591,7 +579,7 @@ function updateInterface() {
     const btn = document.getElementById("connectWalletBtn");
     if (btn) btn.innerHTML = short ? `<i class="fa-solid fa-wallet"></i> ${short}` : `<i class="fa-solid fa-wallet"></i> Conectar`;
     document.getElementById("disconnectBtn").classList.toggle("hidden", !userAddress);
-    document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
+    document.getElementById("userAddresstextContent", userAddress || "Billetera desconectada");
     document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
     if (userAddress) {
         document.getElementById("qr-code").innerHTML = "";
@@ -605,19 +593,24 @@ async function refreshBalance() {
         return;
     }
     try {
-        // Instanciación de respaldo en caso de que el objeto global se haya reiniciado
-        if (!token && provider) {
-            token = new ethers.Contract(CONFIG.contract, ABI, signer || await provider.getSigner());
-        }
+        let currentProvider = provider;
+        let currentSigner = signer;
         
-        const rawBalance = await token.balanceOf(userAddress);
+        if (!currentProvider) {
+            currentProvider = new ethers.JsonRpcProvider(CONFIG.rpc);
+            currentSigner = currentProvider;
+        }
+
+        const tokenContract = new ethers.Contract(CONFIG.contract, ABI, currentSigner);
+        const rawBalance = await tokenContract.balanceOf(userAddress);
         const formatted = ethers.formatUnits(rawBalance, decimals);
+        
         document.getElementById("balance").innerText = Number(formatted).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
-        showToast("Actualizado", "Saldo consultado con éxito.");
+        showToast("Actualizado", "Saldo consultado correctamente.");
     } catch(e) {
-        console.error("Error al consultar balanceOf:", e);
+        console.error("Detalle del error en balanceOf:", e);
         document.getElementById("balance").innerText = "0.00 STBL";
-        showToast("Error", "No se pudo leer el saldo de la red.");
+        showToast("Aviso", "No se pudo leer el saldo de la red.");
     }
 }
 
@@ -647,19 +640,18 @@ function actualizarDatosStaking() {
 async function reclamarFaucet() {
     if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
-        const tx = await faucetContract.claimFaucet();
+        const faucetABI = ["function claimFaucet() external"];
+        const fc = new ethers.Contract(CONFIG.faucetContract, faucetABI, signer);
+        const tx = await fc.claimFaucet();
         await tx.wait();
         showToast("¡Airdrop Exitoso!", "Reclamaste 0.25 STBL.");
         await refreshBalance();
-    } catch(e) { showToast("Error", e.shortMessage || e.message); }
+    } catch(e) { showToast("Error", e.shortMessage || "Error al reclamar Airdrop."); }
 }
 
 async function realizarStaking(event) {
     event.preventDefault();
-    if (!userAddress) {
-        showToast("Error", "Conecta tu billetera primero.");
-        return;
-    }
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
         const inputVal = document.getElementById("stakeAmount").value;
         const parsed = ethers.parseUnits(inputVal, decimals);
@@ -678,23 +670,17 @@ async function realizarStaking(event) {
         document.getElementById("stakeAmount").value = "";
         await refreshBalance();
         actualizarDatosStaking();
-    } catch(e) { showToast("Error", e.shortMessage || e.message); }
+    } catch(e) { showToast("Error", e.shortMessage || "Error en transacción de staking."); }
 }
 
 async function retirarStaking() {
-    if (!userAddress) {
-        showToast("Error", "Conecta tu billetera primero.");
-        return;
-    }
+    if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
         
         const currentStaked = parseFloat(localStorage.getItem(localStakedKey) || "0");
-        if (currentStaked <= 0) {
-            showToast("Aviso", "No posees saldo bloqueado para retirar.");
-            return;
-        }
+        if (currentStaked <= 0) return showToast("Aviso", "No posees saldo bloqueado para retirar.");
 
         const tx = await stakingContract.withdraw();
         await tx.wait();
@@ -706,22 +692,27 @@ async function retirarStaking() {
         showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
         await refreshBalance();
         actualizarDatosStaking();
-    } catch(e) { showToast("Error", e.shortMessage || e.message); }
+    } catch(e) { showToast("Error", e.shortMessage || "Error al retirar staking."); }
 }
 
 async function jugarRuletaContrato() {
     if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
         const monto = ethers.parseUnits(document.getElementById("apuestaRuleta").value, decimals);
+        const rABI = ["function girarRuleta(uint256 montoApuesta) external"];
+        const rContract = new ethers.Contract(CONFIG.ruletaContract, rABI, signer);
+
         const txApp = await token.approve(CONFIG.ruletaContract, monto);
         await txApp.wait();
+
         const wheel = document.getElementById("ruletaWheel");
         wheel.style.transform = `rotate(${1440 + Math.random() * 1080}deg)`;
-        const txGirar = await ruletaContract.girarRuleta(monto);
+        
+        const txGirar = await rContract.girarRuleta(monto);
         await txGirar.wait();
         showToast("Ruleta Girada", "¡Resultado procesado en la blockchain!");
         await refreshBalance();
-    } catch(e) { showToast("Error", e.shortMessage || e.message); }
+    } catch(e) { showToast("Error", e.shortMessage || "Error en la ruleta."); }
 }
 
 const simbolosSlot = ["🍒", "🍋", "🔔", "💎", "7️⃣"];
@@ -742,12 +733,10 @@ async function jugarTragamonedas() {
     resultadoDiv.innerHTML = "🎲 Girando rodillos...";
     resultadoDiv.className = "mt-3 text-xs sm:text-sm font-medium text-amber-400 min-h-[24px]";
 
-    let contador = 0;
     const animacion = setInterval(() => {
         document.getElementById("reel1").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
         document.getElementById("reel2").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
         document.getElementById("reel3").innerText = simbolosSlot[Math.floor(Math.random() * simbolosSlot.length)];
-        contador++;
     }, 100);
 
     setTimeout(() => {
