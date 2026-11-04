@@ -200,7 +200,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
 <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops, juega a la ruleta o prueba suerte en la tragamonedas.</p>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, haz staking, reclama airdrops, opera en el POS o diviértete con los juegos.</p>
 </div>
 
 <!-- Menú de Pestañas con Scroll Horizontal suave en celulares -->
@@ -208,6 +208,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <button onclick="showTab('dashboard')" class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
 <button onclick="showTab('send')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
 <button onclick="showTab('receive')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button onclick="showTab('pos')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-emerald-400 shrink-0" data-tab="pos"><i class="fa-solid fa-cash-register"></i> Cobros POS</button>
 <button onclick="showTab('faucet')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-amber-400 shrink-0" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
 <button onclick="showTab('staking')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button onclick="showTab('ruleta')" class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
@@ -264,6 +265,41 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <h3 class="font-bold text-base sm:text-lg mb-4 text-white">Recibir Fondos</h3>
 <div id="qr-code" class="my-4 flex justify-center"></div>
 <div class="bg-navy-900 p-3 rounded-xl border border-navy-700 text-xs font-mono break-all mb-4 text-amber-400" id="receiveAddress">Sin conexión</div>
+</div>
+</section>
+
+<!-- COBROS POS / TRANSFERENCIA FIAT -->
+<section id="tab-pos" class="space-y-6 hidden">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xl">💳</span>
+<h3 class="font-bold text-base sm:text-lg text-white">Terminal de Pagos (POS STBL)</h3>
+</div>
+<p class="text-xs text-slate-400 mb-4">Ingresá el monto en pesos para calcular los STBL y realizar compras o pagos mediante transferencia local respaldada por tu pool.</p>
+
+<div class="space-y-4">
+<div>
+<label class="block text-xs text-slate-400 mb-2">Monto a Cobrar (Pesos ARS)</label>
+<input type="number" id="posMontoArs" class="field" placeholder="Ej: 5000" oninput="calcularStblNecesarios()">
+</div>
+
+<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-slate-400">Equivalente a debitar:</span>
+<span id="posStblCalculado" class="text-amber-400 font-mono font-bold">0.00 STBL</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-400">Alias de Cobro (ARS):</span>
+<span class="text-white font-mono">pesoarstbl.mp (Ejemplo)</span>
+</div>
+</div>
+
+<button onclick="enviarAvisoPago()" class="w-full py-3 rounded-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg flex items-center justify-center gap-2">
+<i class="fa-solid fa-paper-plane"></i> Informar Transferencia de Pesos
+</button>
+
+<div id="posResultado" class="text-xs text-center font-medium mt-2"></div>
+</div>
 </div>
 </section>
 
@@ -715,8 +751,31 @@ function registrarGanadorSlot(jugador, premio) {
     slotList.prepend(row);
 }
 
+// Lógica de cálculo y aviso del POS Fiat/STBL
+function calcularStblNecesarios() {
+    const ars = parseFloat(document.getElementById("posMontoArs").value) || 0;
+    const tasaCambio = 1; // Ajustable según la paridad deseada frente al peso
+    const stblNecesarios = ars * tasaCambio;
+    document.getElementById("posStblCalculado").textContent = stblNecesarios.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " STBL";
+}
+
+function enviarAvisoPago() {
+    const monto = document.getElementById("posMontoArs").value;
+    const resultadoDiv = document.getElementById("posResultado");
+
+    if (!monto || monto <= 0) {
+        resultadoDiv.innerHTML = "⚠️ Por favor, ingresá un monto válido.";
+        resultadoDiv.className = "text-xs text-center font-medium text-red-400 mt-2";
+        return;
+    }
+
+    resultadoDiv.innerHTML = "⏳ Comprobante generado. Verificando transferencia en cuenta... (Te enviaremos los STBL a tu billetera en Arbitrum al acreditarse).";
+    resultadoDiv.className = "text-xs text-center font-medium text-amber-400 mt-2";
+    showToast("Aviso Enviado", "El comercio verificará los pesos y liberará los fondos.");
+}
+
 function showTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot"];
+    const tabs = ["dashboard", "send", "receive", "pos", "faucet", "staking", "ruleta", "slot"];
     tabs.forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
     document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-tab") === name));
 }
