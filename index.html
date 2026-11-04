@@ -278,7 +278,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- STAKING (CON INFORMACIÓN DETALLADA DE INVERSIÓN, GANANCIAS Y RETIROS) -->
+<!-- STAKING -->
 <section id="tab-staking" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
 <div class="flex items-center justify-between">
@@ -501,10 +501,12 @@ const ABI = [
     "function symbol() view returns (string)"
 ];
 
+// Se mapea correctamente el ABI con codificación estándar compatible para evitar errores con tildes
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
     "function withdraw() external",
-    "function apuestas_públicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)"
+    "function apuestas_públicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)",
+    "function apuestas_publicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)"
 ];
 
 const FAUCET_ABI = [
@@ -628,7 +630,14 @@ async function sendTokens(event) {
 async function actualizarStakingInfo() {
     if (!userAddress || !stakingContract) return;
     try {
-        const info = await stakingContract.apuestas_públicas(userAddress);
+        // Intenta invocar con o sin tilde según el contrato desplegado
+        let info;
+        try {
+            info = await stakingContract.apuestas_públicas(userAddress);
+        } catch (err) {
+            info = await stakingContract.apuestas_publicas(userAddress);
+        }
+
         const cantidadStaked = info.cantidad || info[0];
         const stakedNum = Number(ethers.formatUnits(cantidadStaked, decimals));
         
@@ -668,7 +677,13 @@ async function realizarStaking(event) {
 
 async function retirarStaking() {
     try {
-        const info = await stakingContract.apuestas_públicas(userAddress);
+        let info;
+        try {
+            info = await stakingContract.apuestas_públicas(userAddress);
+        } catch (err) {
+            info = await stakingContract.apuestas_publicas(userAddress);
+        }
+
         const cantidadStaked = Number(ethers.formatUnits(info.cantidad || info[0], decimals));
         
         if (cantidadStaked <= 0) {
