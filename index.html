@@ -520,7 +520,6 @@ let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
 
-// Almacenamiento local seguro para evitar llamadas revertidas si el contrato no expone la lectura pública de cuentas
 let userStakingStats = { staked: 0, earned: 0, withdrawn: 0 };
 
 function showToast(title, message) {
