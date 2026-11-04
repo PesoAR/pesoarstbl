@@ -503,9 +503,7 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external",
-    "function apuestas_públicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)",
-    "function apuestas_publicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)"
+    "function withdraw() external"
 ];
 
 const FAUCET_ABI = [
@@ -522,7 +520,8 @@ let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, ruletaContract = null;
 let userAddress = null, decimals = 18, symbol = "STBL", sessionActive = false;
 
-let userStakingStats = { earned: 0, withdrawn: 0 };
+// Almacenamiento local seguro para evitar llamadas revertidas si el contrato no expone la lectura pública de cuentas
+let userStakingStats = { staked: 0, earned: 0, withdrawn: 0 };
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -579,7 +578,7 @@ async function connectWallet() {
     sessionActive = true;
     updateInterface();
     await refreshBalance();
-    await actualizarStakingInfo();
+    actualizarStakingInfo();
 }
 
 function disconnectWallet() {
@@ -630,26 +629,10 @@ async function sendTokens(event) {
     }
 }
 
-async function actualizarStakingInfo() {
-    if (!userAddress || !stakingContract) return;
+function actualizarStakingInfo() {
+    if (!userAddress) return;
     try {
-        let stakedNum = 0;
-        try {
-            let info;
-            try {
-                info = await stakingContract.apuestas_públicas(userAddress);
-            } catch (err) {
-                info = await stakingContract.apuestas_publicas(userAddress);
-            }
-            if (info) {
-                const cantidadStaked = info.cantidad || info[0];
-                stakedNum = Number(ethers.formatUnits(cantidadStaked, decimals));
-            }
-        } catch (err) {
-            // Si la llamada revierte porque no hay staking activo, se maneja de forma limpia
-            stakedNum = 0;
-        }
-        
+        const stakedNum = userStakingStats.staked;
         const gananciasCalculadas = stakedNum * 0.03; 
 
         document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
@@ -678,13 +661,17 @@ async function realizarStaking(event) {
     try {
         const rawVal = document.getElementById("stakeAmount").value;
         const parsed = ethers.parseUnits(rawVal, decimals);
+        const valNum = Number(rawVal);
+        
         const txApp = await token.approve(CONFIG.stakingContract, parsed);
         await txApp.wait();
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
+        
+        userStakingStats.staked += valNum;
         showToast("Staking Exitoso", "Tokens bloqueados en inversión.");
         await refreshBalance();
-        await actualizarStakingInfo();
+        actualizarStakingInfo();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -694,22 +681,7 @@ async function retirarStaking() {
         return;
     }
     try {
-        let stakedNum = 0;
-        try {
-            let info;
-            try {
-                info = await stakingContract.apuestas_públicas(userAddress);
-            } catch (err) {
-                info = await stakingContract.apuestas_publicas(userAddress);
-            }
-            if (info) {
-                stakedNum = Number(ethers.formatUnits(info.cantidad || info[0], decimals));
-            }
-        } catch (err) {
-            stakedNum = 0;
-        }
-        
-        if (stakedNum <= 0) {
+        if (userStakingStats.staked <= 0) {
             showToast("Aviso", "No tenés capital activo en staking para retirar.");
             return;
         }
@@ -717,11 +689,13 @@ async function retirarStaking() {
         const tx = await stakingContract.withdraw();
         await tx.wait();
         
-        userStakingStats.withdrawn += stakedNum;
-        showToast("Retiro Exitoso", "Capital y ganancias acreditados a tu saldo.");
+        const amountWithdrawn = userStakingStats.staked;
+        userStakingStats.withdrawn += amountWithdrawn;
+        userStakingStats.staked = 0;
         
+        showToast("Retiro Exitoso", "Capital y ganancias acreditados a tu saldo.");
         await refreshBalance();
-        await actualizarStakingInfo();
+        actualizarStakingInfo();
     } catch(e) {
         showToast("Error", e.shortMessage || e.message);
     }
