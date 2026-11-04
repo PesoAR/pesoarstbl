@@ -307,7 +307,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <label class="block text-xs text-slate-400 mb-2">Cantidad a Depositar en Staking</label>
 <input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required>
 </div>
-<button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">Depositar Stake</button>
+<button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">Depositar Stake</button>
 </form>
 
 <div class="pt-2 border-t border-navy-700 flex flex-col sm:flex-row gap-3">
@@ -657,21 +657,47 @@ async function realizarStaking(event) {
         showToast("Atención", "Por favor, conectá tu billetera primero.");
         return;
     }
+    
+    const btnSubmit = document.getElementById("btnStakeSubmit");
+    const rawVal = document.getElementById("stakeAmount").value;
+    
+    if (!rawVal || isNaN(rawVal) || Number(rawVal) <= 0) {
+        showToast("Atención", "Ingresá una cantidad válida para depositar.");
+        return;
+    }
+
     try {
-        const rawVal = document.getElementById("stakeAmount").value;
-        const parsed = ethers.parseUnits(rawVal, decimals);
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "Aprobando en red...";
+        
+        const parsed = ethers.parseUnits(String(rawVal), decimals);
         const valNum = Number(rawVal);
         
+        // 1. Aprobar tokens al contrato de staking
         const txApp = await token.approve(CONFIG.stakingContract, parsed);
+        showToast("Aprobación Enviada", "Confirmá la aprobación en MetaMask...");
         await txApp.wait();
+        
+        btnSubmit.innerText = "Depositando en Staking...";
+        
+        // 2. Ejecutar la función stake del contrato
         const txStake = await stakingContract.stake(parsed);
+        showToast("Staking Enviado", "Confirmá el depósito en MetaMask...");
         await txStake.wait();
         
         userStakingStats.staked += valNum;
-        showToast("Staking Exitoso", "Tokens bloqueados en inversión.");
+        showToast("¡Staking Exitoso!", `Has bloqueado ${rawVal} STBL correctamente.`);
+        
+        document.getElementById("stakeAmount").value = "";
         await refreshBalance();
         actualizarStakingInfo();
-    } catch(e) { showToast("Error", e.shortMessage || e.message); }
+    } catch(e) {
+        console.error("Error en staking:", e);
+        showToast("Error", e.shortMessage || e.message || "No se pudo completar la operación.");
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Depositar Stake";
+    }
 }
 
 async function retirarStaking() {
@@ -686,13 +712,14 @@ async function retirarStaking() {
         }
 
         const tx = await stakingContract.withdraw();
+        showToast("Retiro Enviado", "Confirmá la transacción en MetaMask...");
         await tx.wait();
         
         const amountWithdrawn = userStakingStats.staked;
         userStakingStats.withdrawn += amountWithdrawn;
         userStakingStats.staked = 0;
         
-        showToast("Retiro Exitoso", "Capital y ganancias acreditados a tu saldo.");
+        showToast("¡Retiro Exitoso!", "Capital y ganancias acreditados a tu saldo.");
         await refreshBalance();
         actualizarStakingInfo();
     } catch(e) {
@@ -708,7 +735,7 @@ async function jugarRuletaContrato() {
         const wheel = document.getElementById("ruletaWheel");
         wheel.style.transform = `rotate(${1440 + Math.random() * 1080}deg)`;
         const txGirar = await ruletaContract.girarRuleta(monto);
-        const receipt = await txGirar.wait();
+        const receipt = await txGirer.wait();
         showToast("Ruleta Girada", "¡Resultado procesado en la blockchain!");
         await refreshBalance();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
