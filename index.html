@@ -283,13 +283,6 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <section id="tab-staking" class="space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Staking (12% APR)</h3>
-<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-4 flex justify-between items-center">
-<div>
-<div class="text-xs text-slate-400">Tu Staking Actual:</div>
-<div id="stakedBalance" class="text-lg font-bold text-amber-400">0.00 STBL</div>
-</div>
-<button onclick="actualizarStakingInfo()" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white">Actualizar</button>
-</div>
 <form onsubmit="realizarStaking(event)" class="space-y-4">
 <div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="stakeAmount" class="field" required></div>
 <button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
@@ -483,8 +476,7 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external",
-    "function apuestas_públicas(address) view returns (uint256 cantidad, uint256 marca_de_tiempo)"
+    "function withdraw() external"
 ];
 
 const FAUCET_ABI = [
@@ -556,7 +548,6 @@ async function connectWallet() {
     sessionActive = true;
     updateInterface();
     await refreshBalance();
-    await actualizarStakingInfo();
 }
 
 function disconnectWallet() {
@@ -584,21 +575,6 @@ async function refreshBalance() {
     document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
 }
 
-async function actualizarStakingInfo() {
-    if (!userAddress || !stakingContract) return;
-    try {
-        const info = await stakingContract.apuestas_públicas(userAddress);
-        const cantidadStaked = info.cantidad || info[0];
-        const stakedFormateado = Number(ethers.formatUnits(cantidadStaked, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 });
-        const stakeDisplay = document.getElementById("stakedBalance");
-        if (stakeDisplay) {
-            stakeDisplay.textContent = stakedFormateado + " STBL";
-        }
-    } catch(e) {
-        console.error("Error al leer el staking:", e);
-    }
-}
-
 async function reclamarFaucet() {
     try {
         const tx = await faucetContract.claimFaucet();
@@ -618,7 +594,6 @@ async function realizarStaking(event) {
         await txStake.wait();
         showToast("Staking Exitoso", "Tokens bloqueados.");
         await refreshBalance();
-        await actualizarStakingInfo();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -628,7 +603,6 @@ async function retirarStaking() {
         await tx.wait();
         showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
         await refreshBalance();
-        await actualizarStakingInfo();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
