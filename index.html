@@ -475,10 +475,7 @@ const ABI = [
 
 const STAKING_ABI = [
     "function stake(uint256 _amount) external",
-    "function withdraw() external",
-    "function stakedBalance(address) view returns (uint256)",
-    "function withdrawnTotal(address) view returns (uint256)",
-    "function balanceOf(address) view returns (uint256)"
+    "function withdraw() external"
 ];
 
 const FAUCET_ABI = [
@@ -578,7 +575,7 @@ async function refreshBalance() {
     document.getElementById("balance").textContent = Number(ethers.formatUnits(result, decimals)).toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " " + symbol;
 }
 
-async function actualizarDatosStaking() {
+function actualizarDatosStaking() {
     try {
         let stakedNum = 0;
         let withdrawnNum = 0;
@@ -589,16 +586,6 @@ async function actualizarDatosStaking() {
 
             stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
             withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
-
-            if (stakingContract) {
-                try {
-                    if (stakingContract.stakedBalance) {
-                        const res = await stakingContract.stakedBalance(userAddress);
-                        const onChainStaked = parseFloat(ethers.formatUnits(res, decimals));
-                        if (onChainStaked > 0) stakedNum = onChainStaked;
-                    }
-                } catch (err) {}
-            }
         }
 
         const gananciaDiaria = stakedNum * (0.12 / 365);
@@ -640,13 +627,15 @@ async function realizarStaking(event) {
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
 
+        // Guardado y actualización inmediata de la cantidad bloqueada
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
         localStorage.setItem(localStakedKey, actualStaked.toString());
 
         showToast("Staking Exitoso", "Tokens bloqueados correctamente.");
+        document.getElementById("stakeAmount").value = "";
         await refreshBalance();
-        await actualizarDatosStaking();
+        actualizarDatosStaking();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -668,13 +657,14 @@ async function retirarStaking() {
         const tx = await stakingContract.withdraw();
         await tx.wait();
 
+        // Actualización de contadores (pasa el capital bloqueado al total retirado)
         const prevWithdrawn = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
         localStorage.setItem(localWithdrawnKey, (prevWithdrawn + currentStaked).toString());
         localStorage.setItem(localStakedKey, "0");
 
         showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
         await refreshBalance();
-        await actualizarDatosStaking();
+        actualizarDatosStaking();
     } catch(e) { showToast("Error", e.shortMessage || e.message); }
 }
 
@@ -787,7 +777,6 @@ function showTab(name) {
     }
 }
 
-// Carga inicial al abrir la página
 window.addEventListener('DOMContentLoaded', () => {
     actualizarDatosStaking();
 });
