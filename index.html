@@ -574,41 +574,25 @@ async function refreshBalance() {
 }
 
 async function actualizarDatosStaking() {
-    if (!userAddress || !stakingContract) return;
+    if (!userAddress) return;
     try {
-        let staked = 0n;
-        let withdrawn = 0n;
-
-        // Intentamos leer del contrato de staking con múltiples métodos comunes
-        try {
-            if (stakingContract.stakedBalance) {
-                staked = await stakingContract.stakedBalance(userAddress);
-            } else if (stakingContract.balanceOf) {
-                staked = await stakingContract.balanceOf(userAddress);
-            }
-        } catch (err) { console.warn("No se pudo leer saldo staked del contrato directo", err); }
-
-        try {
-            if (stakingContract.withdrawnTotal) {
-                withdrawn = await stakingContract.withdrawnTotal(userAddress);
-            }
-        } catch (err) { console.warn("No se pudo leer withdrawnTotal", err); }
-
-        // Respaldo por LocalStorage para sincronización visual instantánea si el contrato aún no expone lectura pública
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
 
-        let stakedNum = parseFloat(ethers.formatUnits(staked, decimals));
-        if (stakedNum === 0 && localStorage.getItem(localStakedKey)) {
-            stakedNum = parseFloat(localStorage.getItem(localStakedKey));
+        let stakedNum = parseFloat(localStorage.getItem(localStakedKey) || "0");
+        let withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
+
+        // Intentar lectura adicional en blockchain si el contrato lo soporta
+        if (stakingContract) {
+            try {
+                if (stakingContract.stakedBalance) {
+                    const res = await stakingContract.stakedBalance(userAddress);
+                    const onChainStaked = parseFloat(ethers.formatUnits(res, decimals));
+                    if (onChainStaked > 0) stakedNum = onChainStaked;
+                }
+            } catch (err) {}
         }
 
-        let withdrawnNum = parseFloat(ethers.formatUnits(withdrawn, decimals));
-        if (withdrawnNum === 0 && localStorage.getItem(localWithdrawnKey)) {
-            withdrawnNum = parseFloat(localStorage.getItem(localWithdrawnKey));
-        }
-
-        // Cálculo de ganancias diarias (12% APR -> ~0.0328% diario)
         const gananciaDiaria = stakedNum * (0.12 / 365);
 
         document.getElementById("stakedBalance").textContent = stakedNum.toLocaleString("es-AR", { maximumFractionDigits: 4 }) + " STBL";
@@ -640,7 +624,7 @@ async function realizarStaking(event) {
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
 
-        // Guardado local de respaldo para reflejar inmediatamente en pantalla
+        // Actualización inmediata en LocalStorage para reflejar los datos en las tarjetas
         const localStakedKey = "staked_" + userAddress.toLowerCase();
         const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
         localStorage.setItem(localStakedKey, actualStaked.toString());
@@ -657,11 +641,14 @@ async function retirarStaking() {
         const localWithdrawnKey = "withdrawn_" + userAddress.toLowerCase();
         
         const currentStaked = parseFloat(localStorage.getItem(localStakedKey) || "0");
+        if (currentStaked <= 0) {
+            showToast("Aviso", "No posees saldo bloqueado para retirar.");
+            return;
+        }
 
         const tx = await stakingContract.withdraw();
         await tx.wait();
 
-        // Actualizamos contadores locales de respaldo
         const prevWithdrawn = parseFloat(localStorage.getItem(localWithdrawnKey) || "0");
         localStorage.setItem(localWithdrawnKey, (prevWithdrawn + currentStaked).toString());
         localStorage.setItem(localStakedKey, "0");
