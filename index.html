@@ -57,12 +57,12 @@ a { cursor:pointer; }
 </head>
 <body class="relative bg-grid-pattern min-h-screen">
 
-<!-- Toast Notification -->
+<!-- Toast Notification estilo Bank Push -->
 <div id="toast" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 transform translate-y-24 opacity-0 transition-all duration-300 ease-in-out flex items-center gap-3 bg-navy-800 border border-gold-500 text-white px-4 py-3 rounded-xl shadow-2xl">
 <i class="fa-solid fa-circle-check text-gold-500 text-lg" id="toast-icon"></i>
 <div>
-<h4 class="font-bold text-xs" id="toast-title">¡Copiado!</h4>
-<p class="text-[11px] text-gray-300" id="toast-msg">Dirección copiada al portapapeles.</p>
+<h4 class="font-bold text-xs" id="toast-title">Aviso de Operación</h4>
+<p class="text-[11px] text-gray-300" id="toast-msg">Operación completada con éxito.</p>
 </div>
 </div>
 
@@ -81,7 +81,7 @@ a { cursor:pointer; }
 
 <div class="hidden md:flex items-center gap-6 text-sm font-medium">
 <a href="#about" class="hover:text-gold-400 transition-colors">¿Qué es STBL?</a>
-<a href="#dapp" class="hover:text-gold-400 transition-colors text-gold-400 font-bold"><i class="fa-solid fa-cube mr-1"></i> dApp & Utilidades</a>
+<a href="#dapp" class="hover:text-gold-400 transition-colors text-gold-400 font-bold"><i class="fa-solid fa-cube mr-1"></i> Home Banking</a>
 <a href="#pool-info" class="hover:text-gold-400 transition-colors">Pool de Liquidez</a>
 <a href="#chart-section" class="hover:text-gold-400 transition-colors">Gráfico</a>
 <a href="#support-section" class="hover:text-gold-400 transition-colors">Soporte y FAQ</a>
@@ -114,17 +114,14 @@ a { cursor:pointer; }
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
 <i class="fa-solid fa-shield-halved"></i> Contrato Verificado
 </div>
-<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
-<i class="fa-solid fa-rocket"></i> Fase Intermedia Activa
-</div>
 </div>
 
 <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
 <span class="block text-white">PESO AR STBL <span class="text-gold-400">(STBL)</span></span>
-<span class="block text-2xl sm:text-4xl lg:text-5xl mt-1.5 celeste-gradient-text">El Token Argentino en Arbitrum</span>
+<span class="block text-2xl sm:text-4xl lg:text-5xl mt-1.5 celeste-gradient-text">Tu Banco Digital Descentralizado</span>
 </h1>
 <p class="text-sm sm:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
-Estable, transparente y diseñado para transacciones instantáneas con comisiones ínfimas en la economía digital.
+Gestiona tus activos, realiza staking y transacciones instantáneas con la seguridad de la red Arbitrum One.
 </p>
 <div class="pt-2">
 <div class="bg-navy-800/90 border border-navy-600/60 rounded-2xl p-3.5 sm:p-4 max-w-xl mx-auto lg:mx-0 shadow-xl">
@@ -148,67 +145,100 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 </div>
 </section>
 
-<!-- DAPP INTERACTIVA & UTILITIES SECTION -->
+<!-- DAPP HOME BANKING & UTILITIES SECTION -->
 <section id="dapp" class="py-12 sm:py-16 bg-navy-900/60 border-y border-navy-700/50 relative">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
-<h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ecosistema dApp <span class="gold-gradient-text">STBL</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, staking, juegos, inversión y mercado.</p>
+<h2 class="text-2xl sm:text-3xl font-extrabold text-white">Home Banking <span class="gold-gradient-text">STBL</span></h2>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Controla tu cuenta, inversiones y entretenimiento financiero.</p>
 </div>
 
-<!-- Menú de Pestañas Adaptable (Grid Flex sin scroll lateral) -->
+<!-- Menú de Pestañas Adaptable -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
-<button class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
+<button class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-house"></i> Cuenta</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
-<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
-<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Slots</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
 <button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 col-span-2 sm:col-span-1 md:col-span-2" data-tab="register"><i class="fa-solid fa-user-plus"></i> Registro</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
-<!-- DASHBOARD -->
+<!-- DASHBOARD / CUENTA BANCARIA -->
 <section id="tab-dashboard" class="dapp-tab space-y-4 sm:space-y-6">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-<div class="panel p-5 sm:p-6">
-<div class="text-slate-400 text-xs sm:text-sm">Saldo Disponible</div>
-<div id="balance" class="text-2xl sm:text-3xl font-bold mt-2 text-amber-400">0.00 STBL</div>
-<div class="mt-3 sm:mt-4"><button id="refreshBalanceBtn" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 px-3 py-1.5 rounded-lg text-xs text-white font-bold">Actualizar</button></div>
+<!-- Tarjeta de Balance Estilo Tarjeta Black Bancaria -->
+<div class="panel p-6 sm:p-8 bg-gradient-to-br from-navy-800 via-navy-900 to-navy-800 border border-gold-500/30 shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 transform translate-x-6 -translate-y-6 w-32 h-32 bg-gold-500/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs font-bold">STB</div>
+<span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Caja de Ahorro STBL</span>
 </div>
-<div class="panel p-5 sm:p-6">
-<div class="text-slate-400 text-xs sm:text-sm">Red y Contratos</div>
-<div class="text-base sm:text-lg font-bold mt-1.5 flex items-center gap-2">Arbitrum One <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 font-normal">Fase Intermedia</span></div>
-<div class="text-[11px] sm:text-xs text-slate-400 mt-1">Airdrop: <span class="text-amber-400">0xBc2e...6712</span></div>
-<div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Ruleta: <span class="text-amber-400">0xC791...8B97</span></div>
+<button id="toggleBalanceBtn" class="text-slate-400 hover:text-gold-400 transition-colors text-sm"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
 </div>
-<div class="panel p-5 sm:p-6 flex flex-col justify-between">
-<div>
-<div class="text-slate-400 text-xs sm:text-sm">Comercio y DEX</div>
-<div class="text-base sm:text-lg font-bold mt-1.5">Uniswap V3 Pool</div>
+<div class="text-slate-400 text-xs">Saldo Disponible</div>
+<div id="balance" class="text-3xl sm:text-4xl font-extrabold mt-1 text-amber-400 tracking-tight">0.00 STBL</div>
+<div class="mt-4 flex items-center gap-3 text-xs text-slate-400">
+<span>Titular: <span id="accountAliasName" class="text-white font-medium">No registrado</span></span>
 </div>
-<div class="mt-3 sm:mt-4"><a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs text-center block font-bold">Comprar STBL</a></div>
+
+<!-- Accesos Rápidos Bancarios (Botonera Circular) -->
+<div class="grid grid-cols-4 gap-2 mt-6 pt-6 border-t border-navy-700/60 text-center">
+<button onclick="switchTab('send')" class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow"><i class="fa-solid fa-paper-plane text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Enviar</span>
+</button>
+<button onclick="switchTab('receive')" class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow"><i class="fa-solid fa-qrcode text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Recibir</span>
+</button>
+<button onclick="switchTab('faucet')" class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow"><i class="fa-solid fa-gift text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Airdrop</span>
+</button>
+<button onclick="switchTab('investment')" class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-celeste-500 group-hover:text-white text-celeste-400 flex items-center justify-center transition-all shadow"><i class="fa-solid fa-right-left text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Comprar</span>
+</button>
 </div>
 </div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="panel p-5 sm:p-6">
 <div class="flex items-center justify-between mb-2">
-<h3 class="font-bold text-base sm:text-lg text-white">Información de Cuenta</h3>
-<span class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Contrato Verificado</span>
+<h3 class="font-bold text-sm sm:text-base text-white"><i class="fa-solid fa-receipt text-amber-400 mr-2"></i> Últimos Movimientos</h3>
+<button id="refreshBalanceBtn" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 px-2.5 py-1 rounded-lg text-[11px] text-white font-bold">Actualizar</button>
 </div>
-<p id="userAddress" class="text-xs text-slate-400 font-mono break-all bg-navy-900 p-3 rounded-xl border border-navy-700">Billetera desconectada</p>
+<div id="transactionsList" class="space-y-2 mt-3 max-h-40 overflow-y-auto pr-1">
+<div class="text-xs text-slate-500 italic text-center py-4 bg-navy-900/40 rounded-xl border border-navy-700/50">No hay movimientos recientes registrados.</div>
+</div>
+</div>
+
+<div class="panel p-5 sm:p-6 flex flex-col justify-between">
+<div>
+<h3 class="font-bold text-sm sm:text-base text-white mb-2"><i class="fa-solid fa-shield-halved text-emerald-400 mr-2"></i> Estado de Cuenta</h3>
+<p class="text-xs text-slate-400 mb-3">Red activa: <strong class="text-white">Arbitrum One</strong></p>
+<p id="userAddress" class="text-[11px] text-slate-400 font-mono break-all bg-navy-900 p-2.5 rounded-xl border border-navy-700">Billetera desconectada</p>
+</div>
+<div class="mt-4 pt-3 border-t border-navy-700/50 flex justify-between items-center text-xs">
+<span class="text-slate-400">Seguridad Contrato:</span>
+<span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Verificado</span>
+</div>
+</div>
 </div>
 </section>
 
 <!-- ENVIAR -->
 <section id="tab-send" class="dapp-tab space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
-<h3 class="font-bold text-base sm:text-lg mb-4 text-white">Enviar PESO AR STBL</h3>
+<h3 class="font-bold text-base sm:text-lg mb-4 text-white"><i class="fa-solid fa-paper-plane text-amber-400 mr-2"></i> Transferir STBL</h3>
 <form id="sendForm" class="space-y-4">
-<div><label class="block text-xs text-slate-400 mb-2">Destino (0x...)</label><input type="text" id="sendAddress" class="field" required></div>
-<div><label class="block text-xs text-slate-400 mb-2">Cantidad</label><input type="text" id="sendAmount" class="field" required></div>
-<button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Enviar</button>
+<div><label class="block text-xs text-slate-400 mb-2">Cuenta Destino (0x...)</label><input type="text" id="sendAddress" class="field" placeholder="0x..." required></div>
+<div><label class="block text-xs text-slate-400 mb-2">Cantidad (STBL)</label><input type="text" id="sendAmount" class="field" placeholder="0.00" required></div>
+<button type="submit" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">Confirmar Transferencia</button>
 </form>
 </div>
 </section>
@@ -216,21 +246,22 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <!-- RECIBIR -->
 <section id="tab-receive" class="dapp-tab space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-md mx-auto text-center">
-<h3 class="font-bold text-base sm:text-lg mb-4 text-white">Recibir Fondos</h3>
-<div id="qr-code" class="my-4 flex justify-center"></div>
-<div class="bg-navy-900 p-3 rounded-xl border border-navy-700 text-xs font-mono break-all mb-4 text-amber-400" id="receiveAddress">Sin conexión</div>
+<h3 class="font-bold text-base sm:text-lg mb-2 text-white"><i class="fa-solid fa-qrcode text-amber-400 mr-2"></i> Recibir Fondos</h3>
+<p class="text-xs text-slate-400 mb-4">Compartí tu código QR o dirección para recibir transferencias en Arbitrum.</p>
+<div id="qr-code" class="my-4 flex justify-center bg-white p-3 rounded-2xl w-fit mx-auto shadow-inner"></div>
+<div class="bg-navy-900 p-3 rounded-xl border border-navy-700 text-xs font-mono break-all mb-4 text-amber-400 select-all" id="receiveAddress">Sin conexión</div>
 </div>
 </section>
 
 <!-- AIRDROP -->
 <section id="tab-faucet" class="dapp-tab space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
-<h3 class="font-bold text-base sm:text-lg mb-2 text-white">Airdrop Diario (0.25 STBL)</h3>
-<p class="text-xs text-slate-400 mb-6">Reclamá 0.25 STBL cada 24 horas.</p>
+<h3 class="font-bold text-base sm:text-lg mb-2 text-white"><i class="fa-solid fa-gift text-amber-400 mr-2"></i> Airdrop Diario (0.25 STBL)</h3>
+<p class="text-xs text-slate-400 mb-6">Reclamá tu beneficio diario autorizado por el contrato inteligente.</p>
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-6 text-left">
-<div class="flex justify-between text-xs"><span class="text-slate-400">Estado:</span><span id="faucetTimer" class="text-green-400 font-mono">Conectado</span></div>
+<div class="flex justify-between text-xs"><span class="text-slate-400">Estado del Faucet:</span><span id="faucetTimer" class="text-emerald-400 font-mono font-bold">Disponible / Conectado</span></div>
 </div>
-<button id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition-all">Reclamar 0.25 STBL</button>
+<button id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition-all shadow-lg">Reclamar 0.25 STBL</button>
 </div>
 </section>
 
@@ -238,33 +269,32 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <section id="tab-staking" class="dapp-tab space-y-6 hidden">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
 <div class="flex items-center justify-between">
-<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Staking & Rendimiento (12% APR)</h3>
+<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Plazo Fijo / Staking (12% APR)</h3>
 <button id="updateStakingBtn" class="bg-navy-800 hover:bg-navy-700 border border-navy-600 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-<i class="fa-solid fa-rotate"></i> Actualizar Staking
+<i class="fa-solid fa-rotate"></i> Actualizar
 </button>
 </div>
 
-<!-- Tarjetas informativas de Staking -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 <div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
-<div class="text-[11px] text-slate-400 uppercase font-semibold">Cantidad Bloqueada</div>
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Bloqueado</div>
 <div id="stakedBalance" class="text-base sm:text-lg font-bold text-amber-400 mt-1">0.00 STBL</div>
 </div>
 <div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
-<div class="text-[11px] text-slate-400 uppercase font-semibold">Ganancias Diarias</div>
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Rendimiento Diario</div>
 <div id="dailyEarnings" class="text-base sm:text-lg font-bold text-emerald-400 mt-1">0.00 STBL</div>
 </div>
 <div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-center">
-<div class="text-[11px] text-slate-400 uppercase font-semibold">Total Retirado</div>
+<div class="text-[11px] text-slate-400 uppercase font-semibold">Retirado</div>
 <div id="withdrawnBalance" class="text-base sm:text-lg font-bold text-celeste-400 mt-1">0.00 STBL</div>
 </div>
 </div>
 
 <form id="stakeForm" class="space-y-4 pt-2">
-<div><label class="block text-xs text-slate-400 mb-2">Cantidad a Depositar en Staking</label><input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required></div>
-<button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950">Depositar Stake</button>
+<div><label class="block text-xs text-slate-400 mb-2">Cantidad a Bloquear</label><input type="text" id="stakeAmount" class="field" placeholder="Ej. 10" required></div>
+<button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">Constituir Plazo Fijo</button>
 </form>
-<button id="withdrawStakingBtn" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all">Reclamar Ganancias / Retirar Capital</button>
+<button id="withdrawStakingBtn" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all shadow">Liquidar Rendimientos / Capital</button>
 </div>
 </section>
 
@@ -274,13 +304,13 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Ruleta de Premios</h3>
 <div class="mb-4 text-left max-w-xs mx-auto"><label class="block text-xs text-slate-400 mb-2">Apuesta (STBL)</label><input type="text" id="apuestaRuleta" class="field" value="1"></div>
 <div class="ruleta-container mb-6"><div class="ruleta-pointer"></div><div id="ruletaWheel" class="ruleta-wheel"></div></div>
-<button id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto">Girar Ruleta</button>
+<button id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto shadow-lg">Girar Ruleta</button>
 <div id="resultadoRuleta" class="mt-4 text-xs sm:text-sm font-bold text-amber-400"></div>
 
 <div class="mt-6 pt-5 border-t border-navy-700 text-left">
-<h4 class="font-bold text-[11px] uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Últimos Ganadores (Ruleta)</h4>
+<h4 class="font-bold text-[11px] uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Ganadores</h4>
 <div id="ruletaGanadoresList" class="space-y-2 text-xs">
-<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay giros registrados todavía en la red.</div>
+<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay giros registrados todavía.</div>
 </div>
 </div>
 </div>
@@ -293,7 +323,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <span class="text-xl sm:text-2xl">🎰</span>
 <h3 class="text-lg sm:text-xl font-bold text-amber-400 tracking-wide">STBL SLOT MACHINE</h3>
 </div>
-<p class="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6">Alineá 3 símbolos iguales para ganar el Jackpot (x5) o 2 iguales para el premio menor (x2).</p>
+<p class="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6">Alineá 3 símbolos para el Jackpot (x5) o 2 para premio menor (x2).</p>
 
 <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-5 bg-black/60 p-3 sm:p-4 rounded-xl border border-gray-800">
 <div id="reel1" class="text-2xl sm:text-4xl bg-gray-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-gray-700">🍒</div>
@@ -313,26 +343,26 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div id="slotResult" class="mt-3 text-xs sm:text-sm font-medium text-gray-300 min-h-[24px]"></div>
 
 <div class="mt-6 pt-5 border-t border-gray-800 text-left">
-<h4 class="font-bold text-[11px] uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Mejores Premios (Slot)</h4>
+<h4 class="font-bold text-[11px] uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Premios Slots</h4>
 <div id="slotGanadoresList" class="space-y-2 text-xs">
-<div class="text-gray-500 italic bg-black/40 p-2.5 rounded-lg border border-gray-800 text-center">No hay tiradas ganadoras registradas todavía.</div>
+<div class="text-gray-500 italic bg-black/40 p-2.5 rounded-lg border border-gray-800 text-center">No hay tiradas registradas.</div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- SECCIÓN: PANEL DE INVERSIÓN (COMPRAR / VENDER STBL) -->
+<!-- SECCIÓN: INVERSIÓN (COMPRAR / VENDER STBL) -->
 <section id="tab-investment" class="dapp-tab space-y-6 hidden">
 <div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow text-center">
 <div class="w-16 h-16 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-3xl mx-auto mb-4">
 <i class="fa-solid fa-right-left"></i>
 </div>
 <h3 class="font-extrabold text-2xl text-white mb-2">Comprar y Vender STBL</h3>
-<p class="text-sm text-slate-400 max-w-md mx-auto mb-6">Accede directamente al mercado descentralizado en Uniswap para realizar tus operaciones de compra y venta de forma instantánea y segura.</p>
+<p class="text-sm text-slate-400 max-w-md mx-auto mb-6">Accede directamente al mercado descentralizado en Uniswap para operar con liquidez inmediata.</p>
 
 <div class="max-w-xs mx-auto space-y-3">
 <a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="w-full py-3.5 px-6 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 text-sm transition-all shadow-lg flex items-center justify-center gap-2">
-<i class="fa-solid fa-coins"></i> Comprar / Vender STBL
+<i class="fa-solid fa-coins"></i> Operar en Uniswap V3
 </a>
 </div>
 
@@ -348,8 +378,8 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl mx-auto mb-2">
 <i class="fa-solid fa-id-card"></i>
 </div>
-<h3 class="font-extrabold text-xl text-white">Registro en el Ecosistema STBL</h3>
-<p class="text-xs text-slate-400">Vinculá tu perfil para acceder a las funciones exclusivas, airdrops y recompensas de la red.</p>
+<h3 class="font-extrabold text-xl text-white">Registro de Perfil Bancario</h3>
+<p class="text-xs text-slate-400">Asocia tu alias para personalizar tu cuenta en el ecosistema.</p>
 
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 text-left space-y-2">
 <div class="flex justify-between text-xs"><span class="text-slate-400">Estado:</span><span id="regStatus" class="text-amber-400 font-bold">Verificando...</span></div>
@@ -358,11 +388,11 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 
 <div class="space-y-3 pt-2">
 <div>
-<label class="block text-xs text-slate-400 mb-1 text-left">Alias / Nombre de usuario (Opcional)</label>
+<label class="block text-xs text-slate-400 mb-1 text-left">Alias / Titular de la cuenta</label>
 <input type="text" id="userNameInput" class="field" placeholder="Ej. SebaSTBL">
 </div>
 <button id="btnConfirmRegister" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">
-Registrar mi Billetera
+Guardar Titular
 </button>
 </div>
 </div>
@@ -372,7 +402,7 @@ Registrar mi Billetera
 </div>
 </section>
 
-<!-- SECCIÓN: INFORMACIÓN DEL POOL DE LIQUIDEZ -->
+<!-- POOL DE LIQUIDEZ -->
 <section id="pool-info" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
 <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Pool de Liquidez <span class="gold-gradient-text">Uniswap V3</span></h2>
@@ -414,18 +444,17 @@ Registrar mi Billetera
 </div>
 </section>
 
-<!-- SECCIÓN: SOPORTE Y PREGUNTAS FRECUENTES (FAQ) -->
+<!-- SOPORTE Y FAQ -->
 <section id="support-section" class="py-12 sm:py-16 bg-navy-800/40 border-y border-navy-700/50 relative">
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-400 text-xs font-semibold tracking-wide uppercase mb-3">
 <i class="fa-solid fa-headset"></i> Centro de Ayuda
 </div>
-<h2 class="text-2xl sm:text-3xl font-extrabold text-white">Soporte al Usuario y <span class="gold-gradient-text">Preguntas Frecuentes</span></h2>
-<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Encontrá respuestas rápidas sobre el uso del token, configuraciones en Arbitrum y la dApp.</p>
+<h2 class="text-2xl sm:text-3xl font-extrabold text-white">Soporte y <span class="gold-gradient-text">Preguntas Frecuentes</span></h2>
+<p class="text-gray-400 text-xs sm:text-sm mt-1.5">Encontrá respuestas rápidas sobre el uso del token y la dApp.</p>
 </div>
 
-<!-- Acordión de FAQ -->
 <div class="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
 <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all">
 <h3 class="font-bold text-white text-sm sm:text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
@@ -433,28 +462,16 @@ Registrar mi Billetera
 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
 </h3>
 <p class="text-xs text-gray-300 mt-2.5 sm:mt-3 leading-relaxed hidden">
-Sí, todos los contratos inteligentes de PESO AR STBL y sus complementos se encuentran auditados y verificados públicamente en el explorador oficial de Arbiscan.
-</p>
-</div>
-
-<div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all">
-<h3 class="font-bold text-white text-sm sm:text-base flex items-center justify-between cursor-pointer" onclick="toggleFaq(this)">
-<span><i class="fa-solid fa-circle-question text-gold-400 mr-2"></i> ¿Cómo funciona el Airdrop diario de 0.25 STBL?</span>
-<i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
-</h3>
-<p class="text-xs text-gray-300 mt-2.5 sm:mt-3 leading-relaxed hidden">
-Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato inteligente del Airdrop, hasta alcanzar el límite global de 10.000 STBL de campaña.
+Sí, todos los contratos inteligentes de PESO AR STBL se encuentran auditados y verificados públicamente en Arbiscan.
 </p>
 </div>
 </div>
 
-<!-- Tarjeta de contacto con soporte por Mail y X -->
 <div class="panel p-6 sm:p-8 text-center max-w-xl mx-auto border border-gold-500/30">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gold-500/10 border border-gold-400/30 flex items-center justify-center text-gold-400 text-lg sm:text-xl mx-auto mb-3 sm:mb-4">
 <i class="fa-solid fa-envelope"></i>
 </div>
 <h3 class="font-bold text-white text-base sm:text-lg mb-1.5">¿Necesitás asistencia adicional?</h3>
-<p class="text-xs text-gray-300 mb-4">Escribinos directamente a nuestro correo oficial o seguinos en X:</p>
 <div class="mb-5">
 <a href="mailto:pesoarstbl@gmail.com" class="text-gold-400 font-mono font-bold text-xs sm:text-sm hover:underline bg-navy-900 px-3.5 py-2 rounded-xl border border-navy-700 inline-block break-all">pesoarstbl@gmail.com</a>
 </div>
@@ -463,7 +480,7 @@ Cada 24 horas podés reclamar 0.25 STBL gestionados directamente por el contrato
 <i class="fa-solid fa-paper-plane"></i> Enviar Correo
 </a>
 <a href="https://x.com/PesoAR_STBL" target="_blank" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-navy-900 border border-gold-500/40 text-gold-400 font-bold text-xs hover:bg-gold-500 hover:text-navy-900 transition-all flex items-center gap-1.5">
-<i class="fa-brands fa-x-twitter"></i> Seguir en X (@PesoAR_STBL)
+<i class="fa-brands fa-x-twitter"></i> Seguir en X
 </a>
 </div>
 </div>
@@ -511,6 +528,7 @@ const FAUCET_ABI = [
 
 let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, userAddress = null, decimals = 18, symbol = "STBL";
+let balanceHidden = false, lastFormattedBalance = "0,00 STBL";
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -569,6 +587,7 @@ async function connectWallet() {
         await refreshBalance();
         await actualizarDatosStaking();
         actualizarPanelRegistro();
+        cargarHistorialMovimientos();
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
@@ -587,6 +606,7 @@ function disconnectWallet() {
     document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
     actualizarPanelRegistro();
+    cargarHistorialMovimientos();
     showToast("Desconectado", "Sesión cerrada.");
 }
 
@@ -597,9 +617,13 @@ function updateInterface() {
     document.getElementById("disconnectBtn").classList.toggle("hidden", !userAddress);
     document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
     document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
+    
+    const savedName = userAddress ? localStorage.getItem("profile_" + userAddress.toLowerCase()) : null;
+    document.getElementById("accountAliasName").textContent = savedName || (short ? short : "No registrado");
+
     if (userAddress) {
         document.getElementById("qr-code").innerHTML = "";
-        new QRCode(document.getElementById("qr-code"), { text: userAddress, width: 160, height: 160 });
+        new QRCode(document.getElementById("qr-code"), { text: userAddress, width: 150, height: 150 });
     }
 }
 
@@ -618,14 +642,47 @@ async function refreshBalance() {
         const parts = formatted.split('.');
         let integerPart = parts[0];
         let decimalPart = parts[1] ? parts[1].substring(0, 4) : '00';
-        let displayVal = Number(integerPart).toLocaleString("es-AR") + ',' + decimalPart;
+        lastFormattedBalance = Number(integerPart).toLocaleString("es-AR") + ',' + decimalPart + " " + symbol;
 
-        document.getElementById("balance").innerText = displayVal + " " + symbol;
-        showToast("Actualizado", "Saldo: " + displayVal + " " + symbol);
+        document.getElementById("balance").innerText = balanceHidden ? "••••••••" : lastFormattedBalance;
+        showToast("Actualizado", "Saldo consultado con éxito.");
     } catch(e) {
         console.error("Error al consultar saldo:", e);
         showToast("Error Red", "No se pudo leer el saldo.");
     }
+}
+
+function registrarMovimiento(tipo, descripcion) {
+    if (!userAddress) return;
+    const key = "history_" + userAddress.toLowerCase();
+    let history = JSON.parse(localStorage.getItem(key) || "[]");
+    history.unshift({ tipo, descripcion, fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+    if (history.length > 10) history.pop();
+    localStorage.setItem(key, JSON.stringify(history));
+    cargarHistorialMovimientos();
+}
+
+function cargarHistorialMovimientos() {
+    const container = document.getElementById("transactionsList");
+    if (!userAddress) {
+        container.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-4 bg-navy-900/40 rounded-xl border border-navy-700/50">Conectá tu billetera para ver tus movimientos.</div>`;
+        return;
+    }
+    const key = "history_" + userAddress.toLowerCase();
+    let history = JSON.parse(localStorage.getItem(key) || "[]");
+    if (history.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-4 bg-navy-900/40 rounded-xl border border-navy-700/50">No hay movimientos recientes registrados.</div>`;
+        return;
+    }
+    container.innerHTML = history.map(item => `
+        <div class="flex items-center justify-between bg-navy-900/70 p-2.5 rounded-xl border border-navy-700/50 text-xs">
+            <div>
+                <div class="font-bold text-white">${item.tipo}</div>
+                <div class="text-[10px] text-slate-400">${item.descripcion}</div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">${item.fecha}</div>
+        </div>
+    `).join('');
 }
 
 async function reclamarAirdrop() {
@@ -635,6 +692,7 @@ async function reclamarAirdrop() {
         const tx = await faucetContract.claim();
         await tx.wait();
         showToast("¡Éxito!", "Has reclamado tus 0.25 STBL correctamente.");
+        registrarMovimiento("Airdrop", "+0.25 STBL acreditados");
         await refreshBalance();
     } catch(e) {
         console.error("Error en airdrop:", e);
@@ -679,11 +737,11 @@ async function realizarStaking(event) {
         const inputVal = document.getElementById("stakeAmount").value;
         const parsed = ethers.parseUnits(inputVal, decimals);
         
-        showToast("Procesando", "Aprobando tokens para Staking...");
+        showToast("Procesando", "Aprobando tokens...");
         const txApp = await token.approve(CONFIG.stakingContract, parsed);
         await txApp.wait();
         
-        showToast("Procesando", "Depositando en Staking...");
+        showToast("Procesando", "Constituyendo plazo fijo...");
         const txStake = await stakingContract.stake(parsed);
         await txStake.wait();
 
@@ -691,13 +749,14 @@ async function realizarStaking(event) {
         const actualStaked = parseFloat(localStorage.getItem(localStakedKey) || "0") + parseFloat(inputVal);
         localStorage.setItem(localStakedKey, actualStaked.toString());
 
-        showToast("Staking Exitoso", "Tokens bloqueados correctamente.");
+        showToast("Plazo Fijo Exitoso", "Tokens bloqueados correctamente.");
+        registrarMovimiento("Staking", `-${inputVal} STBL bloqueados`);
         document.getElementById("stakeAmount").value = "";
         await refreshBalance();
         await actualizarDatosStaking();
     } catch(e) {
         console.error("Error en staking:", e);
-        showToast("Error", e.shortMessage || "Error en transacción de staking.");
+        showToast("Error", e.shortMessage || "Error en transacción.");
     }
 }
 
@@ -710,7 +769,7 @@ async function retirarStaking() {
         const currentStaked = parseFloat(localStorage.getItem(localStakedKey) || "0");
         if (currentStaked <= 0) return showToast("Aviso", "No posees saldo bloqueado para retirar.");
 
-        showToast("Procesando", "Retirando fondos del Staking...");
+        showToast("Procesando", "Liquidando rendimientos...");
         const tx = await stakingContract.withdraw();
         await tx.wait();
 
@@ -718,12 +777,13 @@ async function retirarStaking() {
         localStorage.setItem(localWithdrawnKey, (prevWithdrawn + currentStaked).toString());
         localStorage.setItem(localStakedKey, "0");
 
-        showToast("Retiro Exitoso", "Capital y ganancias acreditados.");
+        showToast("Liquidación Exitosa", "Capital y ganancias acreditados.");
+        registrarMovimiento("Staking Liquidado", `+${currentStaked} STBL liberados`);
         await refreshBalance();
         await actualizarDatosStaking();
     } catch(e) {
         console.error("Error en retiro:", e);
-        showToast("Error", e.shortMessage || "Error al retirar staking.");
+        showToast("Error", e.shortMessage || "Error al retirar.");
     }
 }
 
@@ -746,6 +806,30 @@ function actualizarPanelRegistro() {
     }
 }
 
+function switchTab(name) {
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment", "register"];
+    tabs.forEach(t => {
+        const panel = document.getElementById("tab-" + t);
+        if (panel) panel.classList.toggle("hidden", t !== name);
+    });
+    document.querySelectorAll(".tab").forEach(b => {
+        const dataTab = b.getAttribute("data-tab");
+        if (dataTab === name) {
+            if (name === 'investment') {
+                b.classList.add("active-invest");
+                b.classList.remove("active");
+            } else {
+                b.classList.add("active");
+                b.classList.remove("active-invest");
+            }
+        } else {
+            b.classList.remove("active", "active-invest");
+        }
+    });
+    if (name === 'staking') actualizarDatosStaking();
+    if (name === 'register') actualizarPanelRegistro();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("disconnectBtn").addEventListener("click", disconnectWallet);
@@ -755,12 +839,21 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("withdrawStakingBtn").addEventListener("click", retirarStaking);
     document.getElementById("btnFaucet").addEventListener("click", reclamarAirdrop);
     
+    document.getElementById("toggleBalanceBtn").addEventListener("click", () => {
+        balanceHidden = !balanceHidden;
+        const eyeIcon = document.getElementById("eyeIcon");
+        eyeIcon.classList.toggle("fa-eye", !balanceHidden);
+        eyeIcon.classList.toggle("fa-eye-slash", balanceHidden);
+        document.getElementById("balance").innerText = balanceHidden ? "••••••••" : lastFormattedBalance;
+    });
+
     document.getElementById("btnConfirmRegister").addEventListener("click", () => {
         if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
         const username = document.getElementById("userNameInput").value.trim() || "Usuario STBL";
         localStorage.setItem("profile_" + userAddress.toLowerCase(), username);
-        showToast("¡Registrado!", "Tu perfil se asoció correctamente a la dApp.");
+        showToast("¡Registrado!", "Titular guardado con éxito.");
         actualizarPanelRegistro();
+        updateInterface();
     });
 
     document.getElementById("copyContractBtn").addEventListener("click", () => {
@@ -770,33 +863,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll(".tab").forEach(btn => {
         btn.addEventListener("click", () => {
-            const name = btn.getAttribute("data-tab");
-            const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment", "register"];
-            tabs.forEach(t => {
-                const panel = document.getElementById("tab-" + t);
-                if (panel) panel.classList.toggle("hidden", t !== name);
-            });
-            document.querySelectorAll(".tab").forEach(b => {
-                const dataTab = b.getAttribute("data-tab");
-                if (dataTab === name) {
-                    if (name === 'investment') {
-                        b.classList.add("active-invest");
-                        b.classList.remove("active");
-                    } else {
-                        b.classList.add("active");
-                        b.classList.remove("active-invest");
-                    }
-                } else {
-                    b.classList.remove("active", "active-invest");
-                }
-            });
-            if (name === 'staking') actualizarDatosStaking();
-            if (name === 'register') actualizarPanelRegistro();
+            switchTab(btn.getAttribute("data-tab"));
         });
     });
 
     actualizarDatosStaking();
     actualizarPanelRegistro();
+    cargarHistorialMovimientos();
 });
 </script>
 </body>
