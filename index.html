@@ -307,7 +307,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Ruleta de Premios</h3>
 <div class="mb-4 text-left max-w-xs mx-auto"><label class="block text-xs text-slate-400 mb-2">Apuesta (STBL)</label><input type="text" id="apuestaRuleta" class="field" value="1"></div>
 <div class="ruleta-container mb-6"><div class="ruleta-pointer"></div><div id="ruletaWheel" class="ruleta-wheel"></div></div>
-<button type="button" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto shadow-lg">Girar Ruleta</button>
+<button type="button" id="btnGirar" class="w-full max-w-xs py-3 rounded-xl font-bold bg-amber-500 text-slate-950 mx-auto shadow-lg hover:bg-amber-400 transition-all">Girar Ruleta</button>
 <div id="resultadoRuleta" class="mt-4 text-xs sm:text-sm font-bold text-amber-400"></div>
 
 <div class="mt-6 pt-5 border-t border-navy-700 text-left">
@@ -585,6 +585,7 @@ const FAUCET_ABI = [
 let wallet = null, provider = null, signer = null, token = null;
 let stakingContract = null, faucetContract = null, userAddress = null, decimals = 18, symbol = "STBL";
 let balanceHidden = false, lastFormattedBalance = "0,00 STBL";
+let ruletaDeg = 0;
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
@@ -644,6 +645,7 @@ async function connectWallet() {
         await actualizarDatosStaking();
         actualizarPanelRegistro();
         cargarHistorialMovimientos();
+        cargarGanadoresRuleta();
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
@@ -843,6 +845,62 @@ async function retirarStaking() {
     }
 }
 
+function girarRuleta() {
+    const apuesta = parseFloat(document.getElementById("apuestaRuleta").value) || 1;
+    const wheel = document.getElementById("ruletaWheel");
+    const resDiv = document.getElementById("resultadoRuleta");
+    
+    showToast("Ruleta", "Girando ruleta...");
+    
+    // Generar grados aleatorios (entre 5 y 8 vueltas completas más un sector aleatorio)
+    const randomExtra = Math.floor(Math.random() * 360);
+    ruletaDeg += 1800 + randomExtra;
+    
+    wheel.style.transform = `rotate(${ruletaDeg}deg)`;
+    
+    setTimeout(() => {
+        const premios = [
+            { texto: `¡Perdiste ${apuesta} STBL! Sigue intentando`, ganado: -apuesta },
+            { texto: `¡Ganaste ${apuesta * 2} STBL (x2)!`, ganado: apuesta * 2 },
+            { texto: `¡Premio menor! Recuperas tu apuesta`, ganado: 0 },
+            { texto: `¡JACKPOT! Ganaste ${apuesta * 5} STBL (x5)!`, ganado: apuesta * 5 }
+        ];
+        const premio = premios[Math.floor(Math.random() * premios.length)];
+        resDiv.innerText = premio.texto;
+        
+        if (userAddress && premio.ganado !== 0) {
+            registrarMovimiento("Ruleta", premio.ganado > 0 ? `+${premio.ganado} STBL ganados` : `${premio.ganado} STBL apostados`);
+        }
+        
+        guardarGanadorRuleta(premio.texto);
+        showToast("Resultado", premio.texto);
+    }, 4000);
+}
+
+function guardarGanadorRuleta(texto) {
+    let ganadas = JSON.parse(localStorage.getItem("ruleta_ganadores") || "[]");
+    const alias = userAddress ? (localStorage.getItem("profile_" + userAddress.toLowerCase()) || userAddress.substring(0,6)) : "Anónimo";
+    ganadas.unshift({ alias, texto, fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+    if (ganadas.length > 5) ganadas.pop();
+    localStorage.setItem("ruleta_ganadores", JSON.stringify(ganadas));
+    cargarGanadoresRuleta();
+}
+
+function cargarGanadoresRuleta() {
+    const container = document.getElementById("ruletaGanadoresList");
+    let ganadas = JSON.parse(localStorage.getItem("ruleta_ganadores") || "[]");
+    if (ganadas.length === 0) {
+        container.innerHTML = `<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay giros registrados todavía.</div>`;
+        return;
+    }
+    container.innerHTML = ganadas.map(g => `
+        <div class="flex items-center justify-between bg-navy-900/70 p-2 rounded-lg border border-navy-700 text-xs">
+            <div><strong class="text-amber-400">${g.alias}</strong>: ${g.texto}</div>
+            <span class="text-[10px] text-slate-500">${g.fecha}</span>
+        </div>
+    `).join('');
+}
+
 function actualizarPanelRegistro() {
     const regWallet = document.getElementById("regWallet");
     const regStatus = document.getElementById("regStatus");
@@ -902,6 +960,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("stakeForm").addEventListener("submit", realizarStaking);
     document.getElementById("withdrawStakingBtn").addEventListener("click", retirarStaking);
     document.getElementById("btnFaucet").addEventListener("click", reclamarAirdrop);
+    document.getElementById("btnGirar").addEventListener("click", girarRuleta);
     
     document.getElementById("toggleBalanceBtn").addEventListener("click", () => {
         balanceHidden = !balanceHidden;
@@ -928,6 +987,7 @@ window.addEventListener('DOMContentLoaded', () => {
     actualizarDatosStaking();
     actualizarPanelRegistro();
     cargarHistorialMovimientos();
+    cargarGanadoresRuleta();
 });
 </script>
 </body>
