@@ -321,34 +321,36 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 
 <!-- TRAGAMONEDAS -->
 <section id="tab-slot" class="dapp-tab space-y-6" style="display: none;">
-<div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 sm:p-6 shadow-xl max-w-md mx-auto text-center my-4 sm:my-6">
-<div class="flex items-center justify-center gap-2 mb-3">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
+<div class="flex items-center justify-center gap-2 mb-2">
 <span class="text-xl sm:text-2xl">🎰</span>
-<h3 class="text-lg sm:text-xl font-bold text-amber-400 tracking-wide">STBL SLOT MACHINE</h3>
+<h3 class="font-bold text-base sm:text-lg text-white">STBL SLOT MACHINE</h3>
 </div>
-<p class="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6">Alineá 3 símbolos para el Jackpot (x5) o 2 para premio menor (x2).</p>
+<p class="text-xs text-slate-400 mb-4">Alineá 3 símbolos para el Jackpot (x5) o 2 para premio menor (x2).</p>
 
-<div class="grid grid-cols-3 gap-2 sm:gap-3 mb-5 bg-black/60 p-3 sm:p-4 rounded-xl border border-gray-800">
-<div id="reel1" class="text-2xl sm:text-4xl bg-gray-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-gray-700">🍒</div>
-<div id="reel2" class="text-2xl sm:text-4xl bg-gray-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-gray-700">🍋</div>
-<div id="reel3" class="text-2xl sm:text-4xl bg-gray-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-gray-700">🔔</div>
-</div>
-
-<div class="mb-4 text-left">
-<label class="block text-[11px] sm:text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Monto de Apuesta (STBL)</label>
-<input type="number" id="slotBetAmount" value="1" min="1" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-500">
+<div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4 bg-navy-900 p-3 sm:p-4 rounded-xl border border-navy-700 max-w-md mx-auto">
+<div id="reel1" class="text-2xl sm:text-4xl bg-navy-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-navy-700">🍒</div>
+<div id="reel2" class="text-2xl sm:text-4xl bg-navy-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-navy-700">🍋</div>
+<div id="reel3" class="text-2xl sm:text-4xl bg-navy-800 py-4 sm:py-6 rounded-lg shadow-inner flex items-center justify-center border border-navy-700">🔔</div>
 </div>
 
-<button type="button" id="btnSpinSlot" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-bold py-2.5 sm:py-3 px-4 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
+<div class="mb-4 text-left max-w-xs mx-auto">
+<label class="block text-xs text-slate-400 mb-2">Monto de Apuesta (STBL)</label>
+<input type="number" id="slotBetAmount" value="1" min="1" class="field">
+</div>
+
+<div class="max-w-xs mx-auto">
+<button type="button" id="btnSpinSlot" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg cursor-pointer">
 ¡GIRAR RODILLOS! 🎰
 </button>
+</div>
 
-<div id="slotResult" class="mt-3 text-xs sm:text-sm font-medium text-gray-300 min-h-[24px]"></div>
+<div id="slotResult" class="mt-4 text-xs sm:text-sm font-bold text-amber-400"></div>
 
-<div class="mt-6 pt-5 border-t border-gray-800 text-left">
+<div class="mt-6 pt-5 border-t border-navy-700 text-left">
 <h4 class="font-bold text-[11px] uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-trophy"></i> Ranking / Premios Slots</h4>
 <div id="slotGanadoresList" class="space-y-2 text-xs">
-<div class="text-gray-500 italic bg-black/40 p-2.5 rounded-lg border border-gray-800 text-center">No hay tiradas registradas.</div>
+<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay tiradas registradas.</div>
 </div>
 </div>
 </div>
@@ -646,6 +648,7 @@ async function connectWallet() {
         actualizarPanelRegistro();
         cargarHistorialMovimientos();
         cargarGanadoresRuleta();
+        cargarGanadoresSlot();
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
@@ -851,11 +854,8 @@ function girarRuleta() {
     const resDiv = document.getElementById("resultadoRuleta");
     
     showToast("Ruleta", "Girando ruleta...");
-    
-    // Generar grados aleatorios (entre 5 y 8 vueltas completas más un sector aleatorio)
     const randomExtra = Math.floor(Math.random() * 360);
     ruletaDeg += 1800 + randomExtra;
-    
     wheel.style.transform = `rotate(${ruletaDeg}deg)`;
     
     setTimeout(() => {
@@ -897,6 +897,89 @@ function cargarGanadoresRuleta() {
         <div class="flex items-center justify-between bg-navy-900/70 p-2 rounded-lg border border-navy-700 text-xs">
             <div><strong class="text-amber-400">${g.alias}</strong>: ${g.texto}</div>
             <span class="text-[10px] text-slate-500">${g.fecha}</span>
+        </div>
+    `).join('');
+}
+
+function girarSlot() {
+    const apuesta = parseFloat(document.getElementById("slotBetAmount").value) || 1;
+    const r1 = document.getElementById("reel1");
+    const r2 = document.getElementById("reel2");
+    const r3 = document.getElementById("reel3");
+    const res = document.getElementById("slotResult");
+    const btn = document.getElementById("btnSpinSlot");
+    
+    if (!r1 || !r2 || !r3) return;
+    
+    btn.disabled = true;
+    showToast("Slots", "Girando rodillos...");
+    res.innerText = "Girando...";
+    
+    const simbolos = ["🍒", "🍋", "🔔", "⭐", "💎", "7️⃣"];
+    let counter = 0;
+    
+    const interval = setInterval(() => {
+        r1.innerText = simbolos[Math.floor(Math.random() * simbolos.length)];
+        r2.innerText = simbolos[Math.floor(Math.random() * simbolos.length)];
+        r3.innerText = simbolos[Math.floor(Math.random() * simbolos.length)];
+        counter++;
+        
+        if (counter > 15) {
+            clearInterval(interval);
+            btn.disabled = false;
+            
+            const final1 = simbolos[Math.floor(Math.random() * simbolos.length)];
+            const final2 = simbolos[Math.floor(Math.random() * simbolos.length)];
+            const final3 = simbolos[Math.floor(Math.random() * simbolos.length)];
+            
+            r1.innerText = final1;
+            r2.innerText = final2;
+            r3.innerText = final3;
+            
+            let mensaje = "";
+            let premio = 0;
+            
+            if (final1 === final2 && final2 === final3) {
+                premio = apuesta * 5;
+                mensaje = `¡JACKPOT! 3 símbolos iguales. ¡Ganaste ${premio} STBL (x5)!`;
+            } else if (final1 === final2 || final2 === final3 || final1 === final3) {
+                premio = apuesta * 2;
+                mensaje = `¡Premio menor! 2 símbolos iguales. ¡Ganaste ${premio} STBL (x2)!`;
+            } else {
+                mensaje = `Sin premio. Perdiste ${apuesta} STBL.`;
+            }
+            
+            res.innerText = mensaje;
+            showToast("Resultado Slot", mensaje);
+            
+            if (userAddress && premio > 0) {
+                registrarMovimiento("Slots", `+${premio} STBL ganados`);
+            }
+            guardarGanadorSlot(mensaje);
+        }
+    }, 100);
+}
+
+function guardarGanadorSlot(texto) {
+    let slots = JSON.parse(localStorage.getItem("slot_ganadores") || "[]");
+    const alias = userAddress ? (localStorage.getItem("profile_" + userAddress.toLowerCase()) || userAddress.substring(0,6)) : "Anónimo";
+    slots.unshift({ alias, texto, fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+    if (slots.length > 5) slots.pop();
+    localStorage.setItem("slot_ganadores", JSON.stringify(slots));
+    cargarGanadoresSlot();
+}
+
+function cargarGanadoresSlot() {
+    const container = document.getElementById("slotGanadoresList");
+    let slots = JSON.parse(localStorage.getItem("slot_ganadores") || "[]");
+    if (slots.length === 0) {
+        container.innerHTML = `<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay tiradas registradas.</div>`;
+        return;
+    }
+    container.innerHTML = slots.map(s => `
+        <div class="flex items-center justify-between bg-navy-900/70 p-2 rounded-lg border border-navy-700 text-xs">
+            <div><strong class="text-amber-400">${s.alias}</strong>: ${s.texto}</div>
+            <span class="text-[10px] text-slate-500">${s.fecha}</span>
         </div>
     `).join('');
 }
@@ -962,6 +1045,14 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("btnFaucet").addEventListener("click", reclamarAirdrop);
     document.getElementById("btnGirar").addEventListener("click", girarRuleta);
     
+    const btnSpin = document.getElementById("btnSpinSlot");
+    if (btnSpin) {
+        btnSpin.addEventListener("click", (e) => {
+            e.preventDefault();
+            girarSlot();
+        });
+    }
+    
     document.getElementById("toggleBalanceBtn").addEventListener("click", () => {
         balanceHidden = !balanceHidden;
         const eyeIcon = document.getElementById("eyeIcon");
@@ -988,6 +1079,7 @@ window.addEventListener('DOMContentLoaded', () => {
     actualizarPanelRegistro();
     cargarHistorialMovimientos();
     cargarGanadoresRuleta();
+    cargarGanadoresSlot();
 });
 </script>
 </body>
