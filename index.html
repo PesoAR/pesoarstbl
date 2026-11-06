@@ -148,21 +148,21 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 
 <!-- Menú de Pestañas Adaptable con Botón de Hoja de Ruta -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
-<button type="button" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-house"></i> Cuenta</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Slots</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 font-bold border border-amber-500/40 bg-amber-500/10" data-tab="roadmap"><i class="fa-solid fa-map"></i> Roadmap</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 col-span-2 sm:col-span-1" data-tab="register"><i class="fa-solid fa-user-plus"></i> Registro</button>
+<button type="button" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i> Cuenta</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('receive')"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400" onclick="switchTab('faucet')"><i class="fa-solid fa-gift"></i> Airdrop</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('staking')"><i class="fa-solid fa-vault"></i> Staking</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('slot')"><i class="fa-solid fa-slot-machine"></i> Slots</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" onclick="switchTab('investment')"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 font-bold border border-amber-500/40 bg-amber-500/10" onclick="switchTab('roadmap')"><i class="fa-solid fa-map"></i> Roadmap</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 col-span-2 sm:col-span-1" onclick="switchTab('register')"><i class="fa-solid fa-user-plus"></i> Registro</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
 <!-- DASHBOARD / CUENTA BANCARIA -->
-<section id="tab-dashboard" class="dapp-tab space-y-4 sm:space-y-6">
+<section id="tab-dashboard" class="dapp-tab space-y-4 sm:space-y-6" style="display: block;">
 <div class="panel p-6 sm:p-8 bg-gradient-to-br from-navy-800 via-navy-900 to-navy-800 border border-gold-500/30 shadow-2xl relative overflow-hidden">
 <div class="absolute top-0 right-0 transform translate-x-6 -translate-y-6 w-32 h-32 bg-gold-500/10 rounded-full blur-2xl pointer-events-none"></div>
 <div class="flex items-center justify-between mb-4">
@@ -225,7 +225,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- ENVIAR -->
-<section id="tab-send" class="dapp-tab space-y-6 hidden">
+<section id="tab-send" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto">
 <h3 class="font-bold text-base sm:text-lg mb-4 text-white"><i class="fa-solid fa-paper-plane text-amber-400 mr-2"></i> Transferir STBL</h3>
 <form id="sendForm" class="space-y-4">
@@ -237,7 +237,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- RECIBIR -->
-<section id="tab-receive" class="dapp-tab space-y-6 hidden">
+<section id="tab-receive" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-md mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white"><i class="fa-solid fa-qrcode text-amber-400 mr-2"></i> Recibir Fondos</h3>
 <p class="text-xs text-slate-400 mb-4">Compartí tu código QR o dirección para recibir transferencias en Arbitrum.</p>
@@ -247,7 +247,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- AIRDROP -->
-<section id="tab-faucet" class="dapp-tab space-y-6 hidden">
+<section id="tab-faucet" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white"><i class="fa-solid fa-gift text-amber-400 mr-2"></i> Airdrop Diario (0.25 STBL)</h3>
 <p class="text-xs text-slate-400 mb-6">Reclamá tu beneficio diario autorizado por el contrato inteligente.</p>
@@ -259,7 +259,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- STAKING -->
-<section id="tab-staking" class="dapp-tab space-y-6 hidden">
+<section id="tab-staking" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5">
 <div class="flex items-center justify-between">
 <h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-400"></i> Plazo Fijo / Staking (12% APR)</h3>
@@ -292,7 +292,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- RULETA -->
-<section id="tab-ruleta" class="dapp-tab space-y-6 hidden">
+<section id="tab-ruleta" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white">Ruleta de Premios</h3>
 <div class="mb-4 text-left max-w-xs mx-auto"><label class="block text-xs text-slate-400 mb-2">Apuesta (STBL)</label><input type="text" id="apuestaRuleta" class="field" value="1"></div>
@@ -310,7 +310,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- TRAGAMONEDAS -->
-<section id="tab-slot" class="dapp-tab space-y-6 hidden">
+<section id="tab-slot" class="dapp-tab space-y-6" style="display: none;">
 <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 sm:p-6 shadow-xl max-w-md mx-auto text-center my-4 sm:my-6">
 <div class="flex items-center justify-center gap-2 mb-3">
 <span class="text-xl sm:text-2xl">🎰</span>
@@ -345,7 +345,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- SECCIÓN: INVERSIÓN (COMPRAR / VENDER STBL) -->
-<section id="tab-investment" class="dapp-tab space-y-6 hidden">
+<section id="tab-investment" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow text-center">
 <div class="w-16 h-16 rounded-2xl bg-celeste-500/10 border border-celeste-400/30 flex items-center justify-center text-celeste-400 text-3xl mx-auto mb-4">
 <i class="fa-solid fa-right-left"></i>
@@ -366,7 +366,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- HOJA DE RUTA (ROADMAP) -->
-<section id="tab-roadmap" class="dapp-tab space-y-6 hidden">
+<section id="tab-roadmap" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-2xl mx-auto space-y-6">
 <div class="text-center">
 <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl mx-auto mb-3">
@@ -419,7 +419,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </section>
 
 <!-- REGISTRO -->
-<section id="tab-register" class="dapp-tab space-y-6 hidden">
+<section id="tab-register" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-xl mx-auto text-center space-y-4">
 <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl mx-auto mb-2">
 <i class="fa-solid fa-id-card"></i>
@@ -858,16 +858,16 @@ function switchTab(name) {
         const panel = document.getElementById("tab-" + t);
         if (panel) {
             if (t === name) {
-                panel.classList.remove("hidden");
+                panel.style.display = "block";
             } else {
-                panel.classList.add("hidden");
+                panel.style.display = "none";
             }
         }
     });
 
     document.querySelectorAll(".tab").forEach(b => {
-        const dataTab = b.getAttribute("data-tab");
-        if (dataTab === name) {
+        const onclickAttr = b.getAttribute("onclick") || "";
+        if (onclickAttr.includes("'" + name + "'")) {
             if (name === 'investment') {
                 b.classList.add("active-invest");
                 b.classList.remove("active");
@@ -908,19 +908,6 @@ window.addEventListener('DOMContentLoaded', () => {
         showToast("¡Registrado!", "Titular guardado con éxito.");
         actualizarPanelRegistro();
         updateInterface();
-    });
-
-    document.getElementById("copyContractBtn").addEventListener("click", () => {
-        navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
-        showToast("¡Copiado!", "Dirección copiada al portapapeles.");
-    });
-
-    document.querySelectorAll(".tab").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const tabName = btn.getAttribute("data-tab");
-            if (tabName) switchTab(tabName);
-        });
     });
 
     actualizarDatosStaking();
