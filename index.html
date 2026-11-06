@@ -53,8 +53,6 @@ a { cursor:pointer; }
 ::-webkit-scrollbar-track { background: #0B132B; }
 ::-webkit-scrollbar-thumb { background: #2A3A5E; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 </head>
 <body class="relative bg-grid-pattern min-h-screen">
@@ -158,17 +156,17 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <p class="text-gray-400 text-xs sm:text-sm mt-1.5">Gestiona tu saldo, staking, juegos, inversión y mercado.</p>
 </div>
 
-<!-- Menú de Pestañas con Scroll Horizontal suave -->
-<div class="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-navy-800/90 p-1.5 sm:p-2 rounded-2xl border border-navy-700 max-w-4xl mx-auto whitespace-nowrap">
-<button class="tab active px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-amber-400 shrink-0" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 shrink-0" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
-<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-gold-400 shrink-0" data-tab="register"><i class="fa-solid fa-user-plus"></i> Registro</button>
+<!-- Menú de Pestañas Adaptable (Grid Flex sin scroll lateral) -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
+<button class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> Panel</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="send"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="receive"><i class="fa-solid fa-qrcode"></i> Recibir</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400" data-tab="faucet"><i class="fa-solid fa-gift"></i> Airdrop</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="staking"><i class="fa-solid fa-vault"></i> Staking</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
+<button class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 col-span-2 sm:col-span-1 md:col-span-2" data-tab="register"><i class="fa-solid fa-user-plus"></i> Registro</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
