@@ -168,6 +168,7 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 <button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="ruleta"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0" data-tab="slot"><i class="fa-solid fa-slot-machine"></i> Tragamonedas</button>
 <button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 shrink-0" data-tab="investment"><i class="fa-solid fa-hand-holding-dollar"></i> Inversión</button>
+<button class="tab px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 text-gold-400 shrink-0" data-tab="register"><i class="fa-solid fa-user-plus"></i> Registro</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -339,6 +340,32 @@ Estable, transparente y diseñado para transacciones instantáneas con comisione
 
 <div class="mt-8 pt-5 border-t border-navy-700">
 <p class="text-[11px] text-slate-400 font-mono">Contrato Oficial (Arbitrum One): <span class="text-gold-400 select-all">0xB46Ad28a11d2006058D22a16b16902F8213bDc30</span></p>
+</div>
+</div>
+</section>
+
+<!-- REGISTRO -->
+<section id="tab-register" class="dapp-tab space-y-6 hidden">
+<div class="panel p-6 sm:p-8 max-w-xl mx-auto text-center space-y-4">
+<div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl mx-auto mb-2">
+<i class="fa-solid fa-id-card"></i>
+</div>
+<h3 class="font-extrabold text-xl text-white">Registro en el Ecosistema STBL</h3>
+<p class="text-xs text-slate-400">Vinculá tu perfil para acceder a las funciones exclusivas, airdrops y recompensas de la red.</p>
+
+<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 text-left space-y-2">
+<div class="flex justify-between text-xs"><span class="text-slate-400">Estado:</span><span id="regStatus" class="text-amber-400 font-bold">Verificando...</span></div>
+<div class="flex justify-between text-xs"><span class="text-slate-400">Billetera:</span><span id="regWallet" class="text-slate-300 font-mono text-[11px]">No conectada</span></div>
+</div>
+
+<div class="space-y-3 pt-2">
+<div>
+<label class="block text-xs text-slate-400 mb-1 text-left">Alias / Nombre de usuario (Opcional)</label>
+<input type="text" id="userNameInput" class="field" placeholder="Ej. SebaSTBL">
+</div>
+<button id="btnConfirmRegister" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">
+Registrar mi Billetera
+</button>
 </div>
 </div>
 </section>
@@ -543,6 +570,7 @@ async function connectWallet() {
         updateInterface();
         await refreshBalance();
         await actualizarDatosStaking();
+        actualizarPanelRegistro();
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
@@ -560,6 +588,7 @@ function disconnectWallet() {
     updateInterface();
     document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
+    actualizarPanelRegistro();
     showToast("Desconectado", "Sesión cerrada.");
 }
 
@@ -700,6 +729,25 @@ async function retirarStaking() {
     }
 }
 
+function actualizarPanelRegistro() {
+    const regWallet = document.getElementById("regWallet");
+    const regStatus = document.getElementById("regStatus");
+    
+    if (userAddress) {
+        regWallet.textContent = userAddress;
+        const savedName = localStorage.getItem("profile_" + userAddress.toLowerCase());
+        if (savedName) {
+            regStatus.textContent = "Registrado (" + savedName + ")";
+            document.getElementById("userNameInput").value = savedName;
+        } else {
+            regStatus.textContent = "Sin registrar perfil";
+        }
+    } else {
+        regWallet.textContent = "Billetera desconectada";
+        regStatus.textContent = "Conecta tu billetera";
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("disconnectBtn").addEventListener("click", disconnectWallet);
@@ -708,6 +756,15 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("stakeForm").addEventListener("submit", realizarStaking);
     document.getElementById("withdrawStakingBtn").addEventListener("click", retirarStaking);
     document.getElementById("btnFaucet").addEventListener("click", reclamarAirdrop);
+    
+    document.getElementById("btnConfirmRegister").addEventListener("click", () => {
+        if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
+        const username = document.getElementById("userNameInput").value.trim() || "Usuario STBL";
+        localStorage.setItem("profile_" + userAddress.toLowerCase(), username);
+        showToast("¡Registrado!", "Tu perfil se asoció correctamente a la dApp.");
+        actualizarPanelRegistro();
+    });
+
     document.getElementById("copyContractBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(document.getElementById('contract-address').innerText);
         showToast("¡Copiado!", "Dirección copiada al portapapeles.");
@@ -716,7 +773,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(".tab").forEach(btn => {
         btn.addEventListener("click", () => {
             const name = btn.getAttribute("data-tab");
-            const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment"];
+            const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment", "register"];
             tabs.forEach(t => {
                 const panel = document.getElementById("tab-" + t);
                 if (panel) panel.classList.toggle("hidden", t !== name);
@@ -736,10 +793,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             });
             if (name === 'staking') actualizarDatosStaking();
+            if (name === 'register') actualizarPanelRegistro();
         });
     });
 
     actualizarDatosStaking();
+    actualizarPanelRegistro();
 });
 </script>
 </body>
