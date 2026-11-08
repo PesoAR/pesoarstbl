@@ -146,7 +146,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <p class="text-gray-400 text-xs sm:text-sm mt-1.5">Controla tu cuenta, inversiones, juegos y el progreso del proyecto.</p>
 </div>
 
-<!-- Menú de Pestañas Adaptable con Botón de Hoja de Ruta -->
+<!-- Menú de Pestañas Adaptable con Botón de Futuros e Inversión -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
 <button type="button" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i> Cuenta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
@@ -155,9 +155,9 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('staking')"><i class="fa-solid fa-vault"></i> Staking</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5" onclick="switchTab('slot')"><i class="fa-solid fa-slot-machine"></i> Slots</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10" onclick="switchTab('futuresBot')"><i class="fa-solid fa-robot"></i> Bot Futuros</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10" onclick="switchTab('investment')"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 font-bold border border-amber-500/40 bg-amber-500/10" onclick="switchTab('roadmap')"><i class="fa-solid fa-map"></i> Roadmap</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 col-span-2 sm:col-span-1" onclick="switchTab('register')"><i class="fa-solid fa-user-plus"></i> Registro</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -192,9 +192,9 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-gift text-sm"></i></div>
 <span class="text-[11px] text-slate-300 font-medium">Airdrop</span>
 </button>
-<button type="button" onclick="switchTab('roadmap')" class="flex flex-col items-center gap-1 group bg-transparent border-0 cursor-pointer">
-<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-map text-sm"></i></div>
-<span class="text-[11px] text-slate-300 font-medium">Roadmap</span>
+<button type="button" onclick="switchTab('futuresBot')" class="flex flex-col items-center gap-1 group bg-transparent border-0 cursor-pointer">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-gold-500 group-hover:text-navy-900 text-gold-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-robot text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Bot Futuros</span>
 </button>
 </div>
 </div>
@@ -356,6 +356,70 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </div>
 </section>
 
+<!-- BOT DE FUTUROS (NUEVA SECCIÓN) -->
+<section id="tab-futuresBot" class="dapp-tab space-y-6" style="display: none;">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5 border border-gold-500/30">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2">
+<i class="fa-solid fa-robot text-gold-400"></i> Bot de Futuros (Long/Short)
+</h3>
+<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full font-mono uppercase font-bold">Activo</span>
+</div>
+
+<p class="text-xs text-slate-400">Configura los parámetros de tu bot automatizado para operar apalancado en Arbitrum.</p>
+
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-slate-400 mb-1">Posición</label>
+<select id="botDirection" class="field text-xs">
+<option value="LONG">LONG 📈 (Alcista)</option>
+<option value="SHORT">SHORT 📉 (Bajista)</option>
+</select>
+</div>
+<div>
+<label class="block text-xs text-slate-400 mb-1">Apalancamiento</label>
+<select id="botLeverage" class="field text-xs">
+<option value="2">2x</option>
+<option value="5" selected>5x</option>
+<option value="10">10x</option>
+<option value="20">20x</option>
+</select>
+</div>
+</div>
+
+<div>
+<label class="block text-xs text-slate-400 mb-1">Margen de Colateral (STBL)</label>
+<input type="text" id="botMargin" class="field text-xs" placeholder="Ej. 50">
+</div>
+
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-slate-400 mb-1">Take Profit (%)</label>
+<input type="text" id="botTP" class="field text-xs" value="15">
+</div>
+<div>
+<label class="block text-xs text-slate-400 mb-1">Stop Loss (%)</label>
+<input type="text" id="botSL" class="field text-xs" value="5">
+</div>
+</div>
+
+<button type="button" id="btnRunBot" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg text-xs cursor-pointer">
+Iniciar Bot Automatizado
+</button>
+
+<div class="mt-4 pt-4 border-t border-navy-700 text-xs space-y-2">
+<div class="flex justify-between text-slate-400">
+<span>Estado del Bot:</span>
+<span id="botStatusText" class="text-amber-400 font-mono">Esperando configuración</span>
+</div>
+<div class="flex justify-between text-slate-400">
+<span>PnL Activo:</span>
+<span id="botPnlText" class="text-emerald-400 font-mono">$0.00 (0.00%)</span>
+</div>
+</div>
+</div>
+</section>
+
 <!-- SECCIÓN: INVERSIÓN (COMPRAR / VENDER STBL Y PAGOS) -->
 <section id="tab-investment" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-3xl mx-auto border border-celeste-500/30 shadow-celeste-glow text-center space-y-6">
@@ -443,32 +507,6 @@ Operar en Uniswap V3
 </div>
 </div>
 
-</div>
-</section>
-
-<!-- REGISTRO -->
-<section id="tab-register" class="dapp-tab space-y-6" style="display: none;">
-<div class="panel p-6 sm:p-8 max-w-xl mx-auto text-center space-y-4">
-<div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl mx-auto mb-2">
-<i class="fa-solid fa-id-card"></i>
-</div>
-<h3 class="font-extrabold text-xl text-white">Registro de Perfil Bancario</h3>
-<p class="text-xs text-slate-400">Asocia tu alias para personalizar tu cuenta en el ecosistema.</p>
-
-<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 text-left space-y-2">
-<div class="flex justify-between text-xs"><span class="text-slate-400">Estado:</span><span id="regStatus" class="text-amber-400 font-bold">Verificando...</span></div>
-<div class="flex justify-between text-xs"><span class="text-slate-400">Billetera:</span><span id="regWallet" class="text-slate-300 font-mono text-[11px]">No conectada</span></div>
-</div>
-
-<div class="space-y-3 pt-2">
-<div>
-<label class="block text-xs text-slate-400 mb-1 text-left">Alias / Titular de la cuenta</label>
-<input type="text" id="userNameInput" class="field" placeholder="Ej. SebaSTBL">
-</div>
-<button type="button" id="btnConfirmRegister" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg">
-Guardar Titular
-</button>
-</div>
 </div>
 </section>
 
@@ -1035,7 +1073,7 @@ function actualizarPanelRegistro() {
 }
 
 function switchTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "investment", "roadmap", "register"];
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "futuresBot", "investment", "roadmap"];
     tabs.forEach(t => {
         const panel = document.getElementById("tab-" + t);
         if (panel) {
@@ -1063,7 +1101,6 @@ function switchTab(name) {
     });
 
     if (name === 'staking') actualizarDatosStaking();
-    if (name === 'register') actualizarPanelRegistro();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -1083,6 +1120,34 @@ window.addEventListener('DOMContentLoaded', () => {
             girarSlot();
         });
     }
+
+    const btnRunBot = document.getElementById("btnRunBot");
+    if (btnRunBot) {
+        btnRunBot.addEventListener("click", () => {
+            if (!userAddress) {
+                showToast("Error", "Conecta tu billetera primero.");
+                return;
+            }
+            const direction = document.getElementById("botDirection").value;
+            const leverage = document.getElementById("botLeverage").value;
+            const margin = document.getElementById("botMargin").value;
+            
+            if (!margin || parseFloat(margin) <= 0) {
+                showToast("Aviso", "Ingresa un margen válido.");
+                return;
+            }
+
+            showToast("Bot de Futuros", "Iniciando algoritmo de apertura...");
+            document.getElementById("botStatusText").innerText = "Ejecutando orden " + direction + " (" + leverage + "x)...";
+
+            setTimeout(() => {
+                showToast("¡Bot Activo!", `Posición ${direction} a ${leverage}x abierta con éxito.`);
+                document.getElementById("botStatusText").innerText = "Monitoreando mercado (Activo)";
+                document.getElementById("botPnlText").innerText = "+$1.25 (+2.5%)";
+                registrarMovimiento("Bot Futuros", `Posición ${direction} (${leverage}x) iniciada con ${margin} STBL`);
+            }, 3000);
+        });
+    }
     
     document.getElementById("toggleBalanceBtn").addEventListener("click", () => {
         balanceHidden = !balanceHidden;
@@ -1090,15 +1155,6 @@ window.addEventListener('DOMContentLoaded', () => {
         eyeIcon.classList.toggle("fa-eye", !balanceHidden);
         eyeIcon.classList.toggle("fa-eye-slash", balanceHidden);
         document.getElementById("balance").innerText = balanceHidden ? "••••••••" : lastFormattedBalance;
-    });
-
-    document.getElementById("btnConfirmRegister").addEventListener("click", () => {
-        if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
-        const username = document.getElementById("userNameInput").value.trim() || "Usuario STBL";
-        localStorage.setItem("profile_" + userAddress.toLowerCase(), username);
-        showToast("¡Registrado!", "Titular guardado con éxito.");
-        actualizarPanelRegistro();
-        updateInterface();
     });
 
     document.getElementById("copyContractBtn").addEventListener("click", () => {
