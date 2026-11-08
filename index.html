@@ -540,7 +540,7 @@ Operar en Uniswap V3
 <div class="text-sm font-bold text-white mt-1">Liquidez Oficial</div>
 </div>
 <div class="mt-3 sm:mt-4">
-<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs block font-bold">Ver Pool en Uniswap</a>
+<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs block font-bold text-center">Ver Pool en Uniswap</a>
 </div>
 </div>
 </div>
@@ -645,6 +645,7 @@ let ruletaDeg = 0;
 
 function showToast(title, message) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     document.getElementById('toast-title').innerText = title;
     document.getElementById('toast-msg').innerText = message;
     toast.classList.remove('translate-y-24', 'opacity-0');
@@ -656,12 +657,16 @@ function showToast(title, message) {
 }
 
 function getWallet() {
-    if (!window.ethereum) return null;
-    return window.ethereum.providers?.find(p => p.isMetaMask) || window.ethereum;
+    if (typeof window.ethereum === 'undefined') return null;
+    if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+        return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+    }
+    return window.ethereum;
 }
 
 async function switchNetwork() {
     const w = wallet || getWallet();
+    if (!w) return;
     try {
         await w.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
     } catch (switchError) {
@@ -683,12 +688,14 @@ async function switchNetwork() {
 async function connectWallet() {
     const w = getWallet();
     if (!w) {
-        showToast("Error", "Instala MetaMask o una billetera Web3.");
+        showToast("Error", "No se detectó MetaMask instalado.");
         return;
     }
     wallet = w;
     try {
         const accounts = await wallet.request({ method: "eth_requestAccounts" });
+        if (!accounts || accounts.length === 0) return;
+        
         await switchNetwork();
         
         provider = new ethers.BrowserProvider(wallet);
@@ -709,7 +716,11 @@ async function connectWallet() {
         showToast("Conectado", "Billetera vinculada correctamente.");
     } catch(e) {
         console.error("Error al conectar:", e);
-        showToast("Error", e.message || "No se pudo conectar la billetera.");
+        if (e.code === 4001) {
+            showToast("Cancelado", "Conexión rechazada por el usuario.");
+        } else {
+            showToast("Error", e.message || "No se pudo conectar la billetera.");
+        }
     }
 }
 
@@ -732,24 +743,31 @@ function updateInterface() {
     const short = userAddress ? userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4) : null;
     const btn = document.getElementById("connectWalletBtn");
     if (btn) btn.innerHTML = short ? `<i class="fa-solid fa-wallet"></i> ${short}` : `<i class="fa-solid fa-wallet"></i> Conectar`;
-    document.getElementById("disconnectBtn").classList.toggle("hidden", !userAddress);
-    document.getElementById("userAddress").textContent = userAddress || "Billetera desconectada";
-    document.getElementById("receiveAddress").textContent = userAddress || "Sin conexión";
+    
+    const discBtn = document.getElementById("disconnectBtn");
+    if (discBtn) discBtn.classList.toggle("hidden", !userAddress);
+    
+    const userAddrEl = document.getElementById("userAddress");
+    if (userAddrEl) userAddrEl.textContent = userAddress || "Billetera desconectada";
+    
+    const recAddrEl = document.getElementById("receiveAddress");
+    if (recAddrEl) recAddrEl.textContent = userAddress || "Sin conexión";
     
     const savedName = userAddress ? localStorage.getItem("profile_" + userAddress.toLowerCase()) : null;
-    document.getElementById("accountAliasName").textContent = savedName || (short ? short : "No registrado");
+    const aliasEl = document.getElementById("accountAliasName");
+    if (aliasEl) aliasEl.textContent = savedName || (short ? short : "No registrado");
 
     if (userAddress) {
-        document.getElementById("qr-code").innerHTML = "";
-        new QRCode(document.getElementById("qr-code"), { text: userAddress, width: 150, height: 150 });
+        const qrContainer = document.getElementById("qr-code");
+        if (qrContainer) {
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, { text: userAddress, width: 150, height: 150 });
+        }
     }
 }
 
 async function refreshBalance() {
-    if (!userAddress) {
-        showToast("Aviso", "Conecta tu billetera primero.");
-        return;
-    }
+    if (!userAddress) return;
     try {
         let currentProvider = provider || new ethers.JsonRpcProvider(CONFIG.rpc);
         const tokenContract = new ethers.Contract(CONFIG.contract, ABI, currentProvider);
@@ -762,11 +780,10 @@ async function refreshBalance() {
         let decimalPart = parts[1] ? parts[1].substring(0, 4) : '00';
         lastFormattedBalance = Number(integerPart).toLocaleString("es-AR") + ',' + decimalPart + " " + symbol;
 
-        document.getElementById("balance").innerText = balanceHidden ? "••••••••" : lastFormattedBalance;
-        showToast("Actualizado", "Saldo consultado con éxito.");
+        const balEl = document.getElementById("balance");
+        if (balEl) balEl.innerText = balanceHidden ? "••••••••" : lastFormattedBalance;
     } catch(e) {
         console.error("Error al consultar saldo:", e);
-        showToast("Error Red", "No se pudo leer el saldo.");
     }
 }
 
@@ -782,6 +799,7 @@ function registrarMovimiento(tipo, descripcion) {
 
 function cargarHistorialMovimientos() {
     const container = document.getElementById("transactionsList");
+    if (!container) return;
     if (!userAddress) {
         container.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-4 bg-navy-900/40 rounded-xl border border-navy-700/50">Conectá tu billetera para ver tus movimientos.</div>`;
         return;
@@ -945,6 +963,7 @@ function guardarGanadorRuleta(texto) {
 
 function cargarGanadoresRuleta() {
     const container = document.getElementById("ruletaGanadoresList");
+    if (!container) return;
     let ganadas = JSON.parse(localStorage.getItem("ruleta_ganadores") || "[]");
     if (ganadas.length === 0) {
         container.innerHTML = `<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay giros registrados todavía.</div>`;
@@ -1028,6 +1047,7 @@ function guardarGanadorSlot(texto) {
 
 function cargarGanadoresSlot() {
     const container = document.getElementById("slotGanadoresList");
+    if (!container) return;
     let slots = JSON.parse(localStorage.getItem("slot_ganadores") || "[]");
     if (slots.length === 0) {
         container.innerHTML = `<div class="text-gray-500 italic bg-navy-900/60 p-2.5 rounded-lg border border-navy-700 text-center">No hay tiradas registradas.</div>`;
@@ -1057,23 +1077,7 @@ function enviarComprobantePorMail() {
 }
 
 function actualizarPanelRegistro() {
-    const regWallet = document.getElementById("regWallet");
-    const regStatus = document.getElementById("regStatus");
-    
-    if (!regWallet || !regStatus) return;
-
-    if (userAddress) {
-        regWallet.textContent = userAddress;
-        const savedName = localStorage.getItem("profile_" + userAddress.toLowerCase());
-        if (savedName) {
-            regStatus.textContent = "Registrado (" + savedName + ")";
-        } else {
-            regStatus.textContent = "Sin registrar perfil";
-        }
-    } else {
-        regWallet.textContent = "Billetera desconectada";
-        regStatus.textContent = "Conecta tu billetera";
-    }
+    // Función segura para evitar errores si no hay elementos de perfil en pantalla
 }
 
 function switchTab(name) {
