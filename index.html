@@ -269,7 +269,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </div>
 </section>
 
-<!-- PROGRAMA DE REFERIDOS -->
+<!-- PROGRAMA DE REFERIDOS CON BOTONES DE COMPARTIR -->
 <section id="tab-referral" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-xl mx-auto border border-emerald-500/30 shadow-lg space-y-5">
 <div class="text-center">
@@ -282,12 +282,26 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 
 <div class="space-y-3">
 <label class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Tu Enlace Único de Referido</label>
+
+
+<!-- Input y Botón Copiar -->
 <div class="flex gap-2">
 <input type="text" id="referralLink" class="field text-xs font-mono" readonly value="Conecta tu billetera..." />
 <button type="button" id="copyReferralBtn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2.5 rounded-xl font-bold text-xs shrink-0 cursor-pointer transition-all">
 <i class="fa-solid fa-copy"></i> Copiar
 </button>
 </div>
+
+<!-- Botones de Compartir Directo (WhatsApp y Correo) -->
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button type="button" onclick="compartirWhatsApp()" class="py-2.5 px-4 rounded-xl font-bold bg-[#25D366] hover:brightness-110 text-slate-950 text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow">
+<i class="fa-brands fa-whatsapp text-sm"></i> Compartir WhatsApp
+</button>
+<button type="button" onclick="compartirCorreo()" class="py-2.5 px-4 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow">
+<i class="fa-solid fa-envelope text-sm"></i> Enviar por Correo
+</button>
+</div>
+
 <p id="referral-status" class="text-xs text-amber-400 text-center mt-2"></p>
 </div>
 </div>
@@ -900,6 +914,40 @@ function procesarRecompensasReferidos() {
         localStorage.setItem('stbl_referral_rewards_processed', 'true');
         registrarMovimiento("Referido", "+0.50 STBL (Bono Bienvenida)");
     }
+}
+
+// Funciones para compartir directamente en WhatsApp y Correo
+function compartirWhatsApp() {
+    const inputRef = document.getElementById('referralLink');
+    const link = inputRef ? inputRef.value : "";
+    
+    if (!link.startsWith('http')) {
+        showToast("Aviso", "Conecta tu billetera primero para generar tu enlace.");
+        return;
+    }
+
+    const mensaje = encodeURIComponent(
+        `¡Hola! Únete a PESO AR STBL en Arbitrum One. Regístrate con mi enlace, gana 0.50 STBL de bienvenida y comienza a operar: ${link}`
+    );
+    
+    window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
+}
+
+function compartirCorreo() {
+    const inputRef = document.getElementById('referralLink');
+    const link = inputRef ? inputRef.value : "";
+    
+    if (!link.startsWith('http')) {
+        showToast("Aviso", "Conecta tu billetera primero para generar tu enlace.");
+        return;
+    }
+
+    const asunto = encodeURIComponent("¡Invierte y gana en PESO AR STBL!");
+    const cuerpo = encodeURIComponent(
+        `Hola!\n\nTe invito a unirte a PESO AR STBL, tu banco digital descentralizado en la red de Arbitrum One.\n\nUtiliza mi enlace de referido para registrarte y obtener tus 0.50 STBL de bienvenida:\n${link}\n\n¡Nos vemos en la dApp!`
+    );
+
+    window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
 }
 
 async function actualizarDatosStaking() {
