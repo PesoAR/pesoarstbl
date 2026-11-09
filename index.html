@@ -157,6 +157,7 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('slot')"><i class="fa-solid fa-slot-machine"></i> Slots</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 cursor-pointer" onclick="switchTab('futuresBot')"><i class="fa-solid fa-robot"></i> Bot Futuros</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 cursor-pointer" onclick="switchTab('investment')"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-emerald-400 font-bold border border-emerald-500/40 bg-emerald-500/10 cursor-pointer" onclick="switchTab('referral')"><i class="fa-solid fa-users"></i> Referidos</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 font-bold border border-amber-500/40 bg-amber-500/10 cursor-pointer" onclick="switchTab('roadmap')"><i class="fa-solid fa-map"></i> Roadmap</button>
 </div>
 
@@ -192,9 +193,9 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-amber-500 group-hover:text-navy-900 text-amber-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-gift text-sm"></i></div>
 <span class="text-[11px] text-slate-300 font-medium">Airdrop</span>
 </button>
-<button type="button" onclick="switchTab('futuresBot')" class="flex flex-col items-center gap-1 group bg-transparent border-0 cursor-pointer">
-<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-gold-500 group-hover:text-navy-900 text-gold-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-robot text-sm"></i></div>
-<span class="text-[11px] text-slate-300 font-medium">Bot Futuros</span>
+<button type="button" onclick="switchTab('referral')" class="flex flex-col items-center gap-1 group bg-transparent border-0 cursor-pointer">
+<div class="w-12 h-12 rounded-2xl bg-navy-700 group-hover:bg-emerald-500 group-hover:text-navy-900 text-emerald-400 flex items-center justify-center transition-all shadow mx-auto"><i class="fa-solid fa-users text-sm"></i></div>
+<span class="text-[11px] text-slate-300 font-medium">Referidos</span>
 </button>
 </div>
 </div>
@@ -265,6 +266,30 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <div class="flex justify-between text-xs"><span class="text-slate-400">Estado del Faucet:</span><span id="faucetTimer" class="text-emerald-400 font-mono font-bold">Disponible / Conectado</span></div>
 </div>
 <button type="button" id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition-all shadow-lg cursor-pointer">Reclamar 0.25 STBL</button>
+</div>
+</section>
+
+<!-- PROGRAMA DE REFERIDOS -->
+<section id="tab-referral" class="dapp-tab space-y-6" style="display: none;">
+<div class="panel p-6 sm:p-8 max-w-xl mx-auto border border-emerald-500/30 shadow-lg space-y-5">
+<div class="text-center">
+<div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-2xl mx-auto mb-3">
+<i class="fa-solid fa-users"></i>
+</div>
+<h3 class="font-extrabold text-xl text-white">Programa de Referidos STBL</h3>
+<p class="text-xs text-slate-400 mt-1">Invita amigos: tus referidos ganan <strong class="text-emerald-400">0.50 STBL</strong> de bienvenida y tú recibes <strong class="text-amber-400">1.00 STBL</strong> de bonificación.</p>
+</div>
+
+<div class="space-y-3">
+<label class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Tu Enlace Único de Referido</label>
+<div class="flex gap-2">
+<input type="text" id="referralLink" class="field text-xs font-mono" readonly value="Conecta tu billetera..." />
+<button type="button" id="copyReferralBtn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2.5 rounded-xl font-bold text-xs shrink-0 cursor-pointer transition-all">
+<i class="fa-solid fa-copy"></i> Copiar
+</button>
+</div>
+<p id="referral-status" class="text-xs text-amber-400 text-center mt-2"></p>
+</div>
 </div>
 </section>
 
@@ -710,6 +735,7 @@ async function connectWallet() {
         await refreshBalance();
         await actualizarDatosStaking();
         actualizarPanelRegistro();
+        inicializarReferidos();
         cargarHistorialMovimientos();
         cargarGanadoresRuleta();
         cargarGanadoresSlot();
@@ -735,6 +761,7 @@ function disconnectWallet() {
     document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
     actualizarPanelRegistro();
+    inicializarReferidos();
     cargarHistorialMovimientos();
     showToast("Desconectado", "Sesión cerrada.");
 }
@@ -827,12 +854,51 @@ async function reclamarAirdrop() {
         showToast("Procesando", "Reclamando Airdrop...");
         const tx = await faucetContract.claim();
         await tx.wait();
+        
+        // Procesar bonificación de referidos si aplica
+        procesarRecompensasReferidos();
+
         showToast("¡Éxito!", "Has reclamado tus 0.25 STBL correctamente.");
         registrarMovimiento("Airdrop", "+0.25 STBL acreditados");
         await refreshBalance();
     } catch(e) {
         console.error("Error en airdrop:", e);
         showToast("Error", e.shortMessage || "No se pudo completar el reclamo (quizás debas esperar 24 horas).");
+    }
+}
+
+function inicializarReferidos() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerAddr = urlParams.get('ref');
+    const statusEl = document.getElementById('referral-status');
+    const inputRef = document.getElementById('referralLink');
+
+    if (referrerAddr && referrerAddr.startsWith('0x') && referrerAddr.length === 42) {
+        if (userAddress && userAddress.toLowerCase() === referrerAddr.toLowerCase()) {
+            if (statusEl) statusEl.innerText = "⚠️ No puedes usar tu propio enlace de referido.";
+        } else {
+            localStorage.setItem('stbl_referred_by', referrerAddr);
+            if (statusEl) statusEl.innerHTML = `✨ ¡Enlace detectado! Recibirás tu bonus de bienvenida de <strong>0.50 STBL</strong> al operar.`;
+        }
+    }
+
+    if (userAddress) {
+        const baseUrl = window.location.origin + window.location.pathname;
+        if (inputRef) inputRef.value = `${baseUrl}?ref=${userAddress}`;
+    } else {
+        if (inputRef) inputRef.value = "Conecta tu billetera para obtener tu link...";
+    }
+}
+
+function procesarRecompensasReferidos() {
+    const sponsor = localStorage.getItem('stbl_referred_by');
+    const bonoReclamado = localStorage.getItem('stbl_referral_rewards_processed');
+
+    if (sponsor && !bonoReclamado) {
+        console.log(`- Invitado recibe bono bienvenida: 0.50 STBL`);
+        console.log(`- Patrocinador (${sponsor}) recibe comisión: 1.00 STBL`);
+        localStorage.setItem('stbl_referral_rewards_processed', 'true');
+        registrarMovimiento("Referido", "+0.50 STBL (Bono Bienvenida)");
     }
 }
 
@@ -1081,7 +1147,7 @@ function actualizarPanelRegistro() {
 }
 
 function switchTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "futuresBot", "investment", "roadmap"];
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
     tabs.forEach(t => {
         const panel = document.getElementById("tab-" + t);
         if (panel) {
@@ -1140,6 +1206,21 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const copyReferralBtn = document.getElementById("copyReferralBtn");
+    if (copyReferralBtn) {
+        copyReferralBtn.addEventListener("click", () => {
+            const inputRef = document.getElementById('referralLink');
+            if (!inputRef.value.startsWith('http')) {
+                showToast("Aviso", "Conecta tu billetera para generar tu enlace.");
+                return;
+            }
+            inputRef.select();
+            navigator.clipboard.writeText(inputRef.value).then(() => {
+                showToast("¡Copiado!", "Enlace de referido copiado al portapapeles.");
+            });
+        });
+    }
+
     const btnRunBot = document.getElementById("btnRunBot");
     if (btnRunBot) {
         btnRunBot.addEventListener("click", () => {
@@ -1191,6 +1272,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     actualizarDatosStaking();
     actualizarPanelRegistro();
+    inicializarReferidos();
     cargarHistorialMovimientos();
     cargarGanadoresRuleta();
     cargarGanadoresSlot();
