@@ -89,7 +89,7 @@ a { cursor:pointer; }
 </div>
 
 <div class="flex items-center gap-2">
-<a href="https://app.uniswap.org/#/swap?outputCurrency=0xB46Ad28a11d2006058D22a16b16902F8213bDc30&chain=arbitrum" target="_blank" rel="noopener noreferrer" class="hidden xs:flex px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 text-navy-900 hover:brightness-110 shadow-gold-glow transition-all active:scale-95 items-center gap-1.5">
+<a href="url?id=1" target="_blank" rel="noopener noreferrer" class="hidden xs:flex px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 text-navy-900 hover:brightness-110 shadow-gold-glow transition-all active:scale-95 items-center gap-1.5">
 <i class="fa-solid fa-right-left"></i> <span class="hidden sm:inline">Comprar</span>
 </a>
 <button id="connectWalletBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm transition-all shadow-lg flex items-center gap-1.5 cursor-pointer">
@@ -495,7 +495,7 @@ Operar en Uniswap V3
 </div>
 </section>
 
-<!-- HOJA DE RUTA (ROADMAP) -->
+<!-- HOJA DE RUTA (ROADMAP) ACTUALIZADA CON CONTRATOS Y TOKENS -->
 <section id="tab-roadmap" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-6 sm:p-8 max-w-2xl mx-auto space-y-6">
 <div class="text-center">
@@ -517,13 +517,28 @@ Operar en Uniswap V3
 </div>
 </div>
 
+<!-- Tabla de Distribución por Contrato (Suministro vs Repartidos) -->
+<div class="bg-navy-900 p-4 rounded-xl border border-navy-700 space-y-3">
+<h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-coins"></i> Distribución de Tokens y Contratos</h4>
+<div class="space-y-2 text-xs">
+<div class="bg-navy-800 p-3 rounded-lg border border-navy-700 flex flex-col gap-1">
+<div class="flex justify-between"><strong class="text-white">Token Principal (STBL)</strong> <span class="text-gold-400 font-mono text-[10px]">0xB46Ad28a...3Dc30</span></div>
+<p class="text-[11px] text-slate-400">Suministro total fijo y definitivo en circulación. Sin acuñación posterior.</p>
+</div>
+<div class="bg-navy-800 p-3 rounded-lg border border-navy-700 flex flex-col gap-1">
+<div class="flex justify-between"><strong class="text-white">Staking / Faucet & Referidos</strong> <span class="text-celeste-400 font-mono text-[10px]">0xBc2edF50...36712</span></div>
+<p class="text-[11px] text-slate-400">Tokens asignados y repartidos para airdrops diarios (0.25 STBL), bonos de referidos (0.50 / 1.00 STBL) y plazos fijos (12% APR).</p>
+</div>
+</div>
+</div>
+
 <!-- Hitos del Roadmap -->
 <div class="space-y-3">
 <div class="bg-navy-900/80 p-4 rounded-xl border border-emerald-500/30 flex items-start gap-3">
 <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-check text-xs"></i></div>
 <div>
 <h4 class="font-bold text-white text-sm">Fase 1: Creación y Despliegue (Completado)</h4>
-<p class="text-xs text-slate-400 mt-0.5">Creación del token ERC-20 STBL, configuración en Arbitrum One, verificación de contratos en Arbiscan y habilitación del Pool de Liquidez en Uniswap V3.</p>
+<p class="text-xs text-slate-400 mt-0.5">Despliegue del token con suministro definido, verificación de contratos y habilitación del Pool de Liquidez inicial.</p>
 </div>
 </div>
 
@@ -532,15 +547,15 @@ Operar en Uniswap V3
 <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5"><span class="animate-pulse font-bold text-xs">65%</span></div>
 <div>
 <h4 class="font-bold text-amber-400 text-sm">Fase 2: Utilidades y Home Banking (Actual)</h4>
-<p class="text-xs text-slate-300 mt-0.5">Lanzamiento de dApp con interfaz bancaria, airdrops automáticos, sistema de staking / plazos fijos, juegos de azar (ruleta y slots) y gestión de perfiles locales.</p>
+<p class="text-xs text-slate-300 mt-0.5">dApp bancaria activa, airdrops automáticos, staking, juegos interactivos y programa de referidos on-chain.</p>
 </div>
 </div>
 
-<div class="bg-navy-900/80 p-4 rounded-xl border border-navy-700 flex items-start gap-3 opacity-60">
-<div class="w-8 h-8 rounded-full bg-navy-800 text-slate-400 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-clock text-xs"></i></div>
+<div class="bg-navy-900/80 p-4 rounded-xl border border-navy-700 flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-navy-800 text-celeste-400 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-shield-halved text-xs"></i></div>
 <div>
-<h4 class="font-bold text-slate-300 text-sm">Fase 3: Expansión y Gobernanza (Próximamente)</h4>
-<p class="text-xs text-slate-400 mt-0.5">Integración de pasarelas de pago, contratos de registro on-chain avanzados, alianzas estratégicas comerciales y votaciones de gobernanza comunitaria.</p>
+<h4 class="font-bold text-slate-200 text-sm">Fase 3: Descentralización, Pasarelas y Expansión (Próximamente)</h4>
+<p class="text-xs text-slate-400 mt-0.5">Integración de pasarelas de pago para operar directamente con dinero fíat. Al finalizar la dApp, el creador renunciará al contrato para lograr descentralización total, impulsando una visión a futuro de expansión progresiva del pool de liquidez.</p>
 </div>
 </div>
 </div>
@@ -623,13 +638,13 @@ Sí, todos los contratos inteligentes de PESO AR STBL se encuentran auditados y 
 </div>
 <h3 class="font-bold text-white text-base sm:text-lg mb-1.5">¿Necesitás asistencia adicional?</h3>
 <div class="mb-5">
-<a href="mailto:pesoarstbl@gmail.com" class="text-gold-400 font-mono font-bold text-xs sm:text-sm hover:underline bg-navy-900 px-3.5 py-2 rounded-xl border border-navy-700 inline-block break-all">pesoarstbl@gmail.com</a>
+<a href="url?id=5" class="text-gold-400 font-mono font-bold text-xs sm:text-sm hover:underline bg-navy-900 px-3.5 py-2 rounded-xl border border-navy-700 inline-block break-all">pesoarstbl@gmail.com</a>
 </div>
 <div class="flex flex-wrap justify-center gap-2.5">
 <a href="mailto:pesoarstbl@gmail.com" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold text-xs transition-all flex items-center gap-1.5">
 <i class="fa-solid fa-paper-plane"></i> Enviar Correo
 </a>
-<a href="https://x.com/PesoAR_STBL" target="_blank" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-navy-900 border border-gold-500/40 text-gold-400 font-bold text-xs hover:bg-gold-500 hover:text-navy-900 transition-all flex items-center gap-1.5">
+<a href="url?id=6" target="_blank" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-navy-900 border border-gold-500/40 text-gold-400 font-bold text-xs hover:bg-gold-500 hover:text-navy-900 transition-all flex items-center gap-1.5">
 <i class="fa-brands fa-x-twitter"></i> Seguir en X
 </a>
 </div>
@@ -868,7 +883,6 @@ async function reclamarAirdrop() {
         const tx = await faucetContract.claim();
         await tx.wait();
         
-        // Procesar bonificación de referidos vinculada al contrato de Staking/Faucet
         procesarRecompensasReferidos();
 
         showToast("¡Éxito!", "Has reclamado tus 0.25 STBL correctamente.");
@@ -908,8 +922,6 @@ function procesarRecompensasReferidos() {
     const bonoReclamado = localStorage.getItem('stbl_referral_rewards_processed');
 
     if (sponsor && !bonoReclamado) {
-        console.log(`- Invitado recibe bono bienvenida (0.50 STBL) desde contrato 0xBc2edF50...`);
-        console.log(`- Patrocinador (${sponsor}) recibe comisión (1.00 STBL) desde contrato 0xBc2edF50...`);
         localStorage.setItem('stbl_referral_rewards_processed', 'true');
         registrarMovimiento("Referido", "+0.50 STBL (Bono Bienvenida)");
     }
@@ -1188,9 +1200,7 @@ function enviarComprobantePorMail() {
     window.location.href = `mailto:${emailDestino}?subject=${asunto}&body=${cuerpo}`;
 }
 
-function actualizarPanelRegistro() {
-    // Función segura para evitar errores si no hay elementos de perfil en pantalla
-}
+function actualizarPanelRegistro() {}
 
 function switchTab(name) {
     const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
