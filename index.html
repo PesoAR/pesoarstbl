@@ -261,9 +261,9 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <section id="tab-faucet" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto text-center">
 <h3 class="font-bold text-base sm:text-lg mb-2 text-white"><i class="fa-solid fa-gift text-amber-400 mr-2"></i> Airdrop Diario (0.25 STBL)</h3>
-<p class="text-xs text-slate-400 mb-6">Reclamá tu beneficio diario autorizado por el contrato inteligente.</p>
+<p class="text-xs text-slate-400 mb-6">Reclamá tu beneficio diario autorizado por el contrato inteligente de Staking / Faucet.</p>
 <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 mb-6 text-left">
-<div class="flex justify-between text-xs"><span class="text-slate-400">Estado del Faucet:</span><span id="faucetTimer" class="text-emerald-400 font-mono font-bold">Disponible / Conectado</span></div>
+<div class="flex justify-between text-xs"><span class="text-slate-400">Contrato Faucet / Staking:</span><span class="text-gold-400 font-mono text-[10px]">0xBc2edF50...36712</span></div>
 </div>
 <button type="button" id="btnFaucet" class="w-full py-3 rounded-xl font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition-all shadow-lg cursor-pointer">Reclamar 0.25 STBL</button>
 </div>
@@ -282,7 +282,6 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 
 <div class="space-y-3">
 <label class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Tu Enlace Único de Referido</label>
-
 
 <!-- Input y Botón Copiar -->
 <div class="flex gap-2">
@@ -865,11 +864,11 @@ function cargarHistorialMovimientos() {
 async function reclamarAirdrop() {
     if (!userAddress) return showToast("Error", "Conecta tu billetera primero.");
     try {
-        showToast("Procesando", "Reclamando Airdrop...");
+        showToast("Procesando", "Reclamando Airdrop desde contrato 0xBc2edF50...");
         const tx = await faucetContract.claim();
         await tx.wait();
         
-        // Procesar bonificación de referidos si aplica
+        // Procesar bonificación de referidos vinculada al contrato de Staking/Faucet
         procesarRecompensasReferidos();
 
         showToast("¡Éxito!", "Has reclamado tus 0.25 STBL correctamente.");
@@ -909,14 +908,13 @@ function procesarRecompensasReferidos() {
     const bonoReclamado = localStorage.getItem('stbl_referral_rewards_processed');
 
     if (sponsor && !bonoReclamado) {
-        console.log(`- Invitado recibe bono bienvenida: 0.50 STBL`);
-        console.log(`- Patrocinador (${sponsor}) recibe comisión: 1.00 STBL`);
+        console.log(`- Invitado recibe bono bienvenida (0.50 STBL) desde contrato 0xBc2edF50...`);
+        console.log(`- Patrocinador (${sponsor}) recibe comisión (1.00 STBL) desde contrato 0xBc2edF50...`);
         localStorage.setItem('stbl_referral_rewards_processed', 'true');
         registrarMovimiento("Referido", "+0.50 STBL (Bono Bienvenida)");
     }
 }
 
-// Funciones para compartir directamente en WhatsApp y Correo
 function compartirWhatsApp() {
     const inputRef = document.getElementById('referralLink');
     const link = inputRef ? inputRef.value : "";
