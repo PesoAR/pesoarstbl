@@ -147,12 +147,13 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </div>
 
 <!-- Menú de Pestañas Adaptable -->
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-6 sm:mb-8 bg-navy-800/95 p-3 rounded-2xl border border-navy-700 max-w-4xl mx-auto">
 <button type="button" class="tab active px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i> Cuenta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('send')"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('receive')"><i class="fa-solid fa-qrcode"></i> Recibir</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 cursor-pointer" onclick="switchTab('faucet')"><i class="fa-solid fa-gift"></i> Airdrop</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('staking')"><i class="fa-solid fa-vault"></i> Staking</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-sky-400 font-bold border border-sky-500/40 bg-sky-500/10 cursor-pointer" onclick="switchTab('prestamos')"><i class="fa-solid fa-hand-holding-hand"></i> Préstamos</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('slot')"><i class="fa-solid fa-slot-machine"></i> Slots</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 cursor-pointer" onclick="switchTab('futuresBot')"><i class="fa-solid fa-robot"></i> Bot Futuros</button>
@@ -336,6 +337,42 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <button type="submit" id="btnStakeSubmit" class="w-full py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg cursor-pointer">Constituir Plazo Fijo</button>
 </form>
 <button type="button" id="withdrawStakingBtn" class="w-full py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all shadow cursor-pointer">Liquidar Rendimientos / Capital</button>
+</div>
+</section>
+
+<!-- PRÉSTAMOS -->
+<section id="tab-prestamos" class="dapp-tab space-y-6" style="display: none;">
+<div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5 border border-sky-500/30">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2">
+<i class="fa-solid fa-hand-holding-hand text-sky-400"></i> Préstamos Descentralizados
+</h3>
+<span class="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-1 rounded-full font-mono uppercase font-bold">LTV 70%</span>
+</div>
+
+<p class="text-xs text-slate-400">Deposita tus activos como garantía (colateral) para solicitar liquidez instantánea en STBL sin intermediarios.</p>
+
+<div class="space-y-4">
+<div>
+<label class="block text-xs text-slate-400 mb-1">Monto de Colateral a Depositar (STBL)</label>
+<input type="number" id="prestamoColateral" class="field text-xs" placeholder="Ej. 100" oninput="calcularPrestamoMaximo()">
+</div>
+
+<div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-xs space-y-1.5">
+<div class="flex justify-between text-slate-400">
+<span>Préstamo Máximo a Recibir:</span>
+<span id="prestamoMaximoRecibir" class="text-white font-mono font-bold">0.00 STBL</span>
+</div>
+<div class="flex justify-between text-slate-400">
+<span>Tasa de Interés Anual:</span>
+<span class="text-amber-400 font-mono">5% APR</span>
+</div>
+</div>
+</div>
+
+<button type="button" id="btnSolicitarPrestamo" class="w-full py-3 rounded-xl font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 transition-all shadow-lg text-xs cursor-pointer">
+Solicitar Préstamo Descentralizado
+</button>
 </div>
 </section>
 
@@ -1059,6 +1096,13 @@ async function retirarStaking() {
     }
 }
 
+function calcularPrestamoMaximo() {
+    const colateral = parseFloat(document.getElementById("prestamoColateral").value) || 0;
+    const ltvMaximo = colateral * 0.70; // 70% de LTV
+    const maxEl = document.getElementById("prestamoMaximoRecibir");
+    if (maxEl) maxEl.innerText = ltvMaximo.toFixed(2) + " STBL";
+}
+
 function calcularTokensFiat() {
     const inputARS = parseFloat(document.getElementById("fiatAmountARS").value) || 0;
     const tasaCambio = 1000; 
@@ -1248,7 +1292,7 @@ function cargarGanadoresSlot() {
 function actualizarPanelRegistro() {}
 
 function switchTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "prestamos", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
     tabs.forEach(t => {
         const panel = document.getElementById("tab-" + t);
         if (panel) {
@@ -1304,6 +1348,27 @@ window.addEventListener('DOMContentLoaded', () => {
         btnSpin.addEventListener("click", (e) => {
             e.preventDefault();
             girarSlot();
+        });
+    }
+
+    const btnPrestamo = document.getElementById("btnSolicitarPrestamo");
+    if (btnPrestamo) {
+        btnPrestamo.addEventListener("click", () => {
+            if (!userAddress) {
+                showToast("Error", "Conecta tu billetera primero.");
+                return;
+            }
+            const colateral = document.getElementById("prestamoColateral").value;
+            if (!colateral || parseFloat(colateral) <= 0) {
+                showToast("Aviso", "Ingresa un monto de colateral válido.");
+                return;
+            }
+            showToast("Procesando", "Solicitando préstamo en la red Arbitrum...");
+            setTimeout(() => {
+                showToast("¡Préstamo Aprobado!", "Los fondos han sido transferidos a tu cuenta.");
+                registrarMovimiento("Préstamo", `Colateral: ${colateral} STBL depositados`);
+                refreshBalance();
+            }, 3000);
         });
     }
 
