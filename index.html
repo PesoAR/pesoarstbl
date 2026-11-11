@@ -154,12 +154,12 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 cursor-pointer" onclick="switchTab('faucet')"><i class="fa-solid fa-gift"></i> Airdrop</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('staking')"><i class="fa-solid fa-vault"></i> Staking</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-sky-400 font-bold border border-sky-500/40 bg-sky-500/10 cursor-pointer" onclick="switchTab('prestamos')"><i class="fa-solid fa-hand-holding-hand"></i> Préstamos</button>
+<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-purple-400 font-bold border border-purple-500/40 bg-purple-500/10 cursor-pointer" onclick="switchTab('tarjeta')"><i class="fa-solid fa-credit-card"></i> Tarjeta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('ruleta')"><i class="fa-solid fa-dice"></i> Ruleta</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer" onclick="switchTab('slot')"><i class="fa-solid fa-slot-machine"></i> Slots</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-gold-400 font-bold border border-gold-500/40 bg-gold-500/10 cursor-pointer" onclick="switchTab('futuresBot')"><i class="fa-solid fa-robot"></i> Bot Futuros</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-celeste-400 font-bold border border-celeste-500/40 bg-celeste-500/10 cursor-pointer" onclick="switchTab('investment')"><i class="fa-solid fa-hand-holding-dollar"></i> Invertir</button>
 <button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-emerald-400 font-bold border border-emerald-500/40 bg-emerald-500/10 cursor-pointer" onclick="switchTab('referral')"><i class="fa-solid fa-users"></i> Referidos</button>
-<button type="button" class="tab px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 text-amber-400 font-bold border border-amber-500/40 bg-amber-500/10 cursor-pointer" onclick="switchTab('roadmap')"><i class="fa-solid fa-map"></i> Roadmap</button>
 </div>
 
 <div class="max-w-4xl mx-auto">
@@ -340,39 +340,127 @@ Gestiona tus activos, realiza staking y transacciones instantáneas con la segur
 </div>
 </section>
 
-<!-- PRÉSTAMOS -->
+<!-- PRÉSTAMOS CONVENCIONALES -->
 <section id="tab-prestamos" class="dapp-tab space-y-6" style="display: none;">
 <div class="panel p-5 sm:p-6 max-w-xl mx-auto space-y-5 border border-sky-500/30">
 <div class="flex items-center justify-between">
 <h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2">
-<i class="fa-solid fa-hand-holding-hand text-sky-400"></i> Préstamos Descentralizados
+<i class="fa-solid fa-hand-holding-dollar text-sky-400"></i> Préstamos Personales (Convencionales)
 </h3>
-<span class="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-1 rounded-full font-mono uppercase font-bold">LTV 70%</span>
+<span class="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-1 rounded-full font-mono uppercase font-bold">Sin Garantía</span>
 </div>
 
-<p class="text-xs text-slate-400">Deposita tus activos como garantía (colateral) para solicitar liquidez instantánea en STBL sin intermediarios.</p>
+<p class="text-xs text-slate-400">Solicita un crédito inmediato en STBL y devuélvelo en cuotas mensuales con tasa fija.</p>
 
 <div class="space-y-4">
 <div>
-<label class="block text-xs text-slate-400 mb-1">Monto de Colateral a Depositar (STBL)</label>
-<input type="number" id="prestamoColateral" class="field text-xs" placeholder="Ej. 100" oninput="calcularPrestamoMaximo()">
+<label class="block text-xs text-slate-400 mb-1">Monto a Solicitar (STBL)</label>
+<input type="number" id="prestamoMonto" class="field text-xs" placeholder="Ej. 500" oninput="calcularCuotasPrestamo()">
+</div>
+
+<div>
+<label class="block text-xs text-slate-400 mb-1">Plazo de Devolución</label>
+<select id="prestamoPlazo" class="field text-xs" onchange="calcularCuotasPrestamo()">
+<option value="1">1 Cuota (30 días - 5% interés)</option>
+<option value="3" selected>3 Cuotas Mensuales (12% total)</option>
+<option value="6">6 Cuotas Mensuales (25% total)</option>
+</select>
 </div>
 
 <div class="bg-navy-900 p-3.5 rounded-xl border border-navy-700 text-xs space-y-1.5">
 <div class="flex justify-between text-slate-400">
-<span>Préstamo Máximo a Recibir:</span>
-<span id="prestamoMaximoRecibir" class="text-white font-mono font-bold">0.00 STBL</span>
+<span>Total a Devolver:</span>
+<span id="prestamoTotalDevolver" class="text-white font-mono font-bold">0.00 STBL</span>
 </div>
 <div class="flex justify-between text-slate-400">
-<span>Tasa de Interés Anual:</span>
-<span class="text-amber-400 font-mono">5% APR</span>
+<span>Valor de la Cuota:</span>
+<span id="prestamoValorCuota" class="text-amber-400 font-mono font-bold">0.00 STBL</span>
 </div>
 </div>
 </div>
 
 <button type="button" id="btnSolicitarPrestamo" class="w-full py-3 rounded-xl font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 transition-all shadow-lg text-xs cursor-pointer">
-Solicitar Préstamo Descentralizado
+Solicitar Crédito Personal
 </button>
+</div>
+</section>
+
+<!-- TARJETA DE CRÉDITO REALISTA -->
+<section id="tab-tarjeta" class="dapp-tab space-y-6" style="display: none;">
+<div class="panel p-6 sm:p-8 max-w-xl mx-auto space-y-6 border border-purple-500/30">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-base sm:text-lg text-white flex items-center gap-2">
+<i class="fa-solid fa-credit-card text-purple-400"></i> Tarjeta de Crédito STBL
+</h3>
+<span class="text-[10px] bg-purple-500/25 text-purple-300 px-2.5 py-1 rounded-full font-mono uppercase font-bold">💳 Verificada</span>
+</div>
+
+<!-- Tarjeta Bancaria Realista -->
+<div class="relative w-full max-w-sm mx-auto h-52 bg-gradient-to-tr from-navy-900 via-purple-950 to-navy-800 rounded-2xl p-5 shadow-2xl border border-purple-500/40 flex flex-col justify-between overflow-hidden select-none">
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+<div class="flex justify-between items-center z-10">
+<span class="font-extrabold text-sm tracking-widest gold-gradient-text">PESO AR STBL</span>
+<i class="fa-solid fa-wifi text-slate-300 text-lg rotate-90"></i>
+</div>
+
+<div class="z-10 flex items-center gap-3">
+<div class="w-10 h-8 rounded bg-gradient-to-tr from-amber-300 to-yellow-500 border border-amber-200/40 shadow flex items-center justify-center">
+<div class="w-7 h-5 border border-amber-700/40 rounded-sm grid grid-cols-2 grid-rows-2 gap-px p-0.5">
+<div class="bg-amber-600/30"></div><div class="bg-amber-600/30"></div><div class="bg-amber-600/30"></div><div class="bg-amber-600/30"></div>
+</div>
+</div>
+</div>
+
+<div class="z-10">
+<div class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Número de Tarjeta</div>
+<div id="cardRealNumber" class="text-base sm:text-lg font-mono font-bold tracking-widest text-white drop-shadow">4582 •••• •••• 8821</div>
+</div>
+
+<div class="flex justify-between items-end z-10 text-xs">
+<div>
+<div class="text-[9px] text-slate-400 uppercase tracking-wider">Titular</div>
+<div id="cardRealHolder" class="font-bold text-white tracking-wide truncate max-w-[140px]">CONECTAR WALLET</div>
+</div>
+<div>
+<div class="text-[9px] text-slate-400 uppercase tracking-wider">Vencimiento</div>
+<div class="font-mono font-bold text-white">09/28</div>
+</div>
+<div>
+<div class="text-[9px] text-slate-400 uppercase tracking-wider">CVV</div>
+<div class="font-mono font-bold text-purple-300">•••</div>
+</div>
+</div>
+</div>
+
+<!-- Resumen y Línea de Crédito -->
+<div class="grid grid-cols-2 gap-3 bg-navy-900 p-4 rounded-xl border border-navy-700 text-xs">
+<div>
+<span class="text-slate-400 text-[11px] block">Límite Disponible:</span>
+<span id="cardAvailableLimit" class="text-emerald-400 font-bold font-mono text-sm">500.00 STBL</span>
+</div>
+<div>
+<span class="text-slate-400 text-[11px] block">Deuda Actual:</span>
+<span id="cardUsedBalance" class="text-amber-400 font-bold font-mono text-sm">0.00 STBL</span>
+</div>
+</div>
+
+<!-- Controles de Uso -->
+<div class="space-y-3">
+<div>
+<label class="block text-xs text-slate-400 mb-1">Monto a Consumir / Gastar</label>
+<input type="number" id="cardConsumeAmount" class="field text-xs" placeholder="Ej. 50">
+</div>
+
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button type="button" id="btnUsarTarjeta" class="py-3 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-lg text-xs cursor-pointer">
+Realizar Consumo
+</button>
+<button type="button" id="btnPagarResumen" class="py-3 rounded-xl font-bold bg-navy-800 border border-purple-500/40 text-purple-300 hover:bg-purple-500/20 transition-all text-xs cursor-pointer">
+Abonar Resumen
+</button>
+</div>
+</div>
 </div>
 </section>
 
@@ -745,6 +833,9 @@ let stakingContract = null, faucetContract = null, userAddress = null, decimals 
 let balanceHidden = false, lastFormattedBalance = "0,00 STBL";
 let ruletaDeg = 0;
 
+let limiteTotalTarjeta = 500.00;
+let saldoUtilizadoTarjeta = 0.00;
+
 function showToast(title, message) {
     const toast = document.getElementById('toast');
     if (!toast) return;
@@ -811,6 +902,7 @@ async function connectWallet() {
         updateInterface();
         await refreshBalance();
         await actualizarDatosStaking();
+        actualizarVistaTarjetaReal();
         actualizarPanelRegistro();
         inicializarReferidos();
         cargarHistorialMovimientos();
@@ -837,6 +929,7 @@ function disconnectWallet() {
     updateInterface();
     document.getElementById("balance").innerText = "0.00 STBL";
     actualizarDatosStaking();
+    actualizarVistaTarjetaReal();
     actualizarPanelRegistro();
     inicializarReferidos();
     cargarHistorialMovimientos();
@@ -868,6 +961,7 @@ function updateInterface() {
             new QRCode(qrContainer, { text: userAddress, width: 150, height: 150 });
         }
     }
+    actualizarVistaTarjetaReal();
 }
 
 async function refreshBalance() {
@@ -1096,11 +1190,47 @@ async function retirarStaking() {
     }
 }
 
-function calcularPrestamoMaximo() {
-    const colateral = parseFloat(document.getElementById("prestamoColateral").value) || 0;
-    const ltvMaximo = colateral * 0.70; // 70% de LTV
-    const maxEl = document.getElementById("prestamoMaximoRecibir");
-    if (maxEl) maxEl.innerText = ltvMaximo.toFixed(2) + " STBL";
+function calcularCuotasPrestamo() {
+    const monto = parseFloat(document.getElementById("prestamoMonto").value) || 0;
+    const plazoSelect = document.getElementById("prestamoPlazo");
+    const cuotas = parseInt(plazoSelect.value) || 1;
+    
+    let interesTotal = 0.05;
+    if (cuotas === 3) interesTotal = 0.12;
+    if (cuotas === 6) interesTotal = 0.25;
+
+    const totalConInteres = monto * (1 + interesTotal);
+    const valorCuota = totalConInteres / cuotas;
+
+    const totalEl = document.getElementById("prestamoTotalDevolver");
+    const cuotaEl = document.getElementById("prestamoValorCuota");
+
+    if (totalEl) totalEl.innerText = totalConInteres.toFixed(2) + " STBL";
+    if (cuotaEl) cuotaEl.innerText = valorCuota.toFixed(2) + " STBL " + (cuotas > 1 ? `(x ${cuotas})` : "");
+}
+
+function actualizarVistaTarjetaReal() {
+    const disponible = limiteTotalTarjeta - saldoUtilizadoTarjeta;
+    const elDisponible = document.getElementById("cardAvailableLimit");
+    const elUsado = document.getElementById("cardUsedBalance");
+    const elHolder = document.getElementById("cardRealHolder");
+    const elNumber = document.getElementById("cardRealNumber");
+
+    if (elDisponible) elDisponible.innerText = disponible.toFixed(2) + " STBL";
+    if (elUsado) elUsado.innerText = saldoUtilizadoTarjeta.toFixed(2) + " STBL";
+
+    if (userAddress) {
+        const cleanAddr = userAddress.replace("0x", "");
+        const part1 = cleanAddr.substring(0, 4);
+        const part4 = cleanAddr.substring(cleanAddr.length - 4);
+        if (elNumber) elNumber.innerText = `4582 ${part1} •••• ${part4}`;
+
+        const savedName = localStorage.getItem("profile_" + userAddress.toLowerCase());
+        if (elHolder) elHolder.innerText = savedName ? savedName.toUpperCase() : userAddress.substring(0, 10).toUpperCase() + "...";
+    } else {
+        if (elHolder) elHolder.innerText = "CONECTAR WALLET";
+        if (elNumber) elNumber.innerText = "4582 •••• •••• 8821";
+    }
 }
 
 function calcularTokensFiat() {
@@ -1292,7 +1422,7 @@ function cargarGanadoresSlot() {
 function actualizarPanelRegistro() {}
 
 function switchTab(name) {
-    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "prestamos", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
+    const tabs = ["dashboard", "send", "receive", "faucet", "staking", "prestamos", "tarjeta", "ruleta", "slot", "futuresBot", "investment", "referral", "roadmap"];
     tabs.forEach(t => {
         const panel = document.getElementById("tab-" + t);
         if (panel) {
@@ -1358,17 +1488,64 @@ window.addEventListener('DOMContentLoaded', () => {
                 showToast("Error", "Conecta tu billetera primero.");
                 return;
             }
-            const colateral = document.getElementById("prestamoColateral").value;
-            if (!colateral || parseFloat(colateral) <= 0) {
-                showToast("Aviso", "Ingresa un monto de colateral válido.");
+            const monto = document.getElementById("prestamoMonto").value;
+            if (!monto || parseFloat(monto) <= 0) {
+                showToast("Aviso", "Ingresa un monto válido para el préstamo.");
                 return;
             }
-            showToast("Procesando", "Solicitando préstamo en la red Arbitrum...");
+            showToast("Procesando", "Acreditando crédito en tu cuenta...");
             setTimeout(() => {
-                showToast("¡Préstamo Aprobado!", "Los fondos han sido transferidos a tu cuenta.");
-                registrarMovimiento("Préstamo", `Colateral: ${colateral} STBL depositados`);
+                showToast("¡Crédito Aprobado!", "Los fondos han sido transferidos a tu balance.");
+                registrarMovimiento("Préstamo Personal", `+${monto} STBL acreditados`);
                 refreshBalance();
             }, 3000);
+        });
+    }
+
+    const btnUsarTarjeta = document.getElementById("btnUsarTarjeta");
+    if (btnUsarTarjeta) {
+        btnUsarTarjeta.addEventListener("click", () => {
+            if (!userAddress) {
+                showToast("Error", "Conecta tu billetera primero para usar la tarjeta.");
+                return;
+            }
+            const consumo = parseFloat(document.getElementById("cardConsumeAmount").value) || 0;
+            const disponible = limiteTotalTarjeta - saldoUtilizadoTarjeta;
+
+            if (consumo <= 0) {
+                showToast("Aviso", "Ingresa un monto válido para consumir.");
+                return;
+            }
+            if (consumo > disponible) {
+                showToast("Error", "El monto supera tu límite de crédito disponible.");
+                return;
+            }
+
+            saldoUtilizadoTarjeta += consumo;
+            actualizarVistaTarjetaReal();
+            showToast("¡Compra Aprobada!", `Consumo por ${consumo} STBL procesado con éxito.`);
+            registrarMovimiento("Tarjeta STBL", `Compra con tarjeta: -${consumo} STBL`);
+            document.getElementById("cardConsumeAmount").value = "";
+        });
+    }
+
+    const btnPagarResumen = document.getElementById("btnPagarResumen");
+    if (btnPagarResumen) {
+        btnPagarResumen.addEventListener("click", () => {
+            if (!userAddress) {
+                showToast("Error", "Conecta tu billetera primero.");
+                return;
+            }
+            if (saldoUtilizadoTarjeta <= 0) {
+                showToast("Aviso", "No tienes saldo pendiente en tu resumen.");
+                return;
+            }
+
+            const pago = saldoUtilizadoTarjeta;
+            saldoUtilizadoTarjeta = 0.00;
+            actualizarVistaTarjetaReal();
+            showToast("¡Resumen Abonado!", "Tu línea de crédito ha sido restablecida al 100%.");
+            registrarMovimiento("Pago Resumen", `Resumen de tarjeta abonado: ${pago} STBL`);
         });
     }
 
@@ -1437,6 +1614,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     actualizarDatosStaking();
+    actualizarVistaTarjetaReal();
     actualizarPanelRegistro();
     inicializarReferidos();
     cargarHistorialMovimientos();
